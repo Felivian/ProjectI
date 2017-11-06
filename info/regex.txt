@@ -1,0 +1,36 @@
+(reinhardt|rein|rain|wilhelm)
+(roadhog|hog|road|mako|rutledge)
+(dva|d.va|hana|song)
+(winston|monkey|gorilla|scientist)
+(orisa|ori|anchora)
+(zarya|aleksandra|zaryanova)
+
+(zenyatta|zen)
+(ana|nana|anna)
+(mercy|angela|ziegler)
+(lucio|frog|lúcio|correia|santos)
+(symmetra|symm|sym|satya|vaswani)
+
+(genji|gengu)
+(soldier|76|jack|morrison|dad|69)
+(sombra|arg)
+(mccree|mcree|mccre|mcre|jesse)
+(reaper|gabriel|reyes)
+(tracer|lena|oxton)
+(pharah|fareeha)
+(doomfist|doom|fist|df|akande|ogundimu)
+
+(widowmaker|widow|amélie|amelie|lacroix)
+(hanzo)
+(torbjörn|torbjorn|torb|lindholm)
+(bastion|e54)
+(junkrat|junk|rat|jamison|fawkes)
+(mei|ling|zhou)
+
+battletag 1
+[^\s\!\@\#\$\%\^\&\*\(\)\_\+\-\=\[\{\]\}\;\:\'\"\|\\\,\<\.\>\/\?\`\~]{3,12}#[0-9]+
+
+battletag 2
+^[^0-9]
+
+!convo.get('battletag').match(/^[^0-9]/)

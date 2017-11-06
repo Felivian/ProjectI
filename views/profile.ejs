@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
+    <title>Node Authentication</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <style>
+        body        { padding-top:80px; word-wrap:break-word; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="page-header text-center">
+        <h1><span class="fa fa-anchor"></span> Profile Page</h1>
+        <a href="/logout" class="btn btn-default btn-sm logout">Logout</a>
+    </div>
+
+    <div class="row">
+
+        <!-- LOCAL INFORMATION -->
+        <div class="col-sm-6">
+            <div class="well">
+                <h3><span class="fa fa-user"></span> Local</h3>
+
+                <% if (user.local.email) { %>
+                    <p>
+                        <strong>id</strong>: <%= user._id %><br>
+                        <strong>email</strong>: <%= user.local.email %><br>
+                        <strong>password</strong>: <%= user.local.password %>
+                    </p>
+                    
+                    <a href="/unlink/local" class="btn btn-default">Unlink</a>
+                <% } else { %>
+                    <a href="/connect/local" class="btn btn-default">Connect Local</a>
+                <% } %>
+
+            </div>
+        </div>
+    </div>
+	
+    <div class="row">
+    <!-- FACEBOOK INFORMATION -->
+        <div class="col-sm-6">
+            <div class="well">
+                <h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
+
+                <!-- check if the user has this token (is the user authenticated with this social account) -->
+                <% if (user.facebook.token) { %>
+                    <p>
+                        <strong>id</strong>: <%= user.facebook.id %><br>
+                        <strong>token</strong>: <%= user.facebook.token %><br>
+                        <strong>email</strong>: <%= user.facebook.email %><br>
+                        <strong>name</strong>: <%= user.facebook.name %><br>
+                    </p>
+                    <a href="/unlink/facebook" class="btn btn-primary">Unlink</a>
+                <% } else { %>
+                    <a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
+                <% } %>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    <!-- FACEBOOK INFORMATION -->
+        <div class="col-sm-6">
+            <div class="well">
+                <h3 class="text-danger"><span class="fa fa-google-plus"></span> Google+</h3>
+
+                <!-- check if the user has this token (is the user authenticated with this social account) -->
+                <% if (user.messenger.id) { %>
+                    <p>
+                        <strong>id</strong>: <%= user.messenger.id %><br>
+                        <strong>token</strong>: <%= user.messenger.first_name %><br>
+                        <strong>email</strong>: <%= user.messenger.last_name %><br>
+                        <strong>name</strong>: <%= user.messenger.profile_pic %><br>
+                    </p>
+                    <a href="/unlink/messenger" class="btn btn-danger">Unlink</a>
+                <% } else { %>
+                    <a href="/connect/messenger" class="btn btn-danger">Connect Google+</a>
+                <% } %>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <button class="addfriend">addfriend</button>
+        <button class="friendReqAck" disabled>friendReqAck</button>
+        <!--<button class="sendmessage">sendmessage</button>
+        
+        <button class="getConversations">getConversations</button>
+        <button class="getMoreMessages">getMoreMessages</button>-->
+    </div>
+
+</div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+socket = io.connect('http://localhost:8080');
+	$(document).ready(function() {
+		$(".addfriend").click(function() {
+            $.ajax({
+                url: '/addfriend',
+                type: 'POST',
+                data: {email: 'mateusz.hekert@gmail.com'},
+                success:  function(json) { 
+                    console.log(json); 
+                    socket.emit('newFriendReq', json);
+                }
+            });
+		});
+        $(".friendReqAck").click(function() {
+            $.ajax({
+                url: '/ackfriend',
+                type: 'POST',
+                data: {to: sessionStorage.to, from: sessionStorage.from},
+                success:  function() { 
+                    console.log('najsu');
+                }
+            });
+        });
+
+		/*$(".sendmessage").click(function() {
+			//message client to server
+			socket.emit('message-c2s', {conversation: '59b15a0e6b497e1b1443b2db', body: 'test123'});
+		});
+
+        $(".getConversations").click(function() {
+            socket.emit('getConversations1', {'some':'thing'});
+        });
+        $(".getMoreMessages").click(function() {
+            //conversation id + messages quantity
+            socket.emit('getMoreMessages1', {id:'59b15a0e6b497e1b1443b2db', qt:'20'}); 
+        });*/
+        $(".logout").click(function() {
+            //closing connection
+             socket.close();
+        });
+	});
+	
+
+socket.on('gotNewFriendReq', function (data) {
+    $('.friendReqAck').attr("disabled", false);
+    sessionStorage.from=data.from;
+    sessionStorage.to=data.to;
+    console.log(sessionStorage);
+});
+
+
+/*socket.on('message-s2c', function (data) {
+    console.log(data);
+    var isread=false;
+    for (var i=0; i<data.read.length; i++) {
+        //console.log(data.read[i].by);
+        if (data.read[i].by == '<%= user._id %>') isread=true;
+    }
+    if (!isread) socket.emit('message-read', {user_id: '<%= user._id %>', conversation: '59b15a0e6b497e1b1443b2db', sent: data.sent, message_id: data.id});
+});
+
+socket.on('message-update', function(data) {
+    console.log(data);
+});
+
+
+socket.on('status', function(data) {
+    console.log(data);
+});
+
+socket.on('getConversations2', function(data) {
+    console.log(data);
+});
+
+socket.on('getMoreMessages2', function(data) {
+    console.log(data);
+});*/
+
+</script>
+
+</body>
+</html>
