@@ -27,15 +27,6 @@ var userSchema = mongoose.Schema({
     ow_sr            : Number,
     heroes           : [String],
     active           : {
-        mon          : [Number],
-        tue          : [Number],
-        wed          : [Number],
-        thu          : [Number],
-        fri          : [Number],
-        sat          : [Number],
-        sun          : [Number]
-    },
-    m_active         : {
         mon          : [{hour:Number,chance:Number}],
         tue          : [{hour:Number,chance:Number}],
         wed          : [{hour:Number,chance:Number}],

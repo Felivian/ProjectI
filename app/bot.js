@@ -1,6 +1,7 @@
 module.exports = function(app, bot, mongoose, q) {
 	var sh 		= require("shorthash");
 	var User 	= require('../app/models/user');
+	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
 	//bot.say(1493247637377838, 'test');
 
@@ -55,6 +56,7 @@ module.exports = function(app, bot, mongoose, q) {
 
 
 	bot.hear('ow', (payload, chat) => {
+		
 		q.push({name: 'foo'}, function(err) {
 		    console.log('finished processing foo');
 		});
