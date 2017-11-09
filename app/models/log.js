@@ -9,12 +9,13 @@ var logSchema = mongoose.Schema({
 	active			: Boolean,
 	success			: Boolean,
 	start			: Date,
-	end 			: Date,
+	end				: Date,
 	mode 			: String,
-	matched			: [mongoose.Schema.Types.ObjectId]
+	matches			: [mongoose.Schema.Types.ObjectId],
+	fillters		: [String]
 });
 logSchema.index({ start: 1});
 
 
 // create the model for users and expose it to our app
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Log', logSchema);

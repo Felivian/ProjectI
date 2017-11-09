@@ -1,5 +1,5 @@
 module.exports = function(app, bot, mongoose, q) {
-	var sh 		= require("shorthash");
+	var sh 		= require('shorthash');
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
@@ -52,15 +52,41 @@ module.exports = function(app, bot, mongoose, q) {
 
 	bot.hear('about', (payload, chat) => {
 		chat.say('ProjectI bot', { typing: true });
+		/*chat.getUserProfile().then((muser) => {
+			console.log(muser);
+		})*/
 	});
 
 
 	bot.hear('ow', (payload, chat) => {
-		
-		q.push({name: 'foo'}, function(err) {
-		    console.log('finished processing foo');
-		});
+		//if user exists or smth
 		chat.say('Got it', { typing: true });
+
+		var newLog = new Log();
+		chat.getUserProfile().then((muser) => {
+			User.findOne({'messenger.id': muser.id}, function (err, user) {
+				newLog.user_id = user._id;
+				newLog.start = new Date();
+				newLog.active = true;
+				//console.log(newLog);
+				newLog.save(function(err) {
+                	if (err) throw err;
+                });
+			}).then(function() {
+				//console.log(newLog);
+				/*Log.find({ 'active':'true', 'start': {"$lte" : newLog.start}  } , function(err, log){
+					for(var i=0;i<log.length;i++) {
+						q.push({log_id: log._id, user_id: log.user_id}, function(err) {
+							//console.log('finished processing '+x);
+						});
+					}
+				});*/
+				q.push({log_id: newLog._id, user_id: newLog.user_id}, function(err) {
+		    		console.log('finished processing '+newLog._id);
+				});
+			});
+		});
+		
 	});
 
 
@@ -70,4 +96,5 @@ module.exports = function(app, bot, mongoose, q) {
 			chat.say(sh.unique(user.id), { typing: true });
 		});
 	});
+
 };

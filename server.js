@@ -19,13 +19,15 @@ var server          = require('http').createServer(app);
 var io              = require('socket.io').listen(server);
 
 var session         = require('express-session');
-//var schedule        = require('node-schedule');
-var sh              = require("shorthash");
+var schedule        = require('node-schedule');
+var sh              = require('shorthash');
 
 var configDB        = require('./config/database.js');
 var configAuth      = require('./config/auth.js');
 
 var async           = require('async');
+
+var Log             = require('./app/models/log');
 
 // configuration ===============================================================
 //mongoose.connect(configDB.url); // connect to our database
@@ -78,8 +80,42 @@ var bot = new BootBot({
 });
 
 
+
 var q = async.queue(function(task, callback) {
-    console.log('hello ' + task.name);
+    //console.log('hello ' + task.log_id);
+    //console.log(task.log_id);
+    Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
+      Log.find({'_id': {$ne: task.log_id} , 'active':'true'}, function(err, log){
+        //if (!log) throw(err)
+        if(log.length >= 2) { //change number
+          //match();
+          for(var i=0;i<2;i++) {
+            actualLog.matches.push(log[i].user_id);
+            log[i].matches.push(actualLog.user_id);
+            for(var j=0;j<2;j++) {
+              if (log[i]._id != log[j]._id) {
+                log[i].matches.push(log[j].user_id);
+              }
+            }
+            log[i].active = false;
+            log[i].success = true;
+            console.log(log[i]);
+            log[i].save(function(err, updatedLog){
+              console.log('log['+i+'] saved!');
+            });
+          }
+          actualLog.active = false;
+          actualLog.success = true;
+          actualLog.save(function(err, updatedActualLog){
+            console.log('ActualLog saved!');
+          });
+        } else {
+          //not found
+          //serch in user DB
+        }
+      });
+    });
+
     callback();
 }, 1);
 
@@ -88,8 +124,9 @@ q.drain = function() {
 };
 
 
+
 // schedules ======================================================================
-//require('./app/schedules.js')(app, session, mongoose, schedule);
+require('./app/schedules.js')(app, mongoose, schedule, q);
 
 // routes ======================================================================
 require('./app/routes.js')(app, passport, session, mongoose); // load our routes and pass in our app and fully configured passport
