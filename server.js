@@ -82,6 +82,48 @@ var bot = new BootBot({
 
 
 var q = async.queue(function(task, callback) {
+  insideQ_OW(task, callback);
+  console.log('here 10');
+  //callback();
+}, 1);
+
+
+q.drain = function() {
+    console.log('all items have been processed');
+};
+
+/*var q2 = async.queue(function(task, callback) {
+  console.log('processing '+task.sid);
+  //console.log(task.sid);
+  setTimeout(function() {
+    console.log('processing part 2. '+task.sid);
+    callback();
+  },10000); 
+}, 1);
+
+q2.drain = function() {
+    console.log('all items have been processed');
+};*/
+
+// schedules ======================================================================
+require('./app/schedules.js')(app, mongoose, schedule, q);
+
+// routes ======================================================================
+require('./app/routes.js')(app, passport, session, mongoose/*,q2*/); // load our routes and pass in our app and fully configured passport
+
+// socket.io ======================================================================
+//require('./app/socketio.js')(app, io, mongoose);
+
+// BootBot ======================================================================
+require('./app/bot.js')(app, bot, mongoose, q);
+
+// launch ======================================================================
+bot.start();
+server.listen(port);
+console.log('The magic happens on port ' + port);
+
+
+function insideQ_OW(task, callback) {
   Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
     console.log('here 1');
     Log.find({'_id': {$ne: task.log_id} , 'active':'true'}, function(err, log){
@@ -123,40 +165,4 @@ var q = async.queue(function(task, callback) {
       }
     });
   });
-  console.log('here 10');
-}, 1);
-
-
-q.drain = function() {
-    console.log('all items have been processed');
-};
-
-/*var q2 = async.queue(function(task, callback) {
-  console.log('processing '+task.sid);
-  //console.log(task.sid);
-  setTimeout(function() {
-    console.log('processing part 2. '+task.sid);
-    callback();
-  },10000); 
-}, 1);
-
-q2.drain = function() {
-    console.log('all items have been processed');
-};*/
-
-// schedules ======================================================================
-require('./app/schedules.js')(app, mongoose, schedule, q);
-
-// routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose/*,q2*/); // load our routes and pass in our app and fully configured passport
-
-// socket.io ======================================================================
-//require('./app/socketio.js')(app, io, mongoose);
-
-// BootBot ======================================================================
-require('./app/bot.js')(app, bot, mongoose, q);
-
-// launch ======================================================================
-bot.start();
-server.listen(port);
-console.log('The magic happens on port ' + port);
+}
