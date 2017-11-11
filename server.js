@@ -82,54 +82,73 @@ var bot = new BootBot({
 
 
 var q = async.queue(function(task, callback) {
-    //console.log('hello ' + task.log_id);
-    //console.log(task.log_id);
-    Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
-      Log.find({'_id': {$ne: task.log_id} , 'active':'true'}, function(err, log){
-        //if (!log) throw(err)
-        if(log.length >= 2) { //change number
-          //match();
-          for(var i=0;i<2;i++) {
-            actualLog.matches.push(log[i].user_id);
-            log[i].matches.push(actualLog.user_id);
-            for(var j=0;j<2;j++) {
-              if (log[i]._id != log[j]._id) {
-                log[i].matches.push(log[j].user_id);
-              }
+  Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
+    console.log('here 1');
+    Log.find({'_id': {$ne: task.log_id} , 'active':'true'}, function(err, log){
+      console.log('here 2');
+      //if (!log) throw(err)
+      if(log.length >= 2) { //change number
+        console.log('here 3');
+        //match();
+        for(var i=0;i<2;i++) {
+          console.log('here 4');
+          actualLog.matches.push(log[i]._id);//user
+          log[i].matches.push(actualLog._id);//
+          for(var j=0;j<2;j++) {
+            console.log('here 5');
+            if (i != j) {
+              console.log('here 6');
+              log[i].matches.push(log[j]._id);//
             }
-            log[i].active = false;
-            log[i].success = true;
-            console.log(log[i]);
-            log[i].save(function(err, updatedLog){
-              console.log('log['+i+'] saved!');
-            });
           }
-          actualLog.active = false;
-          actualLog.success = true;
-          actualLog.save(function(err, updatedActualLog){
-            console.log('ActualLog saved!');
+          console.log('here 7');
+          log[i].active = false;
+          log[i].success = true;
+          log[i].save(function(err, updatedLog){
+            console.log('log[i] saved!');
           });
-        } else {
-          //not found
-          //serch in user DB
         }
-      });
+        console.log('here 8');
+        actualLog.active = false;
+        actualLog.success = true;
+        actualLog.save(function(err, updatedActualLog){
+          console.log('ActualLog saved!');
+          callback();
+        });
+      } else {
+        console.log('here 9');
+        callback();
+        //not found
+        //serch in user DB
+      }
     });
-
-    callback();
+  });
+  console.log('here 10');
 }, 1);
+
 
 q.drain = function() {
     console.log('all items have been processed');
 };
 
+/*var q2 = async.queue(function(task, callback) {
+  console.log('processing '+task.sid);
+  //console.log(task.sid);
+  setTimeout(function() {
+    console.log('processing part 2. '+task.sid);
+    callback();
+  },10000); 
+}, 1);
 
+q2.drain = function() {
+    console.log('all items have been processed');
+};*/
 
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q);
 
 // routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose); // load our routes and pass in our app and fully configured passport
+require('./app/routes.js')(app, passport, session, mongoose/*,q2*/); // load our routes and pass in our app and fully configured passport
 
 // socket.io ======================================================================
 //require('./app/socketio.js')(app, io, mongoose);

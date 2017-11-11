@@ -10,9 +10,8 @@ module.exports = function(app, bot, mongoose, q) {
 			type: 'web_url',
 			title: 'Go to Website',
 			url: 'http://localhost:8080'
-		}
+		},
 	]);
-	
 	
 	bot.hear('hello', (payload, chat) => {
 		chat.conversation((convo) => {
@@ -71,6 +70,18 @@ module.exports = function(app, bot, mongoose, q) {
 				//console.log(newLog);
 				newLog.save(function(err) {
                 	if (err) throw err;
+                	/*setTimeout(function() {
+						console.log('processing part 1. ');
+					},10000); 
+					console.log('processing part 2. ');
+					q.push({log_id: newLog._id, user_id: newLog.user_id}, function(err) {
+			    		console.log('finished processing '+newLog._id);
+					});*/
+					Log.find({active: true}, function(err, log) {
+						for(var i=0; i<log.length; i++) { 
+							push2q(log[i]._id,log[i].user_id);
+						}
+					});
                 });
 			}).then(function() {
 				//console.log(newLog);
@@ -81,9 +92,7 @@ module.exports = function(app, bot, mongoose, q) {
 						});
 					}
 				});*/
-				q.push({log_id: newLog._id, user_id: newLog.user_id}, function(err) {
-		    		console.log('finished processing '+newLog._id);
-				});
+				
 			});
 		});
 		
@@ -96,5 +105,14 @@ module.exports = function(app, bot, mongoose, q) {
 			chat.say(sh.unique(user.id), { typing: true });
 		});
 	});
+
+
+
+
+	function push2q(x,y) {
+		q.push({log_id: x, user_id: y}, function(err) {
+			console.log('finished processing '+x);
+		});
+	}
 
 };

@@ -1,4 +1,4 @@
-module.exports = function(app, passport, session, mongoose) {
+module.exports = function(app, passport, session, mongoose/*,q2*/) {
 	var Session            	= require('../app/models/session');
 	var cookieParser 		= require('cookie-parser');
 	//cookie toucher
@@ -47,7 +47,12 @@ module.exports = function(app, passport, session, mongoose) {
         res.json({'test':'test'});
     });
 
-
+    /*app.get('/test3', function(req, res) {
+        console.log(req.session.id);
+        q2.push({'sid': req.session.id}, function(err) {
+            console.log('finished processing '+req.session.id);
+        });
+    });*/
 
 
     app.get('/login-test', function(req, res) {
