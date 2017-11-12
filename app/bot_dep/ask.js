@@ -81,7 +81,7 @@ module.exports = /*function(bot, mongoose, q) */{
 				convo.sendAction('mark_seen').then(() => module.exports.askBattletag(convo));
 			} else if (payload.message.text == 'Yes') {
 				convo.getUserProfile().then((m_user) => {
-					User.findOneAndUpdate({'messenger.id': m_user.id}, {$set:{'battletag': convo.get('battletag')[0]}}, function (err, user) {
+					User.findOneAndUpdate({'messenger.id': m_user.id}, {$set:{'overwatch.battletag': convo.get('battletag')[0]}}, function (err, user) {
 	 					if (err) convo.say('Sorry, error').then(() => module.exports.askBattletag(convo));
 	 					convo.say('Neat.').then(() => module.exports.askEnd(convo));
 	 				});
@@ -100,7 +100,7 @@ module.exports = /*function(bot, mongoose, q) */{
 				convo.say('That\'s not the SR we were looking for').then(() => module.exports.askSR(convo));
 			} else {
 				convo.getUserProfile().then((m_user) => {
-					User.findOneAndUpdate({'messenger.id': m_user.id}, {$set:{'ow_sr': convo.get('battletag')[0]}}, function (err, user) {
+					User.findOneAndUpdate({'messenger.id': m_user.id}, {$set:{'overwatch.SR': convo.get('battletag')[0]}}, function (err, user) {
 	 					if (err) convo.say('Sorry, error').then(() => module.exports.askBattletag(convo));
 	 					convo.say('K, m8.').then(() => module.exports.askEnd(convo));
 	 				});

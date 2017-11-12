@@ -23,9 +23,14 @@ var userSchema = mongoose.Schema({
         last_name    : String,
         profile_pic  : String
     },
-	battletag        : String,
-    ow_sr            : Number,
-    heroes           : [String],
+    overwatch        : {
+        battletag    : String,
+        SR           : Number,
+        platform     : String,
+        region       : String,
+        heroes       : [String]
+    },
+	
     active           : {
         mon          : [{hour:Number,chance:Number}],
         tue          : [{hour:Number,chance:Number}],

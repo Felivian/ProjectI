@@ -67,32 +67,25 @@ module.exports = function(app, bot, mongoose, q) {
 				newLog.user_id = user._id;
 				newLog.start = new Date();
 				newLog.active = true;
+
+				//game specific
+				newLog.game = 'overwatch';
+				newLog.platform = user.overwatch.platform;
+				newLog.region = user.overwatch.region;
+				newLog.rank_n = user.overwatch.SR;
+				newLog.mode.name = 'comp';
+				newLog.mode.players = 3;
+				//game specific
+
 				//console.log(newLog);
 				newLog.save(function(err) {
                 	if (err) throw err;
-                	/*setTimeout(function() {
-						console.log('processing part 1. ');
-					},10000); 
-					console.log('processing part 2. ');
-					q.push({log_id: newLog._id, user_id: newLog.user_id}, function(err) {
-			    		console.log('finished processing '+newLog._id);
-					});*/
 					Log.find({active: true}, function(err, log) {
 						for(var i=0; i<log.length; i++) { 
-							push2q(log[i]._id,log[i].user_id);
+							push2q(log[i]._id, log[i].user_id, newLog.game, newLog.platform, newLog.region, newLog.mode.name, newLog.mode.players);
 						}
 					});
                 });
-			}).then(function() {
-				//console.log(newLog);
-				/*Log.find({ 'active':'true', 'start': {"$lte" : newLog.start}  } , function(err, log){
-					for(var i=0;i<log.length;i++) {
-						q.push({log_id: log._id, user_id: log.user_id}, function(err) {
-							//console.log('finished processing '+x);
-						});
-					}
-				});*/
-				
 			});
 		});
 		
@@ -109,10 +102,39 @@ module.exports = function(app, bot, mongoose, q) {
 
 
 
-	function push2q(x,y) {
-		q.push({log_id: x, user_id: y}, function(err) {
-			console.log('finished processing '+x);
-		});
+	function push2q(x,y, game, platform, region, mode_name,mode_players) {
+		//do przerobienia... match json?
+		if (game == 'overwatch') {
+			if (platform == 'pc') {
+				if (region == 'eu') {
+					q[0].push({log_id: x, user_id: y}, function(err) {
+						console.log('finished processing '+x);
+					});
+				} else if (region == 'na') {
+					//q push
+				} else if (region == 'asia') {
+					//q push
+				}
+			} else if (platform == 'psn') {
+				if (region == 'eu') {
+					//q push
+				} else if (region == 'na') {
+					//q push
+				} else if (region == 'asia') {
+					//q push
+				}
+			} else if (platform == "xbl") {
+				if (region == 'eu') {
+					//q push
+				} else if (region == 'na') {
+					//q push
+				} else if (region == 'asia') {
+					//q push
+				}
+			}
+		}
+
+		//other games
 	}
 
 };

@@ -79,31 +79,19 @@ var bot = new BootBot({
   appSecret		: configAuth.messengerAuth.app_secret
 });
 
+var q = [];
 
-
-var q = async.queue(function(task, callback) {
+q[0] = async.queue(function(task, callback) {
   insideQ_OW(task, callback);
   console.log('here 10');
   //callback();
 }, 1);
 
 
-q.drain = function() {
+q[0].drain = function() {
     console.log('all items have been processed');
 };
 
-/*var q2 = async.queue(function(task, callback) {
-  console.log('processing '+task.sid);
-  //console.log(task.sid);
-  setTimeout(function() {
-    console.log('processing part 2. '+task.sid);
-    callback();
-  },10000); 
-}, 1);
-
-q2.drain = function() {
-    console.log('all items have been processed');
-};*/
 
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q);
@@ -125,44 +113,50 @@ console.log('The magic happens on port ' + port);
 
 function insideQ_OW(task, callback) {
   Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
-    console.log('here 1');
-    Log.find({'_id': {$ne: task.log_id} , 'active':'true'}, function(err, log){
-      console.log('here 2');
-      //if (!log) throw(err)
-      if(log.length >= 2) { //change number
-        console.log('here 3');
-        //match();
-        for(var i=0;i<2;i++) {
-          console.log('here 4');
-          actualLog.matches.push(log[i]._id);//user
-          log[i].matches.push(actualLog._id);//
-          for(var j=0;j<2;j++) {
-            console.log('here 5');
-            if (i != j) {
-              console.log('here 6');
-              log[i].matches.push(log[j]._id);//
+    if (!actualLog) { callback(); } else {
+      console.log('here 1');
+      console.log(task.log_id);
+      var maxSR = actualLog.rank_n + 200;
+      var minSR = actualLog.rank_n - 200;
+      Log.find({'_id': {$ne: task.log_id} , 'active':'true', 'game': actualLog.game, 'platform': actualLog.platform, 'region': actualLog.region, 'mode.name': actualLog.mode.name, 'mode.players': actualLog.mode.players, $or: [ { 'rank_n': {$lte: maxSR} }, { 'rank_n': {$gte: minSR} } ]}, function(err, log){
+        console.log('here 2');
+        //if (!log) throw(err)
+        console.log('log length: '+ log.length);
+        if(log.length >= actualLog.mode.players-1) { //change number
+          console.log('here 3');
+          //match();
+          for(var i=0;i<actualLog.mode.players-1;i++) {
+            console.log('here 4');
+            actualLog.matches.push(log[i]._id);//user
+            log[i].matches.push(actualLog._id);//
+            for(var j=0;j<actualLog.mode.players-1;j++) {
+              console.log('here 5');
+              if (i != j) {
+                console.log('here 6');
+                log[i].matches.push(log[j]._id);//
+              }
             }
+            console.log('here 7');
+            log[i].active = false;
+            log[i].success = true;
+            log[i].save(function(err, updatedLog){
+              console.log('log[i] saved!');
+            });
           }
-          console.log('here 7');
-          log[i].active = false;
-          log[i].success = true;
-          log[i].save(function(err, updatedLog){
-            console.log('log[i] saved!');
+          console.log('here 8');
+          actualLog.active = false;
+          actualLog.success = true;
+          actualLog.save(function(err, updatedActualLog){
+            console.log('ActualLog saved!');
+            callback();
           });
-        }
-        console.log('here 8');
-        actualLog.active = false;
-        actualLog.success = true;
-        actualLog.save(function(err, updatedActualLog){
-          console.log('ActualLog saved!');
+        } else {
+          console.log('here 9');
           callback();
-        });
-      } else {
-        console.log('here 9');
-        callback();
-        //not found
-        //serch in user DB
-      }
-    });
+          //not found
+          //serch in user DB
+        }
+      });
+    }
   });
 }

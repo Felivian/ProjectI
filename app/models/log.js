@@ -10,7 +10,17 @@ var logSchema = mongoose.Schema({
 	success			: Boolean,
 	start			: Date,
 	end				: Date,
-	mode 			: String,
+	
+	platform		: String,
+	region			: String,
+	game			: String,
+	mode 			: {
+		name		: String,
+		players		: Number
+	},
+	rank_s			: String,
+	rank_n			: Number,
+
 	matches			: [mongoose.Schema.Types.ObjectId],
 	fillters		: [String]
 });
