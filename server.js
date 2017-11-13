@@ -116,8 +116,8 @@ function insideQ_OW(task, callback) {
     if (!actualLog) { callback(); } else {
       console.log('here 1');
       console.log(task.log_id);
-      var maxSR = actualLog.rank_n + 200;
-      var minSR = actualLog.rank_n - 200;
+      var maxSR = actualLog.rank_n + 250;
+      var minSR = actualLog.rank_n - 250;
       Log.find({'_id': {$ne: task.log_id} , 'active':'true', 'game': actualLog.game, 'platform': actualLog.platform, 'region': actualLog.region, 'mode.name': actualLog.mode.name, 'mode.players': actualLog.mode.players, $or: [ { 'rank_n': {$lte: maxSR} }, { 'rank_n': {$gte: minSR} } ]}, function(err, log){
         console.log('here 2');
         //if (!log) throw(err)

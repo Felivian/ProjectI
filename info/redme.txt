@@ -1,3 +1,15 @@
 "C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe"
 node server.js
 npm run forward
+
+when multiple players: in db
+max_rank_n = avg(sr[])+200
+min_rank_n = avg(sr[])+200
+
+
+ZWYK£A ŒREDNIA LEPIEJ
+zmieniæ +-200 na +-250
+
+
+duo, tio, fullstack
+role tylko dla fullstacka
