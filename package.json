@@ -27,6 +27,7 @@
     "passport-twitter": "latest",
   	"bluebird": "latest",
   	"socket.io": "latest",
-    "shorthash": "latest"
+    "shorthash": "latest",
+    "underscore": "latest"
   }
 }

@@ -15,14 +15,15 @@ var logSchema = mongoose.Schema({
 	region			: String,
 	game			: String,
 	mode 			: {
-		name		: String,
-		players		: Number
+		name 		: String,
+		players 	: Number
 	},
 	rank_s			: String,
 	rank_n			: Number,
+	roles 			: [String],
 
-	matches			: [mongoose.Schema.Types.ObjectId],
-	fillters		: [String]
+	qd_players		: Number,
+	matches			: [mongoose.Schema.Types.ObjectId]
 });
 logSchema.index({ start: 1});
 

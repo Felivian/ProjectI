@@ -3,6 +3,10 @@ module.exports = function(app, bot, mongoose, q) {
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
+	var Roles 	= require('../app/roles');
+	var Qinfo 	= require('../config/Qinfo');
+	var _ 		= require('underscore');
+
 	//bot.say(1493247637377838, 'test');
 
 	bot.setPersistentMenu([
@@ -61,6 +65,19 @@ module.exports = function(app, bot, mongoose, q) {
 		//if user exists or smth
 		chat.say('Got it', { typing: true });
 
+		//data from user
+		var u_qd_players = 3;
+		var u_mode_players = 6
+		var u_mode_name = 'comp_'+u_mode_players;
+		var u_rank_arr = [2500,2100,2600];
+		var min = u_rank_arr.sort()[0];
+		var max = u_rank_arr.sort().reverse()[0];
+		var u_rank_n = Math.floor((max+min)/2);
+
+		var u_roles = [['d','h','t'],['d','h','t'],['d','h','t']];
+		//data from user
+
+
 		var newLog = new Log();
 		chat.getUserProfile().then((muser) => {
 			User.findOne({'messenger.id': muser.id}, function (err, user) {
@@ -72,9 +89,17 @@ module.exports = function(app, bot, mongoose, q) {
 				newLog.game = 'overwatch';
 				newLog.platform = user.overwatch.platform;
 				newLog.region = user.overwatch.region;
-				newLog.rank_n = user.overwatch.SR;
-				newLog.mode.name = 'comp';
-				newLog.mode.players = 3;
+
+				//change later
+				newLog.mode.name = u_mode_name;
+				newLog.mode.players = u_mode_players;
+				newLog.rank_n = u_rank_n;
+				newLog.qd_players = u_qd_players;
+				if (newLog.mode.players == 6) {
+					newLog.roles = Roles.getRoles(u_roles);
+				}
+				//change later
+
 				//game specific
 
 				//console.log(newLog);
@@ -102,39 +127,29 @@ module.exports = function(app, bot, mongoose, q) {
 
 
 
-	function push2q(x,y, game, platform, region, mode_name,mode_players) {
+	function push2q(x,y, game, platform, region, mode_name, mode_players) {
 		//do przerobienia... match json?
-		if (game == 'overwatch') {
-			if (platform == 'pc') {
-				if (region == 'eu') {
-					q[0].push({log_id: x, user_id: y}, function(err) {
-						console.log('finished processing '+x);
-					});
-				} else if (region == 'na') {
-					//q push
-				} else if (region == 'asia') {
-					//q push
-				}
-			} else if (platform == 'psn') {
-				if (region == 'eu') {
-					//q push
-				} else if (region == 'na') {
-					//q push
-				} else if (region == 'asia') {
-					//q push
-				}
-			} else if (platform == "xbl") {
-				if (region == 'eu') {
-					//q push
-				} else if (region == 'na') {
-					//q push
-				} else if (region == 'asia') {
-					//q push
-				}
-			}
-		}
-
-		//other games
+		var json = {
+            'game'      	: game,
+            'platform'  	: platform, 
+            'region'    	: region,
+            'mode'      	: {
+            	'name'		: mode_name,
+            	'players' 	: mode_players
+            } 
+        };
+        var i=0;
+        var Qfound = false;
+        do {
+        	if ( _.isEqual(Qinfo.queue[i], json) ) {
+        		console.log('test '+i);
+        		q[i].push({log_id: x, user_id: y, mode_players: mode_players}, function(err) {
+					console.log('finished processing '+x);
+				});
+				Qfound = true;
+        	}
+        	i++
+		} while( !Qfound && i<Qinfo.queue.length );
 	}
 
 };

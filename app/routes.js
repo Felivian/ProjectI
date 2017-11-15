@@ -40,8 +40,10 @@ module.exports = function(app, passport, session, mongoose/*,q2*/) {
         res.redirect('/');
     });
 
+    var Qinfo   = require('../config/Qinfo');
+
     app.get('/test1', function(req, res) {
-        res.json({'test':'test'});
+        res.json(Qinfo.queue.length);
     });
     app.post('/test2', function(req, res) {
         res.json({'test':'test'});

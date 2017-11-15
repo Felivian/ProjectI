@@ -24,10 +24,12 @@ var sh              = require('shorthash');
 
 var configDB        = require('./config/database.js');
 var configAuth      = require('./config/auth.js');
+var Qinfo           = require('./config/Qinfo');
 
 var async           = require('async');
 
 var Log             = require('./app/models/log');
+
 
 // configuration ===============================================================
 //mongoose.connect(configDB.url); // connect to our database
@@ -81,16 +83,22 @@ var bot = new BootBot({
 
 var q = [];
 
-q[0] = async.queue(function(task, callback) {
-  insideQ_OW(task, callback);
-  console.log('here 10');
-  //callback();
-}, 1);
+for (var i=0; i<Qinfo.queue.length; i++) {
+  q[i] = async.queue(function(task, callback) {
+    if (task.mode_players == 6) {
+      insideQ_OW6(task, callback);
+    } else {
+      insideQ_OW(task, callback);
+    }
+    console.log('here 10');
+    //callback();
+  }, 1);
 
 
-q[0].drain = function() {
-    console.log('all items have been processed');
-};
+  q[i].drain = function() {
+      console.log('all items have been processed');
+  };
+}
 
 
 // schedules ======================================================================
@@ -114,44 +122,44 @@ console.log('The magic happens on port ' + port);
 function insideQ_OW(task, callback) {
   Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
     if (!actualLog) { callback(); } else {
-      console.log('here 1');
-      console.log(task.log_id);
+      //console.log('here 1');
+      //console.log(task.log_id);
       var maxSR = actualLog.rank_n + 250;
       var minSR = actualLog.rank_n - 250;
       Log.find({'_id': {$ne: task.log_id} , 'active':'true', 'game': actualLog.game, 'platform': actualLog.platform, 'region': actualLog.region, 'mode.name': actualLog.mode.name, 'mode.players': actualLog.mode.players, $or: [ { 'rank_n': {$lte: maxSR} }, { 'rank_n': {$gte: minSR} } ]}, function(err, log){
-        console.log('here 2');
+        //console.log('here 2');
         //if (!log) throw(err)
         console.log('log length: '+ log.length);
         if(log.length >= actualLog.mode.players-1) { //change number
-          console.log('here 3');
+          //console.log('here 3');
           //match();
           for(var i=0;i<actualLog.mode.players-1;i++) {
-            console.log('here 4');
+            //console.log('here 4');
             actualLog.matches.push(log[i]._id);//user
             log[i].matches.push(actualLog._id);//
             for(var j=0;j<actualLog.mode.players-1;j++) {
-              console.log('here 5');
+              //console.log('here 5');
               if (i != j) {
-                console.log('here 6');
+                //console.log('here 6');
                 log[i].matches.push(log[j]._id);//
               }
             }
-            console.log('here 7');
+            //console.log('here 7');
             log[i].active = false;
             log[i].success = true;
             log[i].save(function(err, updatedLog){
-              console.log('log[i] saved!');
+              //console.log('log[i] saved!');
             });
           }
-          console.log('here 8');
+          //console.log('here 8');
           actualLog.active = false;
           actualLog.success = true;
           actualLog.save(function(err, updatedActualLog){
-            console.log('ActualLog saved!');
+            //console.log('ActualLog saved!');
             callback();
           });
         } else {
-          console.log('here 9');
+          //console.log('here 9');
           callback();
           //not found
           //serch in user DB
@@ -159,4 +167,7 @@ function insideQ_OW(task, callback) {
       });
     }
   });
+}
+
+function insideQ_OW6(task, callback) {
 }

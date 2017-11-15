@@ -181,14 +181,14 @@ module.exports = function(app, io, mongoose) {
 	}
 
 	function numClientsInRoom(namespace, room) {
-	try {
-    	var clients = io.nsps[namespace].adapter.rooms[room].sockets;
-    	return Object.keys(clients).length;
-    }
-    catch(err) {
-    	return 0;
-    }
-}
+		try {
+	    	var clients = io.nsps[namespace].adapter.rooms[room].sockets;
+	    	return Object.keys(clients).length;
+	    }
+	    catch(err) {
+	    	return 0;
+	    }
+	}
 
 };		
 

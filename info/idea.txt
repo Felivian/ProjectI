@@ -60,7 +60,8 @@ looking for:
 [dd, dh, dt, hh, tt]
 [d, h, t]
 
-
+looking for array:
+[ [ [ddhht, ddhtt, dhhtt] ], [ [ddhh, ddht, ddht, ddtt, dhht,dhht, dhtt,dhtt, hhtt], [t,t,h,h,d,t,h,t,d] ], ]
 
 
 

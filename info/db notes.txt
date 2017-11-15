@@ -1,0 +1,21 @@
+db.getCollection('logs').aggregate( [ { $unwind : "$matches" } ])
+
+
+db.getCollection('logs').aggregate([ { $group: {_id: "$active", pl: { $push: "$matches" } } } ])
+
+
+
+db.getCollection('logs').aggregate( [ { $unwind : "$matches" }, { $group: {_id: "$active", pl: { $push: "$matches" } } } ])
+
+
+
+
+
+db.getCollection('logs').aggregate([ 
+{ $unwind : "$matches" },
+{ $group: {_id: "$active", pl: { $push: "$matches" } } } ,
+{ $unwind : "$pl" },
+{ $match: {_id: { $exists: true } }},
+{ $group: {_id: "$pl" , count: { $sum: 1 } } }
+]
+)
