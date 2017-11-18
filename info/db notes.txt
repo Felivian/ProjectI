@@ -12,10 +12,10 @@ db.getCollection('logs').aggregate( [ { $unwind : "$matches" }, { $group: {_id: 
 
 
 db.getCollection('logs').aggregate([ 
-{ $unwind : "$matches" },
-{ $group: {_id: "$active", pl: { $push: "$matches" } } } ,
-{ $unwind : "$pl" },
+{ $unwind : "$roles" },
+{ $group: {_id: "$active", temp: { $push: "$roles" } } } ,
+{ $unwind : "$temp" },
 { $match: {_id: { $exists: true } }},
-{ $group: {_id: "$pl" , count: { $sum: 1 } } }
+{ $group: {_id: "$temp" , count: { $sum: 1 } } }
 ]
 )

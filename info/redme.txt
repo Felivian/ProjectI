@@ -13,3 +13,15 @@ zmieniæ +-200 na +-250
 
 duo, tio, fullstack
 role tylko dla fullstacka
+
+
+
+DODAÆ
+-Kontrola iloœci playerów (szukanie od maksymalnych grup?) -prawie
+-MAX SR i MIN SR - zrobione
+
+dla niego:
+(max+min)/2 +- 250
+
+dla innych:
+id (sr<=max && sr>=min)

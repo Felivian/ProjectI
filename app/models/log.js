@@ -20,6 +20,8 @@ var logSchema = mongoose.Schema({
 	},
 	rank_s			: String,
 	rank_n			: Number,
+	maxSR			: Number,
+	minSR			: Number,
 	roles 			: [String],
 
 	qd_players		: Number,

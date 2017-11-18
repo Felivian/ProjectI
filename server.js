@@ -24,12 +24,14 @@ var sh              = require('shorthash');
 
 var configDB        = require('./config/database.js');
 var configAuth      = require('./config/auth.js');
-var Qinfo           = require('./config/Qinfo');
 
 var async           = require('async');
 
-var Log             = require('./app/models/log');
 
+var Log             = require('./app/models/log');//
+
+var Qinfo           = require('./config/Qinfo');//
+var wG              = require('./app/whatGroups');//
 
 // configuration ===============================================================
 //mongoose.connect(configDB.url); // connect to our database
@@ -83,20 +85,23 @@ var bot = new BootBot({
 
 var q = [];
 
-for (var i=0; i<Qinfo.queue.length; i++) {
+for (var i=0; i<Qinfo.queue.length; i=i+3) {
   q[i] = async.queue(function(task, callback) {
-    if (task.mode_players == 6) {
-      insideQ_OW6(task, callback);
-    } else {
-      insideQ_OW(task, callback);
-    }
-    console.log('here 10');
-    //callback();
+    insideQ_OW2(task, callback);
   }, 1);
 
+  q[i+1] = async.queue(function(task, callback) {
+    insideQ_OW3(task, callback);
+  }, 1);
 
+  q[i+2] = async.queue(function(task, callback) {
+    insideQ_OW6(task, callback);
+  }, 1);
+}
+
+for (var i=0; i<Qinfo.queue.length; i++) {
   q[i].drain = function() {
-      console.log('all items have been processed');
+    console.log('all items have been processed');
   };
 }
 
@@ -119,47 +124,108 @@ server.listen(port);
 console.log('The magic happens on port ' + port);
 
 
-function insideQ_OW(task, callback) {
+function insideQ_OW2(task, callback) {
   Log.findOne({'_id': task.log_id, 'active':'true'}, function(err, actualLog){
     if (!actualLog) { callback(); } else {
-      //console.log('here 1');
-      //console.log(task.log_id);
-      var maxSR = actualLog.rank_n + 250;
-      var minSR = actualLog.rank_n - 250;
-      Log.find({'_id': {$ne: task.log_id} , 'active':'true', 'game': actualLog.game, 'platform': actualLog.platform, 'region': actualLog.region, 'mode.name': actualLog.mode.name, 'mode.players': actualLog.mode.players, $or: [ { 'rank_n': {$lte: maxSR} }, { 'rank_n': {$gte: minSR} } ]}, function(err, log){
-        //console.log('here 2');
+      //var maxSR = actualLog.rank_n + 250;
+      //var minSR = actualLog.rank_n - 250;
+      Log.find({'_id': {$ne: task.log_id} , 'active':'true', 'game': actualLog.game, 'platform': actualLog.platform, 'region': actualLog.region, 'mode.name': actualLog.mode.name, 'mode.players': actualLog.mode.players, 'maxSR': {$gte: actualLog.rank_n }, 'minSR': {$lte: actualLog.rank_n} }).sort( { 'qd_players': -1 } ).exec( function(err, log){
         //if (!log) throw(err)
-        console.log('log length: '+ log.length);
         if(log.length >= actualLog.mode.players-1) { //change number
-          //console.log('here 3');
-          //match();
           for(var i=0;i<actualLog.mode.players-1;i++) {
-            //console.log('here 4');
-            actualLog.matches.push(log[i]._id);//user
+            actualLog.matches.push(log[i]._id);//log_id
             log[i].matches.push(actualLog._id);//
             for(var j=0;j<actualLog.mode.players-1;j++) {
-              //console.log('here 5');
               if (i != j) {
-                //console.log('here 6');
                 log[i].matches.push(log[j]._id);//
               }
             }
-            //console.log('here 7');
             log[i].active = false;
             log[i].success = true;
             log[i].save(function(err, updatedLog){
-              //console.log('log[i] saved!');
             });
           }
-          //console.log('here 8');
           actualLog.active = false;
           actualLog.success = true;
           actualLog.save(function(err, updatedActualLog){
-            //console.log('ActualLog saved!');
             callback();
           });
         } else {
-          //console.log('here 9');
+          callback();
+          //not found
+          //serch in user DB
+        }
+      });
+    }
+  });
+}
+
+function insideQ_OW3(task, callback) {
+  Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
+    if (!actualLog) { callback(); } else {
+      //var maxSR = actualLog.rank_n + 250;
+      //var minSR = actualLog.rank_n - 250;
+      Log.aggregate([ 
+        { $match: 
+          {'_id': {$ne: task.log_id},
+          'active':true, 
+          'game': actualLog.game, 
+          'platform': actualLog.platform,
+          'region': actualLog.region,
+          'mode.name': actualLog.mode.name,
+          'mode.players': actualLog.mode.players,
+          'maxSR': {$gte: actualLog.rank_n },
+          'minSR': {$lte: actualLog.rank_n} }},
+        { $group: {_id: '$qd_players' , count: { $sum: 1 } } },
+        { $sort: { qd_players: -1 }}
+      ],function(err, log_nb) {
+        var wg = wG.whatGroups(log_nb,actualLog.mode.players-1);
+        if(wg) {
+          var dup = wG.dups(wg);
+          var lf = wG.keys_n(dup);
+          for(var i=0; i<lf.length; i++) {
+            Log.find({
+              '_id': {$ne: task.log_id},
+              'active':true, 
+              'game': actualLog.game, 
+              'platform': actualLog.platform,
+              'region': actualLog.region,
+              'mode.name': actualLog.mode.name,
+              'mode.players': actualLog.mode.players,
+              'maxSR': {$gte: actualLog.rank_n },
+              'minSR': {$lte: actualLog.rank_n},
+              'qd_players': lf[i][1]
+            })
+            .limit(lf[i][0])
+            .exec(function(err, log) {
+              for (var j=0; j<log.length; j++) {
+                console.log(log[j]._id);
+                actualLog.matches.push(log[j]._id);
+              }
+              actualLog.active = false;
+              actualLog.success = true;
+              actualLog.save(function(err, updatedActualLog){
+                
+                if (i>=lf.length-1) {
+                  //update rest
+                  for (var j=0; j<actualLog.matches.length; j++) {
+                    for (var k=0; k<actualLog.matches.length; k++) {
+                      if (k != j) {
+                        Log.update({'_id': actualLog.matches[j]}, {$push: {'matches': actualLog.matches[k]} }, function(err, ulog) {
+                          console.log('saved');
+                        });
+                      }
+                      if(k>=actualLog.matches.length-1 && j>=actualLog.matches.length-1 ) {console.log('here'); callback();}
+                    }
+                    Log.update({'_id': actualLog.matches[j]}, {$push: {'matches': actualLog._id}, $set: {'active':false, 'success':true}}, function(err, ulog) {
+                      console.log('saved');
+                    });
+                  }
+                }
+              });
+            });
+          }
+        } else {
           callback();
           //not found
           //serch in user DB

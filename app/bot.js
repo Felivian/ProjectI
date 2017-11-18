@@ -3,7 +3,7 @@ module.exports = function(app, bot, mongoose, q) {
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
-	var Roles 	= require('../app/roles');
+	var wG 	= require('../app/whatGroups');
 	var Qinfo 	= require('../config/Qinfo');
 	var _ 		= require('underscore');
 
@@ -66,8 +66,8 @@ module.exports = function(app, bot, mongoose, q) {
 		chat.say('Got it', { typing: true });
 
 		//data from user
-		var u_qd_players = 3;
-		var u_mode_players = 6
+		var u_qd_players = 1;
+		var u_mode_players = 3;
 		var u_mode_name = 'comp_'+u_mode_players;
 		var u_rank_arr = [2500,2100,2600];
 		var min = u_rank_arr.sort()[0];
@@ -90,13 +90,21 @@ module.exports = function(app, bot, mongoose, q) {
 				newLog.platform = user.overwatch.platform;
 				newLog.region = user.overwatch.region;
 
+
 				//change later
+				if (max-min == 500) {
+					newLog.minSR = min;
+					newLog.maxSR = max;
+				} else {
+					newLog.minSR = min - (500 - Math.floor((max - min)/2));
+					newLog.maxSR = max + (500 - Math.floor((max - min)/2));
+				}
 				newLog.mode.name = u_mode_name;
 				newLog.mode.players = u_mode_players;
 				newLog.rank_n = u_rank_n;
 				newLog.qd_players = u_qd_players;
 				if (newLog.mode.players == 6) {
-					newLog.roles = Roles.getRoles(u_roles);
+					newLog.roles = wG.getRoles(u_roles);
 				}
 				//change later
 
