@@ -19,3 +19,20 @@ db.getCollection('logs').aggregate([
 { $group: {_id: "$temp" , count: { $sum: 1 } } }
 ]
 )
+
+
+
+
+
+
+
+//newwww
+db.getCollection('matches').aggregate([ 
+    {$unwind: '$matches' },
+    { $group: {_id: "$matches" , count: { $sum: 1 } } },
+    { $sort: { count: -1 }}
+    ])
+
+
+
+db.getCollection('matches').find({matches: {$in: [ ObjectId("5a18ae9cfdee291fdc079ebe")]}})

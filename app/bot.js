@@ -19,7 +19,6 @@ module.exports = function(app, bot, mongoose, q) {
 	
 	bot.hear('hello', (payload, chat) => {
 		chat.conversation((convo) => {
-			// convo is available here...
 			Ask.askAccount(convo);
 		});
 	});
@@ -74,7 +73,7 @@ module.exports = function(app, bot, mongoose, q) {
 		var max = u_rank_arr.sort().reverse()[0];
 		var u_rank_n = Math.floor((max+min)/2);
 
-		var u_roles = [['d','h','t'],['d','h','t'],['d','h','t']];
+		//var u_roles = [['d','h','t'],['d','h','t'],['d','h','t']];
 		//data from user
 
 

@@ -8,7 +8,12 @@ module.exports =  {
     var zxc = [];
 
     for (var i=0; i< start.length; i++) {
-      for (var j=0; j<start[i].count; j++) {
+      //for (var j=0; j<start[i].count; j++) {
+      var x=start[i].count;
+      if (start[i].count > 12) {
+        x=12;
+      }
+      for (var j=0; j<x; j++) {
         zxc.push(start[i]._id);
       }
     }
@@ -19,7 +24,6 @@ module.exports =  {
   },
 
   sum: function(wej, copy, result, groupSize) {
-   
     if (module.exports.sum_arr(result)==groupSize) {
       return result;
     } else if (wej.length === 0) {
@@ -31,12 +35,10 @@ module.exports =  {
       return module.exports.sum(wej,copy, [], groupSize);
     } else {
       if (module.exports.sum_arr(result)<groupSize) {
-        //console.log('here1 ' + result);
         result.push(wej[0]);
         wej.shift();
         return module.exports.sum(wej,copy,result, groupSize);
       } else {
-        //console.log('here2 ' + result);
         result.pop();
         return module.exports.sum(wej,copy,result, groupSize);
       }
