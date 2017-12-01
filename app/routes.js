@@ -1,4 +1,4 @@
-module.exports = function(app, passport, session, mongoose/**/,q,fs) {
+module.exports = function(app, passport, session, mongoose/**/,q) {
 	var Session            	= require('../app/models/session');
 	var cookieParser 		= require('cookie-parser');
 	//cookie toucher
@@ -8,7 +8,6 @@ module.exports = function(app, passport, session, mongoose/**/,q,fs) {
 		next();
 	}
 	app.use(cookieToucher);*/
-	
 	
 	
     app.get('/', function(req, res) {
@@ -46,44 +45,28 @@ module.exports = function(app, passport, session, mongoose/**/,q,fs) {
         res.json(Qinfo.queue.length);
     });
 
-    
-    app.get('/test2', function(req, res) {
-        
-        var file = fs.readFileSync('one.txt', 'utf8');
-        console.log('first file: ');
-        console.log(file);
-        var file2 = fs.readFileSync('two.txt', 'utf8');
-        console.log('second file: ');
-        console.log(file2);
-        var file3 = fs.readFileSync('three.txt', 'utf8');
-        console.log('third file: ');
-        console.log(file3);
-
-        res.json({});
-    });
-
-    app.get('/test3', function(req, res) {
-        
-        fs.readFile('one.txt', 'utf8', function(err, content){
-          console.log('first file: ');
-          console.log(content);
-        });
-        fs.readFile('photo.png', 'utf8', function(err, content){
-          console.log('photo loaded');
-        });
-        fs.readFile('three.txt', 'utf8', function(err, content){
-          console.log('third file: ');
-          console.log(content);
-        });
-
-        res.json({});
-    });
 
 
+    function someAction(x, y, someCallback) {
+        return someCallback(x, y);
+    }
+
+    function calcProduct(x, y) {
+        return x * y;
+    }
+
+    function calcSum(x, y) {
+        return x + y;
+    }
+    // alerts 75, the product of 5 and 15
+    console.log(someAction(5, 15, calcProduct));
+    // alerts 20, the sum of 5 and 15
+    console.log(someAction(5, 15, calcSum));
 
     var Qinfo   = require('../config/Qinfo');
     var _       = require('underscore');
     var Log     = require('../app/models/log');
+    var wG      = require('./whatGroups');//
     app.get('/test4', function(req, res) {
         res.sendStatus(200);
         for (var asd=0; asd<500; asd++) {
@@ -94,8 +77,9 @@ module.exports = function(app, passport, session, mongoose/**/,q,fs) {
             var u_mode_players = test.mode;
             var u_mode_name = 'comp_'+u_mode_players;
             var u_rank_arr = test.rank;
-            var min = u_rank_arr.sort()[0];
-            var max = u_rank_arr.sort().reverse()[0];
+
+            var min = u_rank_arr.sort(wG.sortNumber)[0];
+            var max = u_rank_arr.sort(wG.sortNumber).reverse()[0];
             var u_rank_n = Math.floor((max+min)/2);
 
             //data from user

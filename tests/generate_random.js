@@ -57,8 +57,8 @@ module.exports = function() {
     platform = 'psn';
   }
 
-  //return {qd: qd, rank: rank, mode: mode, region: region, platform: platform};
-  return {qd: 2, rank: rank, mode: 6, region: 'eu', platform: 'pc'};
+  return {qd: qd, rank: rank, mode: mode, region: region, platform: platform};
+  //return {qd: 2, rank: rank, mode: 6, region: 'eu', platform: 'pc'};
   function minmax(arr) {
     return [arr.sort(sortNumber)[0], arr.sort(sortNumber).reverse()[0]];
   }

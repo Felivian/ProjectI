@@ -123,5 +123,9 @@ module.exports =  {
     }
     var val=_.values(in_arr);
     return _.zip(val,arr);
+  },
+  sortNumber: function (a,b) {
+      return a - b;
   }
+
 }
