@@ -56,7 +56,7 @@ module.exports = function() {
   } else {
     platform = 'psn';
   }
-
+  //console.log( {qd: qd, rank: rank, mode: mode, region: region, platform: platform});
   return {qd: qd, rank: rank, mode: mode, region: region, platform: platform};
   //return {qd: 2, rank: rank, mode: 6, region: 'eu', platform: 'pc'};
   function minmax(arr) {

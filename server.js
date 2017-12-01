@@ -81,8 +81,11 @@ var bot = new BootBot({
 
 var q = [];
 
-global.inserted = false;
-global.drained = true;
+//global.inserted = false;
+//global.drained = true;
+global.isDrained = [];
+global.wasInserted = [];
+
 global.count = [];
 
 require('./config/Qconfig.js')(async, q);

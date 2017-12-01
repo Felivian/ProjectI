@@ -39,6 +39,24 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         res.redirect('/');
     });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //TEST START
     var Qinfo   = require('../config/Qinfo');
 
     app.get('/test1', function(req, res) {
@@ -46,22 +64,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     });
 
 
-
-    function someAction(x, y, someCallback) {
-        return someCallback(x, y);
-    }
-
-    function calcProduct(x, y) {
-        return x * y;
-    }
-
-    function calcSum(x, y) {
-        return x + y;
-    }
-    // alerts 75, the product of 5 and 15
-    console.log(someAction(5, 15, calcProduct));
-    // alerts 20, the sum of 5 and 15
-    console.log(someAction(5, 15, calcSum));
 
     var Qinfo   = require('../config/Qinfo');
     var _       = require('underscore');
@@ -72,7 +74,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         for (var asd=0; asd<500; asd++) {
             
             var test = require('../tests/generate_random')();
-            //console.log(test);
+
             var u_qd_players = test.qd;
             var u_mode_players = test.mode;
             var u_mode_name = 'comp_'+u_mode_players;
@@ -108,61 +110,93 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             newLog.rank_n = u_rank_n;
             newLog.qd_players = u_qd_players;
 
-            newLog.save(function(err) {
+
+            newLog.save(function(err, log) {
                 if (err) throw err;
-                //console.log(global.inserted);
-                global.inserted=true;
-                /*Log.find({active: true}, function(err, log) {
-                    for(var i=0; i<log.length; i++) { 
-                        push2q(log[i]._id, log[i].user_id, newLog.game, newLog.platform, newLog.region, newLog.mode.name, newLog.mode.players);
-                    }
-                });*/
+                
+                var qNr = getNrOfQ(log);
+                if (qNr) {
+                    global.wasInserted[qNr] = true;
+                }
             });
         }
     });
 
+
+
     setInterval(function() {
-        if (global.inserted == true && global.drained == true) {
-            global.inserted = false;
-            global.drained = false;
-            Log.find({active: true}, function(err, log) {
-                for(var i=0; i<log.length; i++) { 
-                    push2q(log[i]._id, log[i].user_id, log[i].game, log[i].platform, log[i].region, log[i].mode.name, log[i].mode.players);
-                }
-            });
+        for (var i=0; i<Qinfo.queue.length; i++) {     
+            if (global.isDrained[i] == true && global.wasInserted[i] == true) {
+                global.isDrained[i] = false;
+                global.wasInserted[i] = false;
+                
+                var json = Qinfo.queue.slice()[i];
+
+                Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
+                    for(var j=0; j<log.length; j++) { 
+                        //add different function
+                        push2q(log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
+                    }
+                });
+            }
         }
     },10000);
 
+
     function push2q(x,y, game, platform, region, mode_name, mode_players) {
-        //do przerobienia... match json?
         var json = {
-            'game'          : game,
-            'platform'      : platform, 
-            'region'        : region,
+            game          : game,
+            platform      : platform, 
+            region        : region,
+            mode          : {
+                name      : mode_name,
+                players   : mode_players
+            } 
+        };
+        var qNr = getNrOfQ(json);
+        if ( qNr ) {
+            q[qNr].push({log_id: x, user_id: y, mode_players: mode_players, i: qNr}, function(err) {
+                console.log('finished processing '+x);
+            });
+        }
+    }
+
+    function getNrOfQ(json1) {
+        var json2 = {
+            'game'          : json1.game,
+            'platform'      : json1.platform, 
+            'region'        : json1.region,
             'mode'          : {
-                'name'      : mode_name,
-                'players'   : mode_players
+                'name'      : json1.mode.name,
+                'players'   : json1.mode.players
             } 
         };
         var i=0;
         var Qfound = false;
         do {
-            if ( _.isEqual(Qinfo.queue[i], json) ) {
-                q[i].push({log_id: x, user_id: y, mode_players: mode_players, i: i}, function(err) {
-                    console.log('finished processing '+x);
-                });
+            if ( _.isEqual(Qinfo.queue[i], json2) ) {
                 Qfound = true;
+                return i;
             }
             i++
         } while( !Qfound && i<Qinfo.queue.length );
+        return false;
     }
 
-    /*app.get('/test3', function(req, res) {
-        console.log(req.session.id);
-        q2.push({'sid': req.session.id}, function(err) {
-            console.log('finished processing '+req.session.id);
-        });
-    });*/
+    //TEST END
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     app.get('/login-test', function(req, res) {
