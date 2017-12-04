@@ -112,11 +112,12 @@ module.exports = function(app, bot, mongoose, q) {
 				//console.log(newLog);
 				newLog.save(function(err) {
                 	if (err) throw err;
-					Log.find({active: true}, function(err, log) {
+					/*Log.find({active: true}, function(err, log) {
 						for(var i=0; i<log.length; i++) { 
-							push2q(log[i]._id, log[i].user_id, newLog.game, newLog.platform, newLog.region, newLog.mode.name, newLog.mode.players);
+							//change to only saving
+							push2q(q, log[i]._id, log[i].user_id, newLog.game, newLog.platform, newLog.region, newLog.mode.name, newLog.mode.players);
 						}
-					});
+					});*/
                 });
 			});
 		});
@@ -134,7 +135,7 @@ module.exports = function(app, bot, mongoose, q) {
 
 
 
-	function push2q(x,y, game, platform, region, mode_name, mode_players) {
+	/*function push2q(x,y, game, platform, region, mode_name, mode_players) {
 		//do przerobienia... match json?
 		var json = {
             'game'      	: game,
@@ -157,6 +158,6 @@ module.exports = function(app, bot, mongoose, q) {
         	}
         	i++
 		} while( !Qfound && i<Qinfo.queue.length );
-	}
+	}*/
 
 };

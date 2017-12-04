@@ -4,7 +4,7 @@ module.exports = function(async,q) {
 
 	for (var i=0; i<Qinfo.queue.length; i++) {
 		global.count.push(0);
-		global.wasInserted[i] = false;
+		global.wasInserted[i] = true;
 		global.isDrained[i] = true;
 		q[i] = async.queue(function(task, callback) {
 	    	insideQ_OW(task, callback);

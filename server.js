@@ -26,7 +26,8 @@ var configDB        = require('./config/database.js');
 var configAuth      = require('./config/auth.js');
 
 var async           = require('async');
-
+var push2q          = require('./app/push2q');
+var Qinfo           = require('./config/Qinfo');
 
 
 // configuration ===============================================================
@@ -80,15 +81,32 @@ var bot = new BootBot({
 });
 
 var q = [];
-
-//global.inserted = false;
-//global.drained = true;
 global.isDrained = [];
 global.wasInserted = [];
-
 global.count = [];
 
-require('./config/Qconfig.js')(async, q);
+require('./config/Qconfig')(async, q);
+var Log     = require('./app/models/log');
+
+setInterval(function() {
+  for (var i=0; i<Qinfo.queue.length; i++) {     
+    if (global.isDrained[i] == true && global.wasInserted[i] == true) {
+      global.isDrained[i] = false;
+      global.wasInserted[i] = false;
+
+      var json = Qinfo.queue.slice()[i];
+
+      Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
+        for(var j=0; j<log.length; j++) { 
+          push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
+        }
+      });
+    }
+  }
+},10000);
+
+var mf = require('./app/main_functions');
+//mf.changeChance(1,2);
 
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q);
