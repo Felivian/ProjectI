@@ -57,7 +57,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
 
 
     //TEST START
-    var Qinfo   = require('../config/Qinfo');
+/*    var Qinfo   = require('../config/Qinfo');
 
     app.get('/test1', function(req, res) {
         res.json(Qinfo.queue.length);
@@ -121,7 +121,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         }
     });
     
-
+*/
     //TEST END
 
 

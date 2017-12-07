@@ -18,8 +18,8 @@ module.exports = function (task, callback) {
           'region': actualLog.region,
           'mode.name': actualLog.mode.name,
           'mode.players': actualLog.mode.players,
-          'maxSR': {$gte: actualLog.rank_n },
-          'minSR': {$lte: actualLog.rank_n} }},
+          'maxSR': {$gte: actualLog.realMax },
+          'minSR': {$lte: actualLog.realMin} }},
         { $group: {_id: '$qd_players' , count: { $sum: 1 } } },
         { $sort: { qd_players: -1 }}
       ],function(err, log_nb) {
@@ -44,8 +44,8 @@ module.exports = function (task, callback) {
               'region': actualLog.region,
               'mode.name': actualLog.mode.name,
               'mode.players': actualLog.mode.players,
-              'maxSR': {$gte: actualLog.rank_n },
-              'minSR': {$lte: actualLog.rank_n},
+              'maxSR': {$gte: actualLog.realMax},
+              'minSR': {$lte: actualLog.realMin},
               'qd_players': lf[i][1]
             })//, {$set: {success: true, active: false}}, { new: true })
             .limit(lf[i][0])

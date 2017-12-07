@@ -6,7 +6,20 @@ var ObjectId = require('mongoose').Types.ObjectId;
 // define the schema for our user model
 var matchSchema = mongoose.Schema({
 	end				: Date,
-	matches			: [mongoose.Schema.Types.ObjectId]
+	matches			: [mongoose.Schema.Types.ObjectId],
+
+
+
+	tested			: Boolean,
+	active			: [Boolean],
+	success			: [Boolean],
+	platform		: [String],
+	region			: [String],
+	game			: [String],
+	name 			: [String],
+	players 		: [Number],
+	rank			: [Number],
+	qd_players		: [Number],
 });
 
 

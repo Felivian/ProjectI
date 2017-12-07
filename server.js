@@ -106,6 +106,7 @@ setInterval(function() {
 },10000);
 
 var mf = require('./app/main_functions');
+require('./tests/testsRouter.js')(app, mongoose, q);
 //mf.changeChance(1,2);
 
 // schedules ======================================================================
