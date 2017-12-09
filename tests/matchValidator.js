@@ -3,11 +3,10 @@ var Match           = require('../app/models/match');//
 var async           = require('async');
 
 module.exports = function() {  
-	global.test_count = 0;
 
 	var q2 = async.queue(function(task, callback) {
 	    combine(task, callback);
-	}, 1);
+	}, 100);
 
 	q2.drain = function() {
 		console.log('end yo!');

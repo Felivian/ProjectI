@@ -20,6 +20,7 @@ var matchSchema = mongoose.Schema({
 	players 		: [Number],
 	rank			: [Number],
 	qd_players		: [Number],
+	valid : Boolean
 });
 
 

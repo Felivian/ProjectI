@@ -20,6 +20,9 @@ module.exports = function() {
     }
   }
 
+qd=2;
+mode = 6;
+
   var rank = [];
 
   for (var i=0; i<qd; i++) {
@@ -57,8 +60,8 @@ module.exports = function() {
     platform = 'psn';
   }
   //console.log( {qd: qd, rank: rank, mode: mode, region: region, platform: platform});
-  return {qd: qd, rank: rank, mode: mode, region: region, platform: platform};
-  //return {qd: 2, rank: rank, mode: 6, region: 'eu', platform: 'pc'};
+  //return {qd: qd, rank: rank, mode: mode, region: region, platform: platform};
+  return {qd: qd, rank: rank, mode: mode, region: 'eu', platform: 'pc'};
   function minmax(arr) {
     return [arr.sort(sortNumber)[0], arr.sort(sortNumber).reverse()[0]];
   }
