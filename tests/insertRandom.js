@@ -24,6 +24,7 @@ module.exports = function() {
 	    var newLog = new Log();
 	    newLog.start = new Date();
 	    newLog.active = true;
+	    newLog.pending = true;
 
 	    //game specific
 	   	newLog.realMax = max;

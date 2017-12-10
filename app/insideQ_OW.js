@@ -13,6 +13,7 @@ module.exports = function (task, callback) {
         { $match: 
           {'_id': {$ne: task.log_id},
           'active':true, 
+          'pending':false, 
           'game': actualLog.game, 
           'platform': actualLog.platform,
           'region': actualLog.region,
@@ -39,6 +40,7 @@ module.exports = function (task, callback) {
             Log.find({
               '_id': {$ne: task.log_id},
               'active':true, 
+              'pending':false, 
               'game': actualLog.game, 
               'platform': actualLog.platform,
               'region': actualLog.region,

@@ -95,15 +95,30 @@ setInterval(function() {
       global.wasInserted[i] = false;
 
       var json = Qinfo.queue.slice()[i];
-
-      Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
+      updatePending(json, q, mongoose);
+      /*Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
         for(var j=0; j<log.length; j++) { 
           push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
         }
-      });
+      });*/
     }
   }
 },10000);
+
+
+
+function updatePending(json, q, mongoose) {
+  Log.updateMany({ pending: true, active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players },{$set: {pending: false}}, function(err, ulog) {
+    Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
+        for(var j=0; j<log.length; j++) { 
+          push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
+        }
+    });
+  });
+}
+
+
+
 
 var mf = require('./app/main_functions');
 require('./tests/testsRouter.js')(app, mongoose, q);

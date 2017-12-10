@@ -7,6 +7,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var logSchema = mongoose.Schema({
 	user_id			: mongoose.Schema.Types.ObjectId,
 	active			: Boolean,
+	pending			: Boolean,//
 	success			: Boolean,
 	start			: Date,
 	end				: Date,
