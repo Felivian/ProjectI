@@ -4,6 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "forward": "lt --port 3000 --subdomain jzn2ya88cl1agl16zych",
+    "forward2": "lt --port 8080 --subdomain jzn2ya88cl1agl16zyc2",
     "start": "node server.js"
   },
   "dependencies": {

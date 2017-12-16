@@ -20,8 +20,8 @@ module.exports = function() {
     }
   }
 
-qd=2;
-mode = 6;
+//qd=1;
+//mode = 6;
 
   var rank = [];
 

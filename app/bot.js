@@ -7,7 +7,26 @@ module.exports = function(app, bot, mongoose, q) {
 	var Qinfo 	= require('../config/Qinfo');
 	var _ 		= require('underscore');
 
-	//bot.say(1493247637377838, 'test');
+	bot.say(1493247637377838, 'test');
+
+	bot.hear('login', (payload, chat) => {
+		chat.sendGenericTemplate([{ 
+			title: 'Welcome to ProjectI', 
+			buttons: [{ 
+				type: 'account_link',
+            	url: 'http://localhost:8080' 
+            }] 
+        }]);
+	});
+	
+	bot.hear('logout', (payload, chat) => {
+		chat.sendGenericTemplate([{ 
+			title: 'Logout', 
+			buttons: [{ 
+				type: 'account_unlink',
+            }] 
+        }]);
+	});
 
 	bot.setPersistentMenu([
 		{
@@ -131,6 +150,8 @@ module.exports = function(app, bot, mongoose, q) {
 			chat.say(sh.unique(user.id), { typing: true });
 		});
 	});
+
+
 
 
 

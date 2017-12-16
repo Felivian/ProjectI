@@ -9,10 +9,17 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
 	}
 	app.use(cookieToucher);*/
 	
-	
     app.get('/', function(req, res) {
-    	if (req.isAuthenticated()) res.redirect('/profile');
-        res.render('index.ejs');
+        /*console.log(req.query.account_linking_token);
+        console.log(' ');
+        console.log(req.query.redirect_uri);
+        console.log(' ');
+        res.redirect(req.query.redirect_uri+'&authorization_code=200');*/
+    	if (req.isAuthenticated()) {
+            res.redirect('/profile');
+        } else {
+            res.render('index.ejs');
+        }
     });
 
     app.get('/signup', function(req, res) {

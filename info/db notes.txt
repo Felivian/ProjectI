@@ -36,3 +36,9 @@ db.getCollection('matches').aggregate([
 
 
 db.getCollection('matches').find({matches: {$in: [ ObjectId("5a18ae9cfdee291fdc079ebe")]}})
+
+
+db.getCollection('logs').aggregate([
+{$match: {start: {$lte: ISODate("2017-12-16 13:41:04.769Z")} }},
+{$sort: {start:-1} }
+]).toArray().length

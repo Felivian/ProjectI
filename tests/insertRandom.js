@@ -5,7 +5,7 @@ var mf      = require('../app/main_functions');//
 var Qinfo   = require('../config/Qinfo');
 
 module.exports = function() {  
-    for (var asd=0; asd<500; asd++) {
+    for (var asd=0; asd<1000; asd++) {
     
 	    var test = require('../tests/generate_random')();
 
