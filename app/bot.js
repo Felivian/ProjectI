@@ -3,11 +3,11 @@ module.exports = function(app, bot, mongoose, q) {
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
-	var wG 	= require('../app/whatGroups');
+	var wG 		= require('../app/whatGroups');
 	var Qinfo 	= require('../config/Qinfo');
 	var _ 		= require('underscore');
 
-	bot.say(1493247637377838, 'test');
+	//bot.say(1493247637377838, 'test');
 
 	bot.hear('login', (payload, chat) => {
 		chat.sendGenericTemplate([{ 
@@ -15,6 +15,7 @@ module.exports = function(app, bot, mongoose, q) {
 			buttons: [{ 
 				type: 'account_link',
             	url: 'http://localhost:8080' 
+            	//url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me' 
             }] 
         }]);
 	});

@@ -147,8 +147,9 @@ module.exports = function(passport) {
                         // if there is a user id already but no token (user was linked at one point and then removed)
                         if (!user.facebook.token) {
                             user.facebook.token = token;
-                            user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
-                            user.facebook.email = profile.emails[0].value;
+                            //user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
+                            user.facebook.name  = profile.displayName;
+                            //user.facebook.email = profile.emails[0].value;
 
                             user.save(function(err) {
                                 if (err)
@@ -159,36 +160,40 @@ module.exports = function(passport) {
 
                         return done(null, user); // user found, return that user
                     } else {
-                        // if there is no user, create them
-                        console.log('tutaj');
+                        // if there is no user, create them  
                         var newUser            = new User();
-
                         newUser.facebook.id    = profile.id;
                         newUser.facebook.token = token;
-                        newUser.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
-                        //newUser.facebook.email = profile.emails[0].value;
-
+                        newUser.facebook.name  = profile.displayName;
                         newUser.save(function(err) {
                             if (err)
                                 throw err;
                             return done(null, newUser);
-                        });
+                        });         
                     }
                 });
 
             } else {
                 // user already exists and is logged in, we have to link accounts
-                var user            = req.user; // pull the user out of the session
-
-                user.facebook.id    = profile.id;
-                user.facebook.token = token;
-                user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
-                user.facebook.email = profile.emails[0].value;
-
-                user.save(function(err) {
+                User.findOne({ 'facebook.id' : profile.id }, function(err, user) {
                     if (err)
-                        throw err;
-                    return done(null, user);
+                        return done(err);
+
+                    if (!user) {
+                        var user            = req.user; // pull the user out of the session
+                        console.log(profile);
+                        user.facebook.id    = profile.id;
+                        user.facebook.token = token;
+                        user.facebook.name  = profile.displayName;
+
+                        user.save(function(err) {
+                            if (err)
+                                throw err;
+                            return done(null, user);
+                        });
+                    } else {
+                        return done(err);
+                    }
                 });
 
             }
@@ -225,7 +230,7 @@ module.exports = function(passport) {
                         if (!user.google.token) {
                             user.google.token = token;
                             user.google.name  = profile.displayName;
-                            user.google.email = profile.emails[0].value; // pull the first email
+                            //user.google.email = profile.emails[0].value; // pull the first email
 
                             user.save(function(err) {
                                 if (err)

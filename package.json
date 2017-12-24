@@ -26,6 +26,7 @@
     "passport-google-oauth": "latest",
     "passport-local": "latest",
     "passport-twitter": "latest",
+    "request": "latest",
     "bluebird": "latest",
     "socket.io": "latest",
     "shorthash": "latest",
