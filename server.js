@@ -81,8 +81,8 @@ var bot = new BootBot({
 });
 
 var q = [];
-global.isDrained = [];
-global.wasInserted = [];
+global.isDrained = [];//Qconfig sets all true
+global.wasInserted = [];//Qconfig sets all true
 global.count = [];
 
 require('./config/Qconfig')(async, q);
@@ -110,8 +110,19 @@ setInterval(function() {
 function updatePending(json, q, mongoose) {
   Log.updateMany({ pending: true, active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players },{$set: {pending: false}}, function(err, ulog) {
     Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
+      var datetime = new Date().toISOString();
+      datetime = Date.parse(datetime) - (1*60*60*1000);//-1h
         for(var j=0; j<log.length; j++) { 
-          push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
+          var start_date = Date.parse(log[j].start)
+          if (datetime > start_date) {
+            log[j].active = false;
+            log[j].success = false;
+            log[j].save(function(err) {
+              //send info to user
+            });
+          } else {
+            push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
+          }
         }
     });
   });

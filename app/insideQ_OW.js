@@ -8,11 +8,17 @@ var async           = require('async');
 module.exports = function (task, callback) {
   Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
     if (!actualLog) { callback(); } else {
+      //get datetime here
+      var datetime = new Date().toISOString();
+      datetime = Date.parse(datetime) - (1*60*60*1000);//1h
+      datetime = new Date(datetime).toISOString();
       Log.aggregate([ 
         { $match: 
           {'_id': {$ne: task.log_id},
           'active':true, 
           'pending':false, 
+          //datetime
+          'start': {$gte: new Date(datetime)},
           'game': actualLog.game, 
           'platform': actualLog.platform,
           'region': actualLog.region,
@@ -39,6 +45,8 @@ module.exports = function (task, callback) {
               '_id': {$ne: task.log_id},
               'active':true, 
               'pending':false, 
+              //datetime
+              'start': {$gte: new Date(datetime)},
               'game': actualLog.game, 
               'platform': actualLog.platform,
               'region': actualLog.region,

@@ -23,13 +23,20 @@ var userSchema = mongoose.Schema({
         last_name    : String,
         profile_pic  : String
     },
-    overwatch        : {
+    /*overwatch        : {
         battletag    : String,
         SR           : Number,
         platform     : String,
-        region       : String,
-        heroes       : [String]
-    },
+        region       : String
+    },*/
+    games            : [{
+        name         : String,
+        account      : String,
+        rank_n       : Number,
+        rank_s       : String,
+        platform     : String,
+        region       : String
+    }],
 	
     active           : {
         mon          : [{hour:Number,chance:Number}],

@@ -18,6 +18,7 @@
     "express": "latest",
     "express-session": "latest",
     "express-sessions": "latest",
+    "iso8601": "latest",
     "mongoose": "^4.10.8",
     "morgan": "latest",
     "node-schedule": "latest",

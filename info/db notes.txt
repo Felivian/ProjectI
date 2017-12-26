@@ -42,3 +42,7 @@ db.getCollection('logs').aggregate([
 {$match: {start: {$lte: ISODate("2017-12-16 13:41:04.769Z")} }},
 {$sort: {start:-1} }
 ]).toArray().length
+
+
+//get game name
+db.getCollection('users').find({"games.name":"overwatch"}, {"games.$.name": 1})
