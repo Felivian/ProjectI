@@ -21,8 +21,6 @@
           <!--home/profile -->
           <% if (user) { %>
             <li><a href="/profile">Profile</a></li>
-          <% } else { %>
-            <li class="disabled"><a href="/profile">Profile</a></li>
           <% } %>
           <!--home/about -->
           <li><a href="/about">About</a></li>  
@@ -32,7 +30,7 @@
           <!--profile/home -->
           <li><a href="/">Home</a></li>
           <!--profile/profile -->
-          <li class="active"><a href="/profile">Profile</a></li>
+          <li class="active profile"><a href="/profile">Profile</a></li>
           <!--profile/about -->
           <li><a href="/about">About</a></li>
         <!--about -->
@@ -42,8 +40,6 @@
           <!--about/profile -->
           <% if (user) { %>
             <li><a href="/profile">Profile</a></li>
-          <% } else { %>
-            <li class="disabled"><a href="/profile">Profile</a></li>
           <% } %>
           <!--about/about -->
           <li class="active"><a href="/about">About</a></li>
@@ -53,8 +49,6 @@
           <li><a href="/">Home</a></li>
           <% if (user) { %>
             <li><a href="/profile">Profile</a></li>
-          <% } else { %>
-            <li class="disabled"><a href="/profile">Profile</a></li>
           <% } %>
           <li><a href="/about">About</a></li>
         <% } %>

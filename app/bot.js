@@ -14,7 +14,7 @@ module.exports = function(app, bot, mongoose, q) {
 			title: 'Welcome to ProjectI', 
 			buttons: [{ 
 				type: 'account_link',
-            	url: 'http://localhost:8080/messenger-login' 
+            	url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me/messenger-login' 
             	//url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me' 
             }] 
         }]);

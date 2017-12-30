@@ -26,7 +26,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             res.render('home.ejs', { user: req.user.facebook.name, url: 'home' });
         } else {
             res.render('home.ejs', {user: null, url: 'home'});
-        }  
+        }
     });
 
     app.get('/about', function(req, res) {
