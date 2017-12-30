@@ -1,19 +1,20 @@
-var mf = require('./main_functions');//
+var Queue           = require('./models/queue');//
 
-module.exports = function(q, x, y, game, platform, region, mode_name, mode_players) {
+module.exports = function(q, x, y, game, platform, region, modeName, modePlayers) {
 	var json = {
 		game          : game,
 		platform      : platform, 
 		region        : region,
-		mode          : {
-			name      : mode_name,
-			players   : mode_players
-		} 
+		modeName      : modeName,
+		modePlayers   : modePlayers
 	};
-	var qNr = mf.getNrOfQ(json);
-	if ( qNr ) {
-		q[qNr].push({log_id: x, user_id: y, mode_players: mode_players, i: qNr}, function(err) {
-			console.log('finished processing '+x);
-		});
-	}
+	Queue.findOne({game: json.game, platform: json.platform, region: json.region, modeName: json.modeName, modePlayers: json.modePlayers},
+	function(err, queue) {
+		if (queue) {
+			console.log(queue.qNr)
+			q[queue.qNr].push({log_id: x, user_id: y, modePlayers: modePlayers, i: queue.qNr}, function(err) {
+				console.log('finished processing '+x);
+			});
+		}
+	});
 }

@@ -27,7 +27,7 @@ var configAuth      = require('./config/auth.js');
 
 var async           = require('async');
 var push2q          = require('./app/push2q');
-var Qinfo           = require('./config/Qinfo');
+
 
 
 // configuration ===============================================================
@@ -80,10 +80,19 @@ var bot = new BootBot({
   appSecret		: configAuth.messengerAuth.app_secret
 });
 
-var q = [];
+q = [];
 global.count = [];
 
 require('./config/Qconfig')(async, q);
+var Log             = require('./app/models/log');//
+setTimeout(function() {
+  Log.find({ active: true }, function(err, log) {
+    for(var j=0; j<log.length; j++) {
+      //check date etc 
+      push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].modeName, log[j].modePlayers);
+    }
+  })
+  , 500});
 
 
 require('./tests/testsRouter.js')(app, mongoose, q);

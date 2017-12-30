@@ -46,7 +46,9 @@ var userSchema = mongoose.Schema({
         fri          : [{hour:Number,chance:Number}],
         sat          : [{hour:Number,chance:Number}],
         sun          : [{hour:Number,chance:Number}]
-    }
+    },
+    displayName      : String
+
 	//friends          : [mongoose.Schema.Types.ObjectId],
 	//conversations    : [mongoose.Schema.Types.ObjectId]
 	//friends          : String

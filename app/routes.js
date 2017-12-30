@@ -12,12 +12,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
 	app.use(cookieToucher);*/
 	
     app.get('/messenger-login', function(req, res) {
-        /*console.log(req.query.account_linking_token);
-        console.log(' ');
-        console.log(req.query.redirect_uri);
-        console.log(' ');
-        res.redirect(req.query.redirect_uri+'&authorization_code=200');*/
-        //console.log('TUTAJ!!! '+req.query.redirect_uri);
         req.session.redirect_uri = req.query.redirect_uri;
         req.session.account_linking_token = req.query.account_linking_token;
     	if (req.isAuthenticated()) {
@@ -59,10 +53,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         res.render('login.ejs', { message: req.flash('loginMessage') }); 
     });
 
-    /*app.get('/profile', isLoggedIn, function(req, res) {
-        //res.render('profile.ejs', { user: req.user });
-        res.json(req.user);
-    });*/
 
     app.get('/profile', isLoggedIn, function(req, res) {
         //messenger login redirect
@@ -92,9 +82,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     });
 
 
-    /*app.get('/login-test', function(req, res) {
-        res.render('login-json.ejs', { message: req.flash('loginMessage') }); 
-    });*/
 
     // =====================================
     // LOCAL ===============================
@@ -138,24 +125,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             failureRedirect : '/'
         }));
 
-    /*app.get('/auth/facebook/callback', function(req, res) {
-        console.log('test1');
-        if (!req.session.redirect_uri) {
-            console.log('test2');
-            passport.authenticate('facebook', {
-                successRedirect : '/profile',
-                failureRedirect : '/'
-            }); 
-        } else {
-            passport.authenticate('facebook', {
-                successRedirect : req.session.redirect_uri,
-                failureRedirect : '/'
-            }); 
-        }
-        //console.log('HERE!!!!! '+req.session.redirect_uri);
-    });*/
-        
-
 	
 	// =============================================================================
     // AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
@@ -181,18 +150,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             successRedirect : '/settings',
             failureRedirect : '/'
         }));
-
-    // messenger -------------------------------
-
-    // send to facebook to do the authentication
-    //app.get('/connect/messenger', passport.authorize('facebook', { scope : 'email' }));
-
-    // handle the callback after facebook has authorized the user
-    /*app.get('/connect/messenger/callback',
-        passport.authorize('facebook', {
-            successRedirect : '/profile',
-            failureRedirect : '/'
-    }));*/
 
 
     // =============================================================================

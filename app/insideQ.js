@@ -1,7 +1,7 @@
 var Log             = require('./models/log');//
 var Match             = require('./models/match');//
 
-var Qinfo           = require('../config/Qinfo');//
+//var Qinfo           = require('../config/Qinfo');//
 var wG              = require('./whatGroups');//
 var async           = require('async');
 
@@ -17,17 +17,17 @@ module.exports = function (task, callback) {
           {'_id': {$ne: task.log_id},
           'active':true, 
           //datetime
-          'start': {$gte: new Date(datetime)},
+          'updated': {$gte: new Date(datetime)},
           'game': actualLog.game, 
           'platform': actualLog.platform,
           'region': actualLog.region,
-          'mode.name': actualLog.mode.name,
-          'mode.players': actualLog.mode.players,
+          'modeName': actualLog.modeName,
+          'modePlayers': actualLog.modePlayers,
           'rank_s':  actualLog.rank_s }},
         { $group: {_id: '$qd_players' , count: { $sum: 1 } } },
         { $sort: { qd_players: -1 }}
       ],function(err, log_nb) {
-        var wg = wG.whatGroups(log_nb,actualLog.mode.players-actualLog.qd_players);
+        var wg = wG.whatGroups(log_nb,actualLog.modePlayers-actualLog.qd_players);
         if(wg) {
           console.log('wg:' + wg);
           actualLog.active = false;
@@ -43,12 +43,12 @@ module.exports = function (task, callback) {
                   '_id': {$ne: task.log_id},
                   'active':true, 
                   //datetime
-                  'start': {$gte: new Date(datetime)},
+                  'updated': {$gte: new Date(datetime)},
                   'game': actualLog.game, 
                   'platform': actualLog.platform,
                   'region': actualLog.region,
-                  'mode.name': actualLog.mode.name,
-                  'mode.players': actualLog.mode.players,
+                  'modeName': actualLog.modeName,
+                  'modePlayers': actualLog.modePlayers,
                   'rank_s':  actualLog.rank_s,
                   'qd_players': lf[i][1]
                 })//, {$set: {success: true, active: false}}, { new: true })

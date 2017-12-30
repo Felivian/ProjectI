@@ -4,6 +4,10 @@ var Match           = require('../app/models/match');//
 
 module.exports = function(app, mongoose, q) {
 
+    app.get('/test4', function(req, res) {
+        require('../tests/insertQueues')(mongoose);
+        res.sendStatus(200);
+    });
 
     app.get('/test1', function(req, res) {
     	require('../tests/insertRandom')(q);

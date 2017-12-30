@@ -6,7 +6,7 @@ module.exports = function() {
 
 	var q2 = async.queue(function(task, callback) {
 	    combine(task, callback);
-	}, 1);
+	}, 100);
 
 	q2.drain = function() {
 		console.log('end yo!');
@@ -34,7 +34,7 @@ module.exports = function() {
 				//global.test_count++;
 				Match.updateOne({_id: task._id},
 					{$push: {active: log.active, success: log.success, platform: log.platform, 
-					region: log.region, game: log.game, name: log.mode.name, players: log.mode.players,
+					region: log.region, game: log.game, name: log.modeName, players: log.modePlayers,
 					rank_s: log.rank_s, qd_players: log.qd_players}, $set: {tested: true} }, 
 				function(err, ulog) {
 					//if (global.test_count > task.l_ids.length) {

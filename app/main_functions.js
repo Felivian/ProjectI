@@ -1,6 +1,6 @@
-var _    = require('underscore');
-var Qinfo   = require('../config/Qinfo');
+//var _    = require('underscore');
 var User     = require('./models/user');
+var Queue     = require('./models/queue');
 module.exports = {
 	changeChance: function(to_user, by) {
 		to_user = '5a11d3786496960a50b33e50';
@@ -18,27 +18,5 @@ module.exports = {
 				});
 			}
 		});
-	},
-	getNrOfQ: function(json1) {
-		var json2 = {
-			'game'          : json1.game,
-			'platform'      : json1.platform, 
-			'region'        : json1.region,
-			'mode'          : {
-				'name'      : json1.mode.name,
-				'players'   : json1.mode.players
-			} 
-		};
-		var i=0;
-		var Qfound = false;
-		do {
-			if ( _.isEqual(Qinfo.queue[i], json2) ) {
-				Qfound = true;
-				return i;
-			}
-			i++
-		} while( !Qfound && i<Qinfo.queue.length );
-		return false;
 	}
-
 }

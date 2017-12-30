@@ -1,8 +1,8 @@
 var _       = require('underscore');
 var Log     = require('../app/models/log');
 var wG      = require('../app/whatGroups');//
-var mf      = require('../app/main_functions');//
-var Qinfo   = require('../config/Qinfo');
+//var mf      = require('../app/main_functions');//
+//var Qinfo   = require('../config/Qinfo');
 var push2q  = require('../app/push2q');
 
 module.exports = function(q) {  
@@ -15,27 +15,28 @@ module.exports = function(q) {
 
 
 	    var newLog = new Log();
-	    newLog.mode.name = test.mode_name;
-	    newLog.mode.players = test.mode_players;
+	    newLog.modeName = test.modeName;
+	    newLog.modePlayers = test.modePlayers;
 	    newLog.qd_players = test.qd;
 	    newLog.start = new Date();
+	    newLog.updated = newLog.start;
 	    newLog.active = true;
 	    //newLog.pending = true;
 	    newLog.game = test.game;
 	    newLog.platform = test.platform;
 	    newLog.region = test.region;
 	    newLog.rank_s = test.rank_s;
-	    u_rank_arr = test.rank;
+	    //u_rank_arr = test.rank;
 		    
 
 	    newLog.save(function(err, log) {
 	        if (err) throw err;
 	        
-	        var qNr = mf.getNrOfQ(log);
-	        if (qNr) {
+	        //var qNr = mf.getNrOfQ(log);
+	        //if (qNr) {
 	            //global.wasInserted[qNr] = true;
-	            push2q(q, log._id, log.user_id, log.game, log.platform, log.region, log.mode.name, log.mode.players);
-	        }
+	            push2q(q, log._id, log.user_id, log.game, log.platform, log.region, log.modeName, log.modePlayers);
+	        //}
 	    });
 	}
 }
