@@ -71,7 +71,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-app.use('/static', express.static('public'))
+app.use(express.static(__dirname + '/public'));
 
 
 var bot = new BootBot({
@@ -81,59 +81,12 @@ var bot = new BootBot({
 });
 
 var q = [];
-global.isDrained = [];//Qconfig sets all true
-global.wasInserted = [];//Qconfig sets all true
 global.count = [];
 
 require('./config/Qconfig')(async, q);
-var Log     = require('./app/models/log');
-
-setInterval(function() {
-  for (var i=0; i<Qinfo.queue.length; i++) {     
-    if (global.isDrained[i] == true && global.wasInserted[i] == true) {
-      global.isDrained[i] = false;
-      global.wasInserted[i] = false;
-
-      var json = Qinfo.queue.slice()[i];
-      updatePending(json, q, mongoose);
-      /*Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
-        for(var j=0; j<log.length; j++) { 
-          push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
-        }
-      });*/
-    }
-  }
-},10000);
 
 
-
-function updatePending(json, q, mongoose) {
-  Log.updateMany({ pending: true, active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players },{$set: {pending: false}}, function(err, ulog) {
-    Log.find({ active: true, game: json.game, platform: json.platform, region: json.region, 'mode.name': json.mode.name, 'mode.players': json.mode.players }, function(err, log) {
-      var datetime = new Date().toISOString();
-      datetime = Date.parse(datetime) - (1*60*60*1000);//-1h
-        for(var j=0; j<log.length; j++) { 
-          var start_date = Date.parse(log[j].start)
-          if (datetime > start_date) {
-            log[j].active = false;
-            log[j].success = false;
-            log[j].save(function(err) {
-              //send info to user
-            });
-          } else {
-            push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].mode.name, log[j].mode.players);
-          }
-        }
-    });
-  });
-}
-
-
-
-
-var mf = require('./app/main_functions');
 require('./tests/testsRouter.js')(app, mongoose, q);
-//mf.changeChance(1,2);
 
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q);

@@ -1,13 +1,13 @@
 var Qinfo           = require('./Qinfo');
-var insideQ_OW           = require('../app/insideQ_OW');
+var insideQ           = require('../app/insideQ');
 module.exports = function(async,q) {
 
 	for (var i=0; i<Qinfo.queue.length; i++) {
 		global.count.push(0);
-		global.wasInserted[i] = true;
-		global.isDrained[i] = true;
+		//global.wasInserted[i] = true;
+		//global.isDrained[i] = true;
 		q[i] = async.queue(function(task, callback) {
-	    	insideQ_OW(task, callback);
+	    	insideQ(task, callback);
 		}, 1);
 	}
 
@@ -21,7 +21,7 @@ module.exports = function(async,q) {
 
 	    //global.isDrained.push(true);
 	};*/
-	q[0].drain = function() {
+	/*q[0].drain = function() {
 		console.log('all items have been processed in queue nr. 0');
 	    global.isDrained[0] = true;
 	}
@@ -129,5 +129,65 @@ module.exports = function(async,q) {
 		console.log('all items have been processed in queue nr. 26');
 	    global.isDrained[26] = true;
 	}
+	q[27].drain = function() {
+		console.log('all items have been processed in queue nr. 27');
+	    global.isDrained[27] = true;
+	}
+	q[28].drain = function() {
+		console.log('all items have been processed in queue nr. 28');
+	    global.isDrained[28] = true;
+	}
+	q[29].drain = function() {
+		console.log('all items have been processed in queue nr. 29');
+	    global.isDrained[29] = true;
+	}
+	q[30].drain = function() {
+		console.log('all items have been processed in queue nr. 30');
+	    global.isDrained[30] = true;
+	}
+	q[31].drain = function() {
+		console.log('all items have been processed in queue nr. 31');
+	    global.isDrained[31] = true;
+	}
+	q[32].drain = function() {
+		console.log('all items have been processed in queue nr. 32');
+	    global.isDrained[32] = true;
+	}
+	q[33].drain = function() {
+		console.log('all items have been processed in queue nr. 33');
+	    global.isDrained[33] = true;
+	}
+	q[34].drain = function() {
+		console.log('all items have been processed in queue nr. 34');
+	    global.isDrained[34] = true;
+	}
+	q[35].drain = function() {
+		console.log('all items have been processed in queue nr. 35');
+	    global.isDrained[35] = true;
+	}
+	q[36].drain = function() {
+		console.log('all items have been processed in queue nr. 36');
+	    global.isDrained[36] = true;
+	}
+	q[37].drain = function() {
+		console.log('all items have been processed in queue nr. 37');
+	    global.isDrained[37] = true;
+	}
+	q[38].drain = function() {
+		console.log('all items have been processed in queue nr. 38');
+	    global.isDrained[38] = true;
+	}
+	q[39].drain = function() {
+		console.log('all items have been processed in queue nr. 39');
+	    global.isDrained[39] = true;
+	}
+	q[40].drain = function() {
+		console.log('all items have been processed in queue nr. 40');
+	    global.isDrained[40] = true;
+	}
+	q[41].drain = function() {
+		console.log('all items have been processed in queue nr. 41');
+	    global.isDrained[41] = true;
+	}*/
 
 }

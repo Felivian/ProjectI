@@ -11,7 +11,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
 	}
 	app.use(cookieToucher);*/
 	
-    app.get('/', function(req, res) {
+    app.get('/messenger-login', function(req, res) {
         /*console.log(req.query.account_linking_token);
         console.log(' ');
         console.log(req.query.redirect_uri);
@@ -21,10 +21,34 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         req.session.redirect_uri = req.query.redirect_uri;
         req.session.account_linking_token = req.query.account_linking_token;
     	if (req.isAuthenticated()) {
-            res.redirect('/profile');
+            res.redirect(req.session.redirect_uri+'&authorization_code=200');
         } else {
-            res.render('index.ejs');
+            res.render('messenger-login.ejs');
         }
+    });
+
+    app.get('/', function(req, res) {
+        if (req.user) {
+            res.render('home.ejs', { user: req.user.facebook.name, url: 'home' });
+        } else {
+            res.render('home.ejs', {user: null, url: 'home'});
+        }  
+    });
+
+    app.get('/about', function(req, res) {
+        if (req.user) {
+            res.render('about.ejs', { user: req.user.facebook.name, url: 'about' });
+        } else {
+            res.render('about.ejs', {user: null, url: 'about'});
+        }  
+    });
+
+    app.get('/settings', function(req, res) {
+        if (req.user) {
+            res.render('settings.ejs', { user: req.user.facebook.name, url: 'settings' });
+        } else {
+            res.render('settings.ejs', {user: null, url: 'settings'});
+        }  
     });
 
     app.get('/signup', isNotLoggedIn, function(req, res) {
@@ -41,7 +65,8 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     });*/
 
     app.get('/profile', isLoggedIn, function(req, res) {
-        if (req.session.redirect_uri) {
+        //messenger login redirect
+        if (req.session.redirect_uri) { 
             var r_uri = req.session.redirect_uri;
             req.session.redirect_uri = undefined;
             request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+req.session.account_linking_token
@@ -56,9 +81,8 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             });
             res.redirect(r_uri+'&authorization_code=200');
         } else {
-            res.render('profile.ejs', { user: req.user });
+            res.render('profile.ejs', { user: req.user.facebook.name, url: 'profile' });
         }
-        //res.json(req.user);
     });
 
     app.get('/logout', function(req, res) {
@@ -141,7 +165,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         res.render('connect-local.ejs', { message: req.flash('loginMessage') });
     });
     app.post('/connect/local', passport.authenticate('local-signup', {
-        successRedirect : '/profile', // redirect to the secure profile section
+        successRedirect : '/settings', // redirect to the secure profile section
         failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
@@ -154,7 +178,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     // handle the callback after facebook has authorized the user
     app.get('/connect/facebook/callback',
         passport.authorize('facebook', {
-            successRedirect : '/profile',
+            successRedirect : '/settings',
             failureRedirect : '/'
         }));
 
@@ -180,7 +204,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         user.local.email    = undefined;
         user.local.password = undefined;
         user.save(function(err) {
-            res.redirect('/profile');
+            res.redirect('/settings');
         });
     });
 
@@ -189,7 +213,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         var user            = req.user;
         user.facebook.token = undefined;
         user.save(function(err) {
-            res.redirect('/profile');
+            res.redirect('/settings');
         });
     });
 

@@ -19,14 +19,14 @@ var logSchema = mongoose.Schema({
 		name 		: String,
 		players 	: Number
 	},
-	//rank_s			: String,
-	rank_n			: Number,
+	//rank_n			: Number,
+	rank_s			: String, //rank_s exists or not
 	rank			: [Number],
-	realMax			: Number,
-	realMin			: Number,
-	maxSR			: Number,
-	minSR			: Number,
-	roles 			: [String],
+	realMax			: Number, //
+	realMin			: Number, // if rank_s exists than all four are equal 0
+	maxSR			: Number, //
+	minSR			: Number, //
+	//roles 			: [String],
 
 	qd_players		: Number,
 	matches			: [mongoose.Schema.Types.ObjectId]

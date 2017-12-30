@@ -18,7 +18,7 @@ var matchSchema = mongoose.Schema({
 	game			: [String],
 	name 			: [String],
 	players 		: [Number],
-	rank			: [Number],
+	rank_s			: [String],
 	qd_players		: [Number],
 	valid : Boolean
 });

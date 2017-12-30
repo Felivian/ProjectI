@@ -4,7 +4,7 @@ module.exports = function(app, bot, mongoose, q) {
 	var Log 	= require('../app/models/log');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
 	var wG 		= require('../app/whatGroups');
-	var Qinfo 	= require('../config/Qinfo');
+	//var Qinfo 	= require('../config/Qinfo');
 	var _ 		= require('underscore');
 
 	//bot.say(1493247637377838, 'test');
@@ -14,7 +14,7 @@ module.exports = function(app, bot, mongoose, q) {
 			title: 'Welcome to ProjectI', 
 			buttons: [{ 
 				type: 'account_link',
-            	url: 'http://localhost:8080' 
+            	url: 'http://localhost:8080/messenger-login' 
             	//url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me' 
             }] 
         }]);
@@ -80,7 +80,7 @@ module.exports = function(app, bot, mongoose, q) {
 	});
 
 
-	bot.hear('ow', (payload, chat) => {
+	/*bot.hear('ow', (payload, chat) => {
 		//if user exists or smth
 		chat.say('Got it', { typing: true });
 
@@ -132,17 +132,12 @@ module.exports = function(app, bot, mongoose, q) {
 				//console.log(newLog);
 				newLog.save(function(err) {
                 	if (err) throw err;
-					/*Log.find({active: true}, function(err, log) {
-						for(var i=0; i<log.length; i++) { 
-							//change to only saving
-							push2q(q, log[i]._id, log[i].user_id, newLog.game, newLog.platform, newLog.region, newLog.mode.name, newLog.mode.players);
-						}
-					});*/
+
                 });
 			});
 		});
 		
-	});
+	});*/
 
 
 	bot.hear('code', (payload, chat) => {
