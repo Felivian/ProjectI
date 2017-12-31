@@ -3,6 +3,9 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
 	var cookieParser 		= require('cookie-parser');
     var request             = require('request');
     var configAuth          = require('../config/auth.js');
+    var Game = require('./models/game');
+    var Queue = require('./models/queue');//
+    var _    = require('underscore');
 	//cookie toucher
 	/*var cookieToucher = function (req, res, next) {
 		req.session.touch();
@@ -21,27 +24,33 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         }
     });
 
+
+    
+        
+
     app.get('/', function(req, res) {
-        if (req.user) {
-            res.render('home.ejs', { user: req.user.facebook.name, url: 'home' });
-        } else {
-            res.render('home.ejs', {user: null, url: 'home'});
-        }
+        Game.find({}, function(err, game) {
+            if (req.user) {
+                res.render('home.ejs', { user: req.user.facebook.name, url: req.url, game:game });
+            } else {
+                res.render('home.ejs', {user: null, url: req.url, games: game});
+            }
+        });
     });
 
     app.get('/about', function(req, res) {
         if (req.user) {
-            res.render('about.ejs', { user: req.user.facebook.name, url: 'about' });
+            res.render('about.ejs', { user: req.user.facebook.name, url: req.url });
         } else {
-            res.render('about.ejs', {user: null, url: 'about'});
+            res.render('about.ejs', {user: null, url: req.url});
         }  
     });
 
     app.get('/settings', function(req, res) {
         if (req.user) {
-            res.render('settings.ejs', { user: req.user.facebook.name, url: 'settings' });
+            res.render('settings.ejs', { user: req.user.facebook.name, url: req.url });
         } else {
-            res.render('settings.ejs', {user: null, url: 'settings'});
+            res.render('settings.ejs', {user: null, url: req.url});
         }  
     });
 
@@ -71,7 +80,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             });
             res.redirect(r_uri+'&authorization_code=200');
         } else {
-            res.render('profile.ejs', { user: req.user.facebook.name, url: 'profile' });
+            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url });
         }
     });
 
@@ -175,10 +184,68 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     });
 
     // =====================================
-    // SMTH ================================
+    // ajax data ===========================
     // =====================================
 
+    app.get('/game/:gameName', function (req, res) {
+        Game.findOne({name: req.params.gameName}, function(err, game) {
+            res.json(game);
+        });
+    });
 
+    /*app.get('/queue/gamename/:gameName/modename/:modeName', function (req, res) {
+        if (!req.params.modeName) {
+            Queue.find({game: req.params.gameName, modeName: req.params.modeName}, function(err, queue) {
+                var arr = [];
+                for(var i=0; i<queue.length; i++) {
+                  arr.push(queue[i].modePlayers);
+                }
+                arr = _.uniq(arr);
+                //console.log(arr);
+                res.json({modePlayers: arr});
+            });
+        } else {
+            Queue.find({game: req.params.gameName}, function(err, queue) {
+                var arr = [];
+                for(var i=0; i<queue.length; i++) {
+                  arr.push(queue[i].modePlayers);
+                }
+                arr = _.uniq(arr);
+                //console.log(arr);
+                res.json({modePlayers: arr});
+            });
+        }
+    });*/
+
+    //return modePlayers for certain mode
+    app.get('/queue/gamename/:gameName/modename/:modeName', function (req, res) {
+        Queue.aggregate([
+            { $match: { game: req.params.gameName, modeName: req.params.modeName} },
+            { $group : {
+                _id : "$modeName",
+                players: {$addToSet : "$modePlayers" }
+                }
+            }         
+        ], function(err, queue) {
+            res.json({modePlayers: queue[0].players});
+        })
+    });
+
+    app.get('/queue/gamename/:gameName/yourgroup/:yourGroup', function (req, res) {
+        console.log(req.params.gameName);
+        var yg = parseInt(req.params.yourGroup);
+        Queue.aggregate([
+            { $match: { game: req.params.gameName, modePlayers: {$gt: yg} } },
+            { $group : {
+                _id : "$modeName",
+                players: {$addToSet : "$modePlayers" }
+                }
+            }             
+        ], function(err, queue) {
+            console.log(queue);
+            res.json( {queue: queue});
+        })
+    });
 };
 
 // route middleware to make sure a user is logged in

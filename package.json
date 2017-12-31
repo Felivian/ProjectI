@@ -17,6 +17,8 @@
     "ejs": "latest",
     "express": "latest",
     "express-session": "latest",
+    "express-sessions": "latest",
+    "jquery-nice-select": "latest",
     "mongoose": "^4.10.8",
     "morgan": "latest",
     "node-schedule": "latest",

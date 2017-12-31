@@ -4,15 +4,174 @@
 <head>
     <title>ProjectI</title>
     <%- include('partial/head', {}); %>
+    <style>
+    	select {
+    		margin-bottom: 10px;
+    	}
+    	.select-area {
+    		//background-color: blue;
+    	}
+    </style>
 </head>
 <body>
 <div class="container-fluid">
     <%- include('partial/navbar', {user: user, url: url}); %>
+    <div class="row select-area">
+    	<div class="col-md-12">
+	    	<select required class="form-control game">
+				<option value="" disabled selected hidden>Game name</option>
+				<% var i=0; %>
+				<% for(i=0; i<games.length; i++) { %>
+					<% var str = games[i].name.replace(/\s/g, ''); %>
+					<option value= <%= str %> ><%= games[i].name %></option>
+				<% } %>
+			</select>
+		</div>
+		<div class="col-md-2">
+			<select required class="form-control hidden modeName">
+				<option value="" disabled selected hidden>Mode name</option>
+				
+			</select>
+		</div>
+
+		<div class="col-md-2">
+			<select required class="form-control hidden modePlayers">
+				<option value="" disabled selected hidden>Size of final group</option>
+				<% for(var j=1; j<13; j++) { %>
+					<option class="" value= <%= j %> ><%= j %></option>
+				<% } %>
+			</select>
+		</div>
+		
+		<div class="col-md-2">
+			<select required class="form-control hidden yourGroup">
+				<option value="" disabled selected hidden>Your group size</option>
+			</select>
+		</div>
+
+		<div class="col-md-2">
+	    	<select required class="form-control hidden rank">
+				<option value="" disabled selected hidden>Rank name</option>
+			</select>
+		</div>
+		<div class="col-md-2">
+	    	<select required class="form-control hidden platform">
+				<option value="" disabled selected hidden>Platform</option>
+			</select>
+		</div>
+		<div class="col-md-2">
+	    	<select required class="form-control hidden region">
+				<option value="" disabled selected hidden>Region</option>
+			</select>
+		</div>
+	</div>
+
+
 
 </div><!-- /.container-fluid -->
 
 
 
+<script>
+	/*$(document).ready(function() {
+		$('select').niceSelect();
+	});*/
+	function sortNumber(a,b) {
+    	return a - b;
+	}
+
+	$(document).ready(function() {
+		$('select.game').change(function() {
+			var gameName = $( 'select.game' ).val();
+			var modeName = $( 'select.modeName' ).val();
+			gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
+			$('select').toggleClass('hidden',false);
+			$.ajax({
+            type: 'GET',
+            url: '/game/'+gameName,
+            success:  function(json) { 
+                $('select.modeName').empty();
+                $('select.modeName').append( '<option value="" disabled selected hidden>Mode name</option>');
+                for (var i = 0; i < json.modeName.length; i++) {
+                	$('select.modeName').append( '<option value='+json.modeName[i]+'>'+json.modeName[i]+'</option>');
+                }
+                $('select.modePlayers').empty();
+                $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
+                for (var i = 0; i < json.modePlayers.length; i++) {
+                	$('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
+                }
+                $('select.yourGroup').empty();
+                $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
+                for (var i = json.modePlayers.sort(sortNumber).reverse()[0]-1; i >0 ; i--) {
+                	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
+                }
+                $('select.rank').empty();
+                $('select.rank').append( '<option value="" disabled selected hidden>Rank</option>');
+                for (var i = 0; i < json.rank.length; i++) {
+                	$('select.rank').append( '<option value='+json.rank[i]+'>'+json.rank[i]+'</option>');
+                }
+                $('select.platform').empty();
+                $('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');
+                for (var i = 0; i < json.platform.length; i++) {
+                	$('select.platform').append( '<option value='+json.platform[i]+'>'+json.platform[i]+'</option>');
+                }
+                $('select.region').empty();
+                $('select.region').append( '<option value="" disabled selected hidden>Region</option>');
+                for (var i = 0; i < json.region.length; i++) {
+                	$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
+                }
+            }
+            });
+
+		});
+
+		$('select.modeName').change(function() {
+			var gameName = $( 'select.game' ).val();
+			var modeName = $( 'select.modeName' ).val();
+			gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
+        	$.ajax({
+            type: 'GET',
+            url: '/queue/gamename/'+gameName+'/modename/'+modeName,
+            success:  function(json) {
+            	json.modePlayers = json.modePlayers.sort(sortNumber);
+            	console.log(json.modePlayers);
+            	$('select.modePlayers').empty();
+                $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
+
+                for (var i = 0; i < json.modePlayers.length; i++) {
+                	$('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
+                }
+                $('select.yourGroup').empty();
+                $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
+				var maxPlayers = json.modePlayers.sort(sortNumber).reverse()[0];
+                for (var i = 1; i < maxPlayers; i++) {
+                	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
+                }
+
+            }});
+        });
+
+
+
+		$('select.modePlayers').change(function() {
+            var maxPlayers = $('select.modePlayers').val();
+            var group = $('select.yourGroup').val();
+            console.log(group);
+           
+	            $('select.yourGroup').empty();
+	            $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
+
+	            for (var i = 1; i < maxPlayers; i++) {
+	            	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
+	            }
+           	if ( group !== null ) {
+	            if ($('select.yourGroup>option[value='+group+']').length >0) {
+	            	$('select.yourGroup').val(group);
+	            }
+	        }
+		});
+	});
+</script>
 </body>
 
 </html>
