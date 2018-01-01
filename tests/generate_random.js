@@ -11,11 +11,11 @@ module.exports = function() {
   var rg = Math.floor(  ( Math.random()*10 ) % 2 ); //game
   //rg =1;
   if (rg == 0) {
-    game = 'overwatch';
+    game = 'Overwatch';
     
     var x = Math.floor(  ( Math.random()*10 ) % 2 ); //ow mode
     if (x==0) {
-      modeName = 'comp';
+      modeName = 'Competitive';
       qd = Math.floor(  ( Math.random()*10 ) % 5 )+1;
       if (qd >= 3) {
         modePlayers = 6;
@@ -35,7 +35,7 @@ module.exports = function() {
         }
       }
     } else {
-      modeName = 'scrim'
+      modeName = 'Scrim'
       modePlayers = 12
       qd = Math.floor(  ( Math.random()*10 ) % 11 )+1;
     }
@@ -62,23 +62,23 @@ module.exports = function() {
     
     var r3 = Math.floor(  ( Math.random()*10 ) % 7 );
     if (r3 === 0) {
-      rank_s = 'bronze';
+      rank_s = 'Bronze';
     } else if(r3 === 1) {
-      rank_s = 'silver';
+      rank_s = 'Silver';
     } else if(r3 === 2) {
-      rank_s = 'gold';
+      rank_s = 'Gold';
     } else if(r3 === 3) {
-      rank_s = 'platinum';
+      rank_s = 'Platinum';
     } else if(r3 === 4) {
-      rank_s = 'diamond';
+      rank_s = 'Diamond';
     } else if(r3 === 5) {
-      rank_s = 'master';
+      rank_s = 'Master';
     } else {
-      rank_s = 'gm';
+      rank_s = 'Grand Master';
     }
 
   } else if (rg == 1) {
-    game = 'splinter cell conviction';
+    game = 'Splinter Cell Conviction';
     var r1 = Math.floor((Math.random()*10) % 3 );
     var r2 = Math.floor((Math.random()*10) % 2 );
     if (r1 === 0) {
@@ -97,7 +97,7 @@ module.exports = function() {
     modeName = 'co-op';
     modePlayers = 2;
     qd = 1;
-    rank_s = 'realistic';
+    rank_s = 'Realistic';
     rank = [];
   }
 

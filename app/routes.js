@@ -5,6 +5,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     var configAuth          = require('../config/auth.js');
     var Game = require('./models/game');
     var Queue = require('./models/queue');//
+    var Log = require('./models/log');//
     var _    = require('underscore');
 	//cookie toucher
 	/*var cookieToucher = function (req, res, next) {
@@ -193,29 +194,6 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         });
     });
 
-    /*app.get('/queue/gamename/:gameName/modename/:modeName', function (req, res) {
-        if (!req.params.modeName) {
-            Queue.find({game: req.params.gameName, modeName: req.params.modeName}, function(err, queue) {
-                var arr = [];
-                for(var i=0; i<queue.length; i++) {
-                  arr.push(queue[i].modePlayers);
-                }
-                arr = _.uniq(arr);
-                //console.log(arr);
-                res.json({modePlayers: arr});
-            });
-        } else {
-            Queue.find({game: req.params.gameName}, function(err, queue) {
-                var arr = [];
-                for(var i=0; i<queue.length; i++) {
-                  arr.push(queue[i].modePlayers);
-                }
-                arr = _.uniq(arr);
-                //console.log(arr);
-                res.json({modePlayers: arr});
-            });
-        }
-    });*/
 
     //return modePlayers for certain mode
     app.get('/queue/gamename/:gameName/modename/:modeName', function (req, res) {
@@ -231,7 +209,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         })
     });
 
-    app.get('/queue/gamename/:gameName/yourgroup/:yourGroup', function (req, res) {
+    /*app.get('/queue/gamename/:gameName/yourgroup/:yourGroup', function (req, res) {
         console.log(req.params.gameName);
         var yg = parseInt(req.params.yourGroup);
         Queue.aggregate([
@@ -245,6 +223,40 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             console.log(queue);
             res.json( {queue: queue});
         })
+    });*/
+    app.get('/logs/:gameName/:modeName/:modePlayers/:qd_players/:rank_s/:platform/:region/:limit', function (req, res) {
+        var players = parseInt(req.params.modePlayers);
+        var group = parseInt(req.params.qd_players);
+        var limit = parseInt(req.params.limit);
+
+        var query = {};
+        if(req.params.gameName != 'null') { query.game = req.params.gameName; }
+        if(req.params.modeName != 'null') { query.modeName = req.params.modeName; }
+        if(req.params.modePlayers != 'null') { query.modePlayers = req.params.modePlayers; }
+        if(req.params.rank_s != 'null') { query.rank_s = req.params.rank_s; }
+        if(req.params.platform != 'null') { query.platform = req.params.platform; }
+        if(req.params.region != 'null') { query.region = req.params.region; }
+        query.active = true;
+        console.log(query);
+        Log.find(query).limit(limit).sort({updated: -1})
+        .exec(function(err, log) {
+            console.log(log);
+            res.json({log: log});
+        })
+
+        /*Log.find({
+            game: req.params.gameName,
+            modeName: req.params.modeName,
+            modePlayers: players,
+            rank_s: req.params.rank_s,
+            platform: req.params.platform,
+            region: req.params.region
+        }).limit(limit)
+        .exec(function(err, log) {
+            console.log(log);
+            res.json({log: log});
+        })*/
+
     });
 };
 

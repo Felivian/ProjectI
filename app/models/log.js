@@ -6,6 +6,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 // define the schema for our user model
 var logSchema = mongoose.Schema({
 	user_id			: mongoose.Schema.Types.ObjectId,
+	user_name 		: String,
 	active			: Boolean,
 	pending			: Boolean,//
 	success			: Boolean,
