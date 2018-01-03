@@ -101,10 +101,12 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     var win = $(window);
+    var nearToBottom = 200;
     // Each time the user scrolls
     win.scroll(function() {
         // End of the document reached?
-        if ($(document).height() - win.height() == win.scrollTop()) {
+        //if ($(document).height() - win.height() == win.scrollTop()) {
+        if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
             generateUserAds(false); 
         }
     });
@@ -130,7 +132,7 @@ function generateUserAds(init) {
 
     var limit = 24 - (offset % 24);//migth need some more love
     if (limit < 24) limit += 12;
-    
+
     $.ajax({
     type: 'GET',
     url: '/logs/'+gameName+'/'+modeName+'/'+modePlayers+'/'+qd_players+'/'+rank_s+'/'+platform+'/'+region+'/'+limit+'/'+offset,
