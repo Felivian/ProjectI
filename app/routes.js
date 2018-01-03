@@ -224,10 +224,11 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             res.json( {queue: queue});
         })
     });*/
-    app.get('/logs/:gameName/:modeName/:modePlayers/:qd_players/:rank_s/:platform/:region/:limit', function (req, res) {
+    app.get('/logs/:gameName/:modeName/:modePlayers/:qd_players/:rank_s/:platform/:region/:limit/:offset', function (req, res) {
         var players = parseInt(req.params.modePlayers);
         var group = parseInt(req.params.qd_players);
         var limit = parseInt(req.params.limit);
+        var offset = parseInt(req.params.offset);
 
         var query = {};
         if(req.params.gameName != 'null') { query.game = req.params.gameName; }
@@ -237,26 +238,21 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         if(req.params.platform != 'null') { query.platform = req.params.platform; }
         if(req.params.region != 'null') { query.region = req.params.region; }
         query.active = true;
-        console.log(query);
-        Log.find(query).limit(limit).sort({updated: -1})
-        .exec(function(err, log) {
-            console.log(log);
-            res.json({log: log});
-        })
 
-        /*Log.find({
-            game: req.params.gameName,
-            modeName: req.params.modeName,
-            modePlayers: players,
-            rank_s: req.params.rank_s,
-            platform: req.params.platform,
-            region: req.params.region
-        }).limit(limit)
-        .exec(function(err, log) {
-            console.log(log);
-            res.json({log: log});
-        })*/
+        if (!players) players = 99;
+        if (!group) group = 0;
+        var maxQdP = players - group;
 
+        //console.log(query);
+        Log.find({ $and: [query, {'qd_players': {$lte: maxQdP} }]}).skip(offset).limit(limit).sort({updated: -1})
+        .exec(function(err, log) {
+            //console.log(log);
+            if(log.length === 0) {
+                res.json({result: false});
+            } else {
+                res.json({result: true, log: log});
+            }
+        });
     });
 };
 

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    generateUserAds();
+    generateUserAds(true);
     
 
 	$('select.game').change(function() {
@@ -40,10 +40,11 @@ $(document).ready(function() {
             $('select.region').append( '<option value="" disabled selected hidden>Region</option>');
             for (var i = 0; i < json.region.length; i++) {
             	$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
-            }
-            generateUserAds();
+            }   
+            generateUserAds(true);
         }
         });
+
 	});
 
 	$('select.modeName').change(function() {
@@ -92,14 +93,29 @@ $(document).ready(function() {
         }
 	});
 
-    $('select').not('select.yourGroup').change(function() {
-        generateUserAds();
+    $('select').not('.game').change(function() {
+        generateUserAds(true);
     });
 
 });
 
+$(document).ready(function() {
+    var win = $(window);
+    // Each time the user scrolls
+    win.scroll(function() {
+        // End of the document reached?
+        if ($(document).height() - win.height() == win.scrollTop()) {
+            generateUserAds(false); 
+        }
+    });
+});
 
-function generateUserAds() {
+
+
+
+function generateUserAds(init) {
+    $('#loading').show();
+
     var gameName = $( 'select.game' ).val();
     if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
     var modeName = $( 'select.modeName' ).val();
@@ -109,34 +125,50 @@ function generateUserAds() {
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();
 
+    var offset = 0;
+    if(!init) offset = $('div.user-ad-outer').length;
+
+    var limit = 24 - (offset % 24);//migth need some more love
+    if (limit < 24) limit += 12;
+    
     $.ajax({
     type: 'GET',
-    url: '/logs/'+gameName+'/'+modeName+'/'+modePlayers+'/'+qd_players+'/'+rank_s+'/'+platform+'/'+region+'/24',
+    url: '/logs/'+gameName+'/'+modeName+'/'+modePlayers+'/'+qd_players+'/'+rank_s+'/'+platform+'/'+region+'/'+limit+'/'+offset,
     success:  function(json) {
         console.log(json.log);
-        $('div.content-area').empty();
-        for (var i = 0; i < json.log.length; i++) {
+        console.log(json);
+        if(json.result) {
+            if(init) $('div.content-area').empty();
+            for (var i = 0; i < json.log.length; i++) {
 
-            $('div.content-area').append(
-                '<div id=\"'+json.log[i]._id+'\"class=\"user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
-                '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
-                    '<a class="nick panel-heading\" href=\"/profile/'+json.log[i].user_id+'\">'+json.log[i].user_name+'</a>'+
-                    '<img src=\"/img/'+json.log[i].game+'.png\" alt=\"'+json.log[i].game+'\" class=\"rounded-circle game-logo\"><br>'+
-                    '<div class=\"user-data panel-body\">'+
-                        '<table width=\"100%\" class=\"table-striped\"><tbody>'+
-                            '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+json.log[i].modeName+'</kbd></td></tr>'+
-                            '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+json.log[i].modePlayers+'</kbd></td></tr>'+
-                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+json.log[i].rank_s+'</kbd></td></tr>'+
-                            '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+json.log[i].qd_players+'</kbd></td></tr>'+
-                            '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+json.log[i].platform+'</kbd></td></tr>'+
-                            '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+json.log[i].region+'</kbd></td></tr>'+
-                        '</tbody></table>'+
+                $('div.content-area').append(
+                    '<div id=\"'+json.log[i]._id+'\"class=\"user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
+                    '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
+                        '<a class="nick panel-heading\" href=\"/profile/'+json.log[i].user_id+'\">'+json.log[i].user_name+'</a>'+
+                        '<img src=\"/img/'+json.log[i].game+'.png\" alt=\"'+json.log[i].game+'\" class=\"rounded-circle game-logo\"><br>'+
+                        '<div class=\"user-data panel-body\">'+
+                            '<table width=\"100%\" class=\"table-striped\"><tbody>'+
+                                '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+json.log[i].modeName+'</kbd></td></tr>'+
+                                '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+json.log[i].modePlayers+'</kbd></td></tr>'+
+                                '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+json.log[i].rank_s+'</kbd></td></tr>'+
+                                '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+json.log[i].qd_players+'</kbd></td></tr>'+
+                                '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+json.log[i].platform+'</kbd></td></tr>'+
+                                '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+json.log[i].region+'</kbd></td></tr>'+
+                            '</tbody></table>'+
+                        '</div>'+
                     '</div>'+
-                '</div>'+
-            '</div>'
-            );
+                '</div>'
+                );
+            }
+            $('#loading').hide();
+        } else {
+            if(init) $('div.content-area').empty();
+            $('#loading').hide();
+            //if(init) NO ads
+            //if(!init) no MORE ads
         }
-    }});
+    }
+    });
 }
 
 function sortNumber(a,b) {
