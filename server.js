@@ -83,17 +83,17 @@ var bot = new BootBot({
 q = [];
 global.count = [];
 
-require('./config/Qconfig')(async, q);
+
 var Log             = require('./app/models/log');//
-setTimeout(function() {
+/*setTimeout(function() {
   Log.find({ active: true }, function(err, log) {
     for(var j=0; j<log.length; j++) {
       //check date etc 
-      push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].modeName, log[j].modePlayers);
+      push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].modeName, log[j].modePlayers, true);
     }
   })
   , 500});
-
+*/
 
 require('./tests/testsRouter.js')(app, mongoose, q);
 
@@ -104,10 +104,13 @@ require('./app/schedules.js')(app, mongoose, schedule, q);
 require('./app/routes.js')(app, passport, session, mongoose/**/,q); // load our routes and pass in our app and fully configured passport
 
 // socket.io ======================================================================
-//require('./app/socketio.js')(app, io, mongoose);
+require('./app/socketio.js')(app, io, mongoose);
 
 // BootBot ======================================================================
 require('./app/bot.js')(app, bot, mongoose, q);
+
+// Init Queues ====================================================================
+require('./config/Qconfig')(async, q, io);
 
 // launch ======================================================================
 bot.start();

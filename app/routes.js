@@ -32,7 +32,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     app.get('/', function(req, res) {
         Game.find({}, function(err, game) {
             if (req.user) {
-                res.render('home.ejs', { user: req.user.facebook.name, url: req.url, game:game });
+                res.render('home.ejs', { user: req.user.facebook.name, url: req.url, games:game });
             } else {
                 res.render('home.ejs', {user: null, url: req.url, games: game});
             }
@@ -188,17 +188,17 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     // ajax data ===========================
     // =====================================
 
-    app.get('/game/:gameName', function (req, res) {
-        Game.findOne({name: req.params.gameName}, function(err, game) {
+    app.post('/game', function (req, res) {
+        Game.findOne({name: req.body.gameName}, function(err, game) {
             res.json(game);
         });
     });
 
 
     //return modePlayers for certain mode
-    app.get('/queue/gamename/:gameName/modename/:modeName', function (req, res) {
+    app.post('/queue', function (req, res) {
         Queue.aggregate([
-            { $match: { game: req.params.gameName, modeName: req.params.modeName} },
+            { $match: { game: req.body.gameName, modeName: req.body.modeName} },
             { $group : {
                 _id : "$modeName",
                 players: {$addToSet : "$modePlayers" }
@@ -209,44 +209,30 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         })
     });
 
-    /*app.get('/queue/gamename/:gameName/yourgroup/:yourGroup', function (req, res) {
-        console.log(req.params.gameName);
-        var yg = parseInt(req.params.yourGroup);
-        Queue.aggregate([
-            { $match: { game: req.params.gameName, modePlayers: {$gt: yg} } },
-            { $group : {
-                _id : "$modeName",
-                players: {$addToSet : "$modePlayers" }
-                }
-            }             
-        ], function(err, queue) {
-            console.log(queue);
-            res.json( {queue: queue});
-        })
-    });*/
-    app.get('/logs/:gameName/:modeName/:modePlayers/:qd_players/:rank_s/:platform/:region/:limit/:offset', function (req, res) {
-        var players = parseInt(req.params.modePlayers);
-        var group = parseInt(req.params.qd_players);
-        var limit = parseInt(req.params.limit);
-        var offset = parseInt(req.params.offset);
 
-        var query = {};
-        if(req.params.gameName != 'null') { query.game = req.params.gameName; }
-        if(req.params.modeName != 'null') { query.modeName = req.params.modeName; }
-        if(req.params.modePlayers != 'null') { query.modePlayers = req.params.modePlayers; }
-        if(req.params.rank_s != 'null') { query.rank_s = req.params.rank_s; }
-        if(req.params.platform != 'null') { query.platform = req.params.platform; }
-        if(req.params.region != 'null') { query.region = req.params.region; }
-        query.active = true;
 
-        if (!players) players = 99;
-        if (!group) group = 0;
-        var maxQdP = players - group;
+    app.post('/logs', function (req, res) {    
+        var players;
+        if (typeof req.body.data !== 'undefined') {
+            if ('modePlayers' in req.body.data) req.body.data.modePlayers = parseInt(req.body.data.modePlayers);
+            if (typeof req.body.data.modePlayers === 'undefined') {
+                players = 99;  
+            } else {
+                players = req.body.data.modePlayers;
+            }
+        } else {
+            req.body.data = {};
+            players = 99;
+        }
+        if ('qd_players' in req.body) req.body.qd_players = parseInt(req.body.qd_players);
+        req.body.limit = parseInt(req.body.limit);
+        req.body.offset = parseInt(req.body.offset);
+        if (!req.body.qd_players) req.body.qd_players = 0;
+        var maxQdP = players - req.body.qd_players;
 
-        //console.log(query);
-        Log.find({ $and: [query, {'qd_players': {$lte: maxQdP} }]}).skip(offset).limit(limit).sort({updated: -1})
+        req.body.data.active = true;
+        Log.find({ $and: [req.body.data, {'qd_players': {$lte: maxQdP} }]}).skip(req.body.offset).limit(req.body.limit).sort({updated: -1})
         .exec(function(err, log) {
-            //console.log(log);
             if(log.length === 0) {
                 res.json({result: false});
             } else {

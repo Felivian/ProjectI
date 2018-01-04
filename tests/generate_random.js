@@ -102,9 +102,9 @@ module.exports = function() {
   }
 
 
-  //console.log( {qd: qd, rank: rank, mode: mode, region: region, platform: platform});
+
 return {game: game, qd: qd, rank_s: rank_s, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
-//return {game: game, qd: qd, rank_s:rank_s, modeName: modeName, modePlayers: modePlayers, region: 'eu', platform: 'pc'};
+//return {game: game, qd: 1, rank_s: rank_s, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
 
 /*  function minmax(arr) {
     return [arr.sort(sortNumber)[0], arr.sort(sortNumber).reverse()[0]];

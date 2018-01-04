@@ -5,9 +5,11 @@ var Match             = require('./models/match');//
 var wG              = require('./whatGroups');//
 var async           = require('async');
 
-module.exports = function (task, callback) {
+module.exports = function (io, task, callback) {
   Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
     if (!actualLog) { callback(); } else {
+      //io.emit('new',actualLog);//delete this
+      //if (!task.atf) io.emit('new',actualLog);
       //get datetime here
       var datetime = new Date().toISOString();
       datetime = Date.parse(datetime) - (1*60*60*1000);//1h
@@ -32,50 +34,56 @@ module.exports = function (task, callback) {
           console.log('wg:' + wg);
           actualLog.active = false;
           actualLog.success = true;
-          match = new Match;
-          match.matches=[actualLog._id];
           actualLog.save(function(err, updatedActualLog){
-            match.save(function(err, match){
-              var dup = wG.dups(wg);
-              var lf = wG.keys_n(dup);
-              for(var i=0; i<lf.length; i++) {
+            var dup = wG.dups(wg);
+            var lf = wG.keys_n(dup);
+            var arr = [actualLog._id];
+            var i = 0;
+            async.whilst(
+              function() { return i < lf.length; },
+              function(callback3) {
                 Log.find({
-                  '_id': {$ne: task.log_id},
-                  'active':true, 
-                  //datetime
-                  'updated': {$gte: new Date(datetime)},
-                  'game': actualLog.game, 
-                  'platform': actualLog.platform,
-                  'region': actualLog.region,
-                  'modeName': actualLog.modeName,
-                  'modePlayers': actualLog.modePlayers,
-                  'rank_s':  actualLog.rank_s,
-                  'qd_players': lf[i][1]
-                })//, {$set: {success: true, active: false}}, { new: true })
+                '_id': {$ne: task.log_id},
+                'active':true, 
+                //datetime
+                'updated': {$gte: new Date(datetime)},
+                'game': actualLog.game, 
+                'platform': actualLog.platform,
+                'region': actualLog.region,
+                'modeName': actualLog.modeName,
+                'modePlayers': actualLog.modePlayers,
+                'rank_s':  actualLog.rank_s,
+                'qd_players': lf[i][1]
+                })
                 .limit(lf[i][0])
                 .exec(function(err, log) {
+                  var j = 0;
                   async.each(log, function(log_i, callback2) {
                     log_i.success=true;
                     log_i.active=false;
                     log_i.save(function(err, ulog) {
-                      global.count[task.i]++;
-                      Match.update({'matches': {$in: [task.log_id]}},  {$push: {matches: ulog._id} }, function(err, umatch) {
-                        callback2();
-                      });
-                      
+                        arr.push(log_i._id);
+                        callback2();  
                     });
                   }, function(err) {
-                    if(global.count[task.i] === wg.length ) { 
-                      console.log('HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-                      global.count[task.i] = 0;
-                      callback();
-                    }
+                    i++;
+                    callback3(null, arr);
                   });
-                });   
+                });  
+              },
+              function (err, n) {
+                match = new Match;
+                match.matches = n;
+                //io remove
+                io.emit('delete',n);
+                match.save(function(err, match){
+                  callback();
+                });
               }
-            });   
+            );
           });
         } else {
+          if (!task.atf) io.emit('new',actualLog);
           callback();
           //not found
           //serch in user DB
@@ -83,5 +91,4 @@ module.exports = function (task, callback) {
       });
     }
   });
-
 }

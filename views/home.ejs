@@ -4,8 +4,15 @@
 <head>
     <title>ProjectI</title>
     <%- include('partial/head', {}); %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
 	<script src="js/home.js"></script>
     <style>
+    	button.no-ads {
+    		display: none;
+    	}
+    	button.new-ads {
+    		display: none;
+    	}
     	select {
     		margin-bottom: 10px;
     	}
@@ -39,7 +46,9 @@
     	div.user-data {
     		padding-bottom: 10px;
     	}
+    	
     </style>
+
 </head>
 <body>
 <div class="container-fluid">
@@ -94,7 +103,7 @@
 			</select>
 		</div>
 	</div>
-
+	<button class="new-ads">New content!</button>
 	<div class="row content-area col-sm-12">
 		<!--<div id="asd" class="user-ad-outer col-md-3 col-sm-4 col-xs-12 ">
 			<div class="user-ad-inner panel panel-primary col-md-12 text-center">
@@ -116,7 +125,7 @@
 	<p id="loading">
 		<img src="images/loading.gif" alt="Loading…" />
 	</p>
-
+	<button class="no-ads">No more ads. Click to refresh</button>
 </div><!-- /.container-fluid -->
 
 
