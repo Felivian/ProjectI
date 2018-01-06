@@ -4,6 +4,15 @@ module.exports = function(app, io, mongoose) {
 	// var cookieParser 		= require('cookie-parser');
 	
 	io.on('connection', function (socket) {
+		socket.on('room', function(gameName) {
+			console.log(gameName);
+			for(room in socket.rooms){
+			    if(socket.id !== room) socket.leave(room);
+			}
+			socket.join(gameName, function(){
+			  console.log('rooms', socket.rooms); // here you'll see two rooms: one with socket.id and another with data.newroom
+			});
+		});
 		//getting sid from cookies
 		// var sid = cookieParser.JSONCookies(socket.handshake.headers.cookie);
 		// sid = decodeURIComponent(sid);

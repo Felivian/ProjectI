@@ -75,7 +75,8 @@ module.exports = function (io, task, callback) {
                 match = new Match;
                 match.matches = n;
                 //io remove
-                io.emit('delete',n);
+                //io.emit('delete',n);
+                if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
                 match.save(function(err, match){
                   callback();
                 });
@@ -83,7 +84,8 @@ module.exports = function (io, task, callback) {
             );
           });
         } else {
-          if (!task.atf) io.emit('new',actualLog);
+          if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('new', actualLog);
+          //if (!task.atf) io.emit('new',actualLog);
           callback();
           //not found
           //serch in user DB

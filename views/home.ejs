@@ -19,10 +19,6 @@
     	.content-area {
     		margin: auto;
     	}
-    	div.user-ad-inner {
-    		padding: 0px;
-   
-    	}
     	div.user-data {
     		padding: 0px;
 
@@ -30,7 +26,7 @@
     	div.nick {
     		padding: 0px;
     	}
-    	div.user-ad-outer {
+    	div.user-ad-outer, .op {
     		padding-left: 8px;
     		padding-right: 8px;
     	}
@@ -46,7 +42,78 @@
     	div.user-data {
     		padding-bottom: 10px;
     	}
-    	
+    	/*.panel-primary {
+    		border-color: #28292f;
+    	}*/
+    	.panel-primary, .panel-primary>.panel-heading {
+    		background-color: #28292f;
+    		border-color: #28292f;
+    	}
+    	.panel-primary>.panel-heading:hover {
+    		background-color: #000000;
+    	}
+    	div.user-ad-inner {
+    		padding: 0px;
+    		background-color: #404b62;
+    		color: white;
+   
+    	}
+    	div.user-ad-inner:hover {
+    		//background-color: #5C6BC0;
+
+    	}
+    	.table-striped>tbody>tr:nth-child(odd) {
+		   background-color: #30384a;
+		}
+		body {
+			background-color: #242d44;
+		}
+		select option, select {
+			background-color: #99aab5 !important;
+			color: #000000 !important;
+		}
+		/*.add-ad {
+			display: none;
+			position: absolute;
+		    top: 50%;
+		    left: 50%;
+		}*/
+		/*.focused {
+			background-color: red !important;
+		}*/
+		.focused {
+		    -webkit-filter: blur(2px);
+		    filter: blur(2px);
+		}
+
+
+
+		.user-info {
+			opacity: 1;
+			display: block;
+			width: 100%;
+			height: auto;
+			transition: .5s ease;
+			backface-visibility: hidden;
+		}
+
+		.add-ad {
+			transition: .5s ease;
+			opacity: 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			-ms-transform: translate(-50%, -50%)
+		}
+
+		.user-ad-outer:hover .user-info {
+			opacity: 0.3;
+		}
+
+		.user-ad-outer:hover .add-ad {
+			opacity: 1 !important;
+		}
     </style>
 
 </head>
@@ -106,19 +173,24 @@
 	<button class="new-ads">New content!</button>
 	<div class="row content-area col-sm-12">
 		<!--<div id="asd" class="user-ad-outer col-md-3 col-sm-4 col-xs-12 ">
-			<div class="user-ad-inner panel panel-primary col-md-12 text-center">
+			<div class="user-ad-inner panel panel-primary col-md-12 text-center" >
 				<a class="nick panel-heading" href="whatever you want"> Nick </a>
-				<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Overwatch_circle_logo.svg/500px-Overwatch_circle_logo.svg.png" alt="..." class="rounded-circle game-logo">
-				<div class="user-data panel-body">
-					<table width="100%" class="table-striped"><tbody>
-						<tr><td>Mode</td> <td class="text-center"><kbd>Competitive</kbd></td></tr>
-						<tr><td>Maximum group</td> <td class="text-center"><kbd>6</kbd></td></tr>
-						<tr><td>Rank</td> <td class="text-center"><kbd>Platinum</kbd></td></tr>
-						<tr><td>Size of group</td> <td class="text-center"><kbd>1</kbd></td></tr>
-						<tr><td>Platform</td> <td class="text-center"><kbd>PC</kbd></td></tr>
-						<tr><td>Region</td> <td class="text-center"><kbd>EU</kbd></td></tr>
-					</tbody></table>
+				<div class="user-info">
+					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Overwatch_circle_logo.svg/500px-Overwatch_circle_logo.svg.png" alt="..." class="rounded-circle game-logo">
+					<div class="user-data panel-body">
+						<table width="100%" class="table-striped"><tbody>
+							<tr><td>Mode</td> <td class="text-center"><kbd>Competitive</kbd></td></tr>
+							<tr><td>Maximum group</td> <td class="text-center"><kbd>6</kbd></td></tr>
+							<tr><td>Rank</td> <td class="text-center"><kbd>Platinum</kbd></td></tr>
+							<tr><td>Size of group</td> <td class="text-center"><kbd>1</kbd></td></tr>
+							<tr><td>Platform</td> <td class="text-center"><kbd>PC</kbd></td></tr>
+							<tr><td>Region</td> <td class="text-center"><kbd>EU</kbd></td></tr>
+						</tbody></table>
+					</div>
 				</div>
+			</div>
+			<div class="add-ad">
+				<button class="add">+</button>
 			</div>
 		</div>-->
 	</div>
@@ -131,9 +203,7 @@
 
 
 <script>
-	$(document).ready(function() {
 
-	});
 </script>
 </body>
 
