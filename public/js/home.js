@@ -60,6 +60,9 @@ $(document).ready(function() {
     
 
 	$('select.game').change(function() {
+        //sessionStorage.setItem('gameName', $( 'select.game' ).val());
+        //sessionStorage.removeItem('modeName');
+
 		var gameName = $( 'select.game' ).val();
 		var modeName = $( 'select.modeName' ).val();
 		gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
@@ -87,7 +90,7 @@ $(document).ready(function() {
             $('select.rank').empty();
             $('select.rank').append( '<option value="" disabled selected hidden>Rank</option>');
             for (var i = 0; i < json.rank.length; i++) {
-            	$('select.rank').append( '<option value='+json.rank[i]+'>'+json.rank[i]+'</option>');
+            	$('select.rank').append( '<option value='+json.rank[i].replace(/\s/g, '')+'>'+json.rank[i]+'</option>');
             }
             $('select.platform').empty();
             $('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');
@@ -99,13 +102,26 @@ $(document).ready(function() {
             for (var i = 0; i < json.region.length; i++) {
             	$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
             }   
+            if (sessionStorage.getItem('modeName') != null ) $('select.modeName').val(sessionStorage.getItem('modeName'));
+            if (sessionStorage.getItem('modePlayers') != null ) $('select.modePlayers').val(sessionStorage.getItem('modePlayers'));
+            if (sessionStorage.getItem('rank') != null ) $('select.rank').val(sessionStorage.getItem('rank'));
+            if (sessionStorage.getItem('platform') != null ) $('select.platform').val(sessionStorage.getItem('platform'));
+            if (sessionStorage.getItem('region') != null ) $('select.region').val(sessionStorage.getItem('region'));
+            if (sessionStorage.getItem('yourGroup') != null ) {
+                $('select.yourGroup').val(sessionStorage.getItem('yourGroup'));
+            } else {
+                $('select.yourGroup').val(1);
+            }
             generateUserAds(true);
+            //change selects here
         }
         });
 
 	});
 
 	$('select.modeName').change(function() {
+        //sessionStorage.setItem('modeName', $( 'select.modeName' ).val());
+
 		var gameName = $( 'select.game' ).val();
 		var modeName = $( 'select.modeName' ).val();
 		gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
@@ -148,12 +164,18 @@ $(document).ready(function() {
        	if ( group !== null ) {
             if ($('select.yourGroup>option[value='+group+']').length >0) {
             	$('select.yourGroup').val(group);
+            } else {
+                //$('select.yourGroup').val(1);
             }
         }
 	});
 
     $('select').not('.game').change(function() {
         generateUserAds(true);
+    });
+
+    $('select.yourGroup').change(function() {
+        sessionStorage.setItem('yourGroup',$('select.yourGroup').val());
     });
 
 });
@@ -181,9 +203,69 @@ $(document).ready(function() {
     $('.no-ads').click(function() { 
         generateUserAds(false); 
     });
+    $('button.picked').click(function() { 
+
+        $('div.pick').toggle('display');
+        $('.pick-data').show();
+        //$(this).hide();
+    });
+
+    /*$('.pick').scroll(function(event){
+        var st = $(this).scrollTop();
+        if (st > 0){
+            $('.pick-data').hide();
+        }
+
+    });*/
+    $('.pick').bind('mousewheel touchmove', function(event) {
+        if (event.originalEvent.wheelDelta >= 0) {
+            //$('.pick-data').toggle('show');
+            $('.pick-data').show('slow');
+        } else {
+            $('.pick-data').hide('slow');
+            //$('.pick-data').toggle('hide');
+        }
+    });
+    /*$('.pick').bind('scroll', function(event) {
+        if (event.originalEvent.wheelDelta >= 0) {
+            $('.pick-data').show();
+        } else {
+            $('.pick-data').hide();
+        }
+    });
+    $('.pick').bind('touchmove', function(event) {
+        if (event.originalEvent.wheelDelta >= 0) {
+            $('.pick-data').show();
+        } else {
+            $('.pick-data').hide();
+        }
+    });*/
+
+    $('.pick').bind('mousewheel touchmove DOMMouseScroll', function(e) {
+        var scrollTo = null;
+
+        if (e.type == 'mousewheel') {
+            scrollTo = (e.originalEvent.wheelDelta * -1);
+        }
+        else if (e.type == 'DOMMouseScroll') {
+            scrollTo = 40 * e.originalEvent.detail;
+        }
+
+        if (scrollTo) {
+            e.preventDefault();
+            $(this).scrollTop(scrollTo + $(this).scrollTop());
+        }
+    });
 });
 
 
+function generateUserPick(id,nick,group) {
+    $('.picked-users').append('<div class=\"col-sm-12 picked-user\">'+
+                    '<div class=\"col-sm-5\"><a href=\"/profile/'+id+'\">'+nick+'</a></div>'+
+                    '<div class=\"col-sm-5\">Group: '+group+'</div>'+
+                    '<button class=\"col-sm-1\">X</button>'+
+                '</div>');
+}
 
 function generateUserAds(init) {
     $('#loading').show();
@@ -221,7 +303,7 @@ function generateUserAds(init) {
         console.log(json.log);
         console.log(json);
         if(json.result) {
-            //if(init) $('div.content-area').empty();
+            if(init) $('div.content-area').empty();
             for (var i = 0; i < json.log.length; i++) {
                 appendUserAd(json.log[i]);
                 
@@ -297,10 +379,10 @@ function sortNumber(a,b) {
 }
 
 $(document).ready(function() {
+    
     RefreshSomeEventListener();
-    $('button.add').click(function(){
-        console.log('asd');
-    });
+    updatePicks(true);
+
     /*$('.content-area').mouseleave(function(){
         $('div.user-ad-inner').toggleClass('focused',false);
         $('button.add').hide();
@@ -309,36 +391,91 @@ $(document).ready(function() {
 });
 
 function RefreshSomeEventListener() {
-// Remove handler from existing elements
-    //$('div.user-ad-inner').off(); 
     $('button.add').off();
-
-    // Re-add event handler for all matching elements
-    /*$('div.user-ad-inner').on('mouseover', function() {
-        $(this).toggleClass('focused',true);
-        //$(this).children('div').children('table').toggleClass('table-striped',false);
-        $('div.user-ad-inner').not(this).toggleClass('focused',false);
-        //$('div.user-ad-inner').not(this).children('div').children('table').toggleClass('table-striped',true);
-        $('div.add-ad').hide();
-        $(this).siblings('div.add-ad').show();  
-    });
-    $('.nick').on('mouseover', function() {
-        $('div.user-ad-inner').toggleClass('focused',false);
-    });*/
-    /*$('div.user-ad-inner').on('mouseover', function() {
-        $(this).find('.add-ad').css({ opacity: 1 });
-    });*/
     $('button.add').on('click', function(){
-        var x =[];
+        var selVal =[];
         $(this).parent().siblings('div.user-ad-inner').find('kbd').each(function(index, obj)
         {
-          x.push($(this).text());
+            selVal.push($(this).text());
         });
+        selVal[2] = selVal[2].replace(/\s/g, '');
+        var gameName = $(this).parent().siblings('div.user-ad-inner').find('img').attr('alt')
+        gameName = gameName.replace(/\s/g, '');
 
-        console.log(x);
-       // $('select.game').val(x[0]).change();
+        /*if(gameName != $('select.game').val()) {
+            $('select.game').val(gameName).change();
+            console.log(selVal[0]);
+        }*/
 
-        //$('select.game').val().change();
-        //alert("Hello! I am an alert box!");
+        var nick = $('#'+id).children().find('a.nick').text();
+        var actualGroup = selVal[3];
+
+        var valid = true;
+        
+        var group = JSON.parse(sessionStorage.getItem('group'));
+        if(group === null) {
+            group = 0;
+            if($('select.yourGroup').val() !== null) group = $('select.yourGroup').val();
+        }
+        var id = JSON.parse(sessionStorage.getItem('id'));
+        if(id == null) id = [];
+        
+        if ( id.includes($(this).parents('.user-ad-outer').attr('id'))) valid = false;
+        if (sessionStorage.getItem('gameName') != null && sessionStorage.getItem('gameName') != gameName) valid = false;
+        if (sessionStorage.getItem('modeName') != null && sessionStorage.getItem('modeName') != selVal[0]) valid = false;
+        if (sessionStorage.getItem('modePlayers') != null && sessionStorage.getItem('modePlayers') != selVal[1]) valid = false;
+        if (sessionStorage.getItem('rank') != null && sessionStorage.getItem('rank') != selVal[2]) valid = false;
+        if (sessionStorage.getItem('platform') != null && sessionStorage.getItem('platform') != selVal[4]) valid = false;
+        if (sessionStorage.getItem('region') != null && sessionStorage.getItem('region') != selVal[5]) valid = false;
+        
+        console.log(valid);
+        if (valid) {
+            id.push($(this).parents('.user-ad-outer').attr('id'));
+            sessionStorage.setItem('id', JSON.stringify(id));
+            group = parseInt(group) + parseInt(actualGroup);
+            sessionStorage.setItem('group', JSON.stringify(group));
+            
+            sessionStorage.setItem('gameName',gameName);
+            sessionStorage.setItem('modeName',selVal[0]);
+            sessionStorage.setItem('modePlayers',selVal[1]);
+            sessionStorage.setItem('rank',selVal[2]);
+            sessionStorage.setItem('platform',selVal[4]);
+            sessionStorage.setItem('region',selVal[5]);
+            
+            updatePicks(false);
+            generateUserPick(id,nick,actualGroup);
+                //$('select.modeName').val(selVal[0]).change();
+        }
+
     });
+}
+
+function updatePicks(init) {
+    $('th.gameName').text(sessionStorage.getItem('gameName'));
+    $('th.modeName').text(sessionStorage.getItem('modeName'));
+    $('th.modePlayers').text(sessionStorage.getItem('modePlayers'));
+    $('th.rank').text(sessionStorage.getItem('rank').replace(/([A-Z])/g, ' $1').trim());
+    $('th.platform').text(sessionStorage.getItem('platform'));
+    $('th.region').text(sessionStorage.getItem('region'));
+
+    var yourGroup = sessionStorage.getItem('yourGroup');
+    if (yourGroup == null) {
+        $('select.yourGroup').val(1);
+        yourGroup = 1;
+    } else {
+        yourGroup = parseInt(yourGroup);
+    }
+    sessionStorage.setItem('yourGroup',yourGroup);
+    var group = JSON.parse(sessionStorage.getItem('group'));
+    var temp_group = group+yourGroup;
+    $('span.group').text(temp_group+'/'+parseInt(sessionStorage.getItem('modePlayers')));
+    if(sessionStorage.getItem('gameName') != $('select.game').val()) {
+        $('select.game').val(sessionStorage.getItem('gameName')).change();
+    }
+    if(init) recreatePicks();
+    
+}
+
+function recreatePicks() {
+    //get id from session ajax to DB
 }
