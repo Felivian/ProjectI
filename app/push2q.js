@@ -1,6 +1,6 @@
 var Queue           = require('./models/queue');//
 //atf - after the failure
-module.exports = function(q, x, y, game, platform, region, modeName, modePlayers, atf) {
+module.exports = function(q, x, y, game, platform, region, modeName, modePlayers, atf, arr) {
 	var json = {
 		game          : game,
 		platform      : platform, 
@@ -12,7 +12,7 @@ module.exports = function(q, x, y, game, platform, region, modeName, modePlayers
 	function(err, queue) {
 		if (queue) {
 			console.log(queue.qNr)
-			q[queue.qNr].push({log_id: x, userId: y, modePlayers: modePlayers, i: queue.qNr, atf: atf}, function(err) {
+			q[queue.qNr].push({log_id: x, userId: y, modePlayers: modePlayers, i: queue.qNr, atf: atf, arr: arr}, function(err) {
 				console.log('finished processing '+x);
 			});
 		}

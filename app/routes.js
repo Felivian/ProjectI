@@ -1,4 +1,4 @@
-module.exports = function(app, passport, session, mongoose/**/,q) {
+module.exports = function(app, passport, session, mongoose, q) {
 	var Session            	= require('../app/models/session');
 	var cookieParser 		= require('cookie-parser');
     var request             = require('request');
@@ -7,6 +7,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     var Queue = require('./models/queue');//
     var Log = require('./models/log');//
     var _    = require('underscore');
+    var push2q  = require('./push2q');
 	//cookie toucher
 	/*var cookieToucher = function (req, res, next) {
 		req.session.touch();
@@ -231,7 +232,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         var maxQdP = players - req.body.qd_players;
 
         req.body.data.active = true;
-        console.log(req.body.data);
+        //console.log(req.body.data);
         Log.find({ $and: [req.body.data, {'qd_players': {$lte: maxQdP} }]}).skip(req.body.offset).limit(req.body.limit).sort({updated: -1})
         .exec(function(err, log) {
             if(log.length === 0) {
@@ -243,10 +244,30 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
     });
 
     app.post('/picks', function (req, res) {
+        //console.log(req.body.id);
         JSON.stringify(req.body.id);
-        Log.find({_id: {$in: req.body.id}}, 'userId userName qd_players', function(err, log) {
+        Log.find({_id: {$in: req.body.id}}, 'userId userName qd_players active', function(err, log) {
             console.log(log);
             res.json(log);
+        });
+        //res.sendStatus(200);
+    });
+
+    app.post('/match', function (req, res) {
+        JSON.stringify(req.body.id);;
+        Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
+            if (log.length != req.body.id.length) {
+                res.sendStatus(404);
+            } else {
+                var arr = [];
+                log.forEach(function(val){
+                    arr.push(val._id);
+                });
+                push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
+                res.sendStatus(200);
+            }
+            //res.json(log);
+            
         });
         //res.sendStatus(200);
     });
