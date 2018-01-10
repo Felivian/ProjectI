@@ -113,6 +113,7 @@ $(document).ready(function() {
                 $('select.yourGroup').val(1);
             }
             generateUserAds(true);
+            refreshSession();
             //change selects here
         }
         });
@@ -144,7 +145,7 @@ $(document).ready(function() {
             for (var i = 1; i < maxPlayers; i++) {
             	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
             }
-
+            refreshSession();
         }});
     });
 
@@ -164,18 +165,43 @@ $(document).ready(function() {
        	if ( group !== null ) {
             if ($('select.yourGroup>option[value='+group+']').length >0) {
             	$('select.yourGroup').val(group);
+                sessionStorage.setItem('modePlayers',group);
             } else {
-                //$('select.yourGroup').val(1);
+                $('select.yourGroup').val(1);
+                sessionStorage.setItem('modePlayers',1);
             }
         }
+        refreshSession();
 	});
 
     $('select').not('.game').change(function() {
+        refreshSession();
         generateUserAds(true);
     });
 
     $('select.yourGroup').change(function() {
         sessionStorage.setItem('yourGroup',$('select.yourGroup').val());
+        refreshSession();
+        updatePicks();
+    });
+
+    /*$('select.rank').change(function() {
+        refreshSession();
+    });
+    $('select.platform').change(function() {
+        refreshSession();
+    });
+    $('select.region').change(function() {
+        refreshSession();
+    });*/
+
+    $('button.select.refresh').click(function() {
+        updatePicks(true);
+    });
+    $('button.select.reset').click(function() {
+        sessionStorage.clear();
+        //refreshSession();
+        location.reload();
     });
 
 });
@@ -259,12 +285,19 @@ $(document).ready(function() {
 });
 
 
-function generateUserPick(id,nick,group) {
-    $('.picked-users').append('<div class=\"col-sm-12 picked-user\">'+
-                    '<div class=\"col-sm-5\"><a href=\"/profile/'+id+'\">'+nick+'</a></div>'+
+function generateUserPick(logId, userId,nick,group) {
+    $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 picked-user\">'+
+                    '<div class=\"col-sm-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
                     '<div class=\"col-sm-5\">Group: '+group+'</div>'+
                     '<button class=\"col-sm-1\">X</button>'+
                 '</div>');
+    var group = JSON.parse(sessionStorage.getItem('group'));
+    var modePlayers = JSON.parse(sessionStorage.getItem('modePlayers'));
+    if (group != modePlayers) {
+        $('.pick > button').attr('disabled', true);
+    } else {
+        $('.pick > button').attr('disabled', false);
+    }
 }
 
 function generateUserAds(init) {
@@ -300,8 +333,6 @@ function generateUserAds(init) {
     data: {data: data, limit: limit, offset: offset, qd_players: qd_players},
     url: '/logs',
     success:  function(json) {
-        console.log(json.log);
-        console.log(json);
         if(json.result) {
             if(init) $('div.content-area').empty();
             for (var i = 0; i < json.log.length; i++) {
@@ -325,7 +356,7 @@ function appendUserAd(ad) {
     $('div.content-area').append(
         '<div id=\"'+ad._id+'\"class=\"user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
             '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
-                '<a class="nick panel-heading\" href=\"/profile/'+ad.user_id+'\">'+ad.user_name+'</a>'+
+                '<a class="nick panel-heading\" href=\"/profile/'+ad.userId+'\">'+ad.userName+'</a>'+
                 '<div class=\"user-info\">'+
                     '<img src=\"/img/'+ad.game+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
                     '<div class=\"user-data panel-body\">'+
@@ -351,7 +382,7 @@ function prependUserAd(ad) {
     $('div.content-area').prepend(
         '<div id=\"'+ad._id+'\"class=\"user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
             '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
-                '<a class="nick panel-heading\" href=\"/profile/'+ad.user_id+'\">'+ad.user_name+'</a>'+
+                '<a class="nick panel-heading\" href=\"/profile/'+ad.userId+'\">'+ad.userName+'</a>'+
                 '<div class=\"user-info\">'+
                     '<img src=\"/img/'+ad.game+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
                     '<div class=\"user-data panel-body\">'+
@@ -392,22 +423,27 @@ $(document).ready(function() {
 
 function RefreshSomeEventListener() {
     $('button.add').off();
+    $('.picked-user > button').off();
+    $('div.user-info').off();
     $('button.add').on('click', function(){
         var selVal =[];
         $(this).parent().siblings('div.user-ad-inner').find('kbd').each(function(index, obj)
         {
             selVal.push($(this).text());
         });
-        selVal[2] = selVal[2].replace(/\s/g, '');
-        var gameName = $(this).parent().siblings('div.user-ad-inner').find('img').attr('alt')
+        if (selVal[2] != null) selVal[2] = selVal[2].replace(/\s/g, '');
+        var gameName = $(this).parent().siblings('div.user-ad-inner').find('img').attr('alt');
         gameName = gameName.replace(/\s/g, '');
 
         /*if(gameName != $('select.game').val()) {
             $('select.game').val(gameName).change();
             console.log(selVal[0]);
         }*/
-
-        var nick = $('#'+id).children().find('a.nick').text();
+        var nick = $(this).parent().siblings('div.user-ad-inner').find('a.nick').text();
+        var userId = $(this).parent().siblings('div.user-ad-inner').find('a.nick').attr('href');
+        userId = userId.split('/');
+        userId = userId[userId.length-1];
+        //var nick = $('#'+id).children().find('a.nick').text();
         var actualGroup = selVal[3];
 
         var valid = true;
@@ -417,6 +453,7 @@ function RefreshSomeEventListener() {
             group = 0;
             if($('select.yourGroup').val() !== null) group = $('select.yourGroup').val();
         }
+
         var id = JSON.parse(sessionStorage.getItem('id'));
         if(id == null) id = [];
         
@@ -427,6 +464,8 @@ function RefreshSomeEventListener() {
         if (sessionStorage.getItem('rank') != null && sessionStorage.getItem('rank') != selVal[2]) valid = false;
         if (sessionStorage.getItem('platform') != null && sessionStorage.getItem('platform') != selVal[4]) valid = false;
         if (sessionStorage.getItem('region') != null && sessionStorage.getItem('region') != selVal[5]) valid = false;
+        
+        if(id.length == 0) valid = true;
         
         console.log(valid);
         if (valid) {
@@ -441,22 +480,88 @@ function RefreshSomeEventListener() {
             sessionStorage.setItem('rank',selVal[2]);
             sessionStorage.setItem('platform',selVal[4]);
             sessionStorage.setItem('region',selVal[5]);
+            $('select.rank').val(selVal[2]).change();
+            //$(this).parent().siblings('div.user-ad-inner').toggleClass('panel-primary', false);
+            //$(this).parent().siblings('div.user-ad-inner').toggleClass('panel-info', true);
             
+
             updatePicks(false);
-            generateUserPick(id,nick,actualGroup);
+            generateUserPick(id,userId,nick,actualGroup);
+            RefreshSomeEventListener();
                 //$('select.modeName').val(selVal[0]).change();
         }
+    });
 
+    $('.picked-user > button').on('click', function(){
+        var actualId = $(this).parent().attr('id');
+        var id = JSON.parse(sessionStorage.getItem('id'));
+        var index = id.indexOf(actualId);
+        id.splice(index,1);
+        sessionStorage.setItem('id', JSON.stringify(id));
+        var sub = parseInt($(this).prev().text().replace( /^\D+/g, ''));
+        var group = JSON.parse(sessionStorage.getItem('group'));
+        group = group - sub;
+        sessionStorage.setItem('group',group);
+        updateGroup();
+        $(this).parent().remove();
+        refreshSession();
+        if ($('.picked-user').length > 0) updatePicks(false);
+    });
+
+    $('div.user-info, .add').on('mouseover', function() {
+        var onAd = $(this).parents('.user-ad-outer');
+        var id = JSON.parse(sessionStorage.getItem('id'));
+        var valid = true;
+        if(!(id == null || id.length == 0)) {
+            var selVal =[];
+            $(this).parents('div.user-ad-outer').find('kbd').each(function(index, obj) {
+                selVal.push($(this).text());
+            });
+            if (selVal[2] != null) selVal[2] = selVal[2].replace(/\s/g, '');
+            //console.log($(this).parents('div.user-ad-outer').find('img').);
+            var gameName = $(this).parents('div.user-ad-outer').find('img').attr('alt');
+            gameName = gameName.replace(/\s/g, '');
+            if (sessionStorage.getItem('gameName') != null && sessionStorage.getItem('gameName') != gameName) valid = false;
+            if (sessionStorage.getItem('modeName') != null && sessionStorage.getItem('modeName') != selVal[0]) valid = false;
+            if (sessionStorage.getItem('modePlayers') != null && sessionStorage.getItem('modePlayers') != selVal[1]) valid = false;
+            if (sessionStorage.getItem('rank') != null && sessionStorage.getItem('rank') != selVal[2]) valid = false;
+            if (sessionStorage.getItem('platform') != null && sessionStorage.getItem('platform') != selVal[4]) valid = false;
+            if (sessionStorage.getItem('region') != null && sessionStorage.getItem('region') != selVal[5]) valid = false;
+            if (!valid) {
+                onAd.children('.user-ad-inner').toggleClass('panel-danger', true);
+                onAd.children('.user-ad-inner').toggleClass('panel-primary', false);
+                //onAd.toggleClass('panel-danger', true);
+            }
+        }
+    });
+
+    $('div.user-info, .add').on('mouseout', function() {;
+        var onAd = $(this).parents('.user-ad-outer');
+        //var id = JSON.parse(sessionStorage.getItem('id'));
+        //onAd.toggleClass('notSuiting', false);
+        onAd.children('.user-ad-inner').toggleClass('panel-danger', false);
+        onAd.children('.user-ad-inner').toggleClass('panel-primary', true);
     });
 }
 
 function updatePicks(init) {
-    $('th.gameName').text(sessionStorage.getItem('gameName'));
-    $('th.modeName').text(sessionStorage.getItem('modeName'));
-    $('th.modePlayers').text(sessionStorage.getItem('modePlayers'));
-    $('th.rank').text(sessionStorage.getItem('rank').replace(/([A-Z])/g, ' $1').trim());
-    $('th.platform').text(sessionStorage.getItem('platform'));
-    $('th.region').text(sessionStorage.getItem('region'));
+    var gameName = sessionStorage.getItem('gameName');
+    var modeName = sessionStorage.getItem('modeName');
+    var modePlayers = sessionStorage.getItem('modePlayers');
+    var qd_players = $( 'select.yourGroup' ).val();
+    var rank = sessionStorage.getItem('rank');
+    //if (rank != null) rank = rank;//.replace(/([A-Z])/g, ' $1').trim();
+    var platform = sessionStorage.getItem('platform');
+    var region = sessionStorage.getItem('region');
+
+    //$('select.rank').val(rank).change();
+
+    $('th.gameName').text(gameName);
+    $('th.modeName').text(modeName);
+    $('th.modePlayers').text(modePlayers);
+    $('th.rank').text(rank);
+    $('th.platform').text(platform);
+    $('th.region').text(region);
 
     var yourGroup = sessionStorage.getItem('yourGroup');
     if (yourGroup == null) {
@@ -466,16 +571,108 @@ function updatePicks(init) {
         yourGroup = parseInt(yourGroup);
     }
     sessionStorage.setItem('yourGroup',yourGroup);
-    var group = JSON.parse(sessionStorage.getItem('group'));
-    var temp_group = group+yourGroup;
-    $('span.group').text(temp_group+'/'+parseInt(sessionStorage.getItem('modePlayers')));
+    
     if(sessionStorage.getItem('gameName') != $('select.game').val()) {
         $('select.game').val(sessionStorage.getItem('gameName')).change();
     }
+
+    
+    updateGroup();
     if(init) recreatePicks();
+
     
 }
 
 function recreatePicks() {
     //get id from session ajax to DB
+    var id = JSON.parse(sessionStorage.getItem('id'));
+    if (id != null) {
+        $.ajax({
+        type: 'POST',
+        url: '/picks',
+        data: {id: id},
+        success:  function(json) { 
+            console.log(json);
+            $('.picked-users').empty();
+            var sumPlayers = 0;//parseInt(sessionStorage.getItem('yourGroup'));
+            for (var i = 0; i < json.length; i++) {
+                generateUserPick(json[i]._id, json[i].userId,json[i].userName,json[i].qd_players);
+                sumPlayers += json[i].qd_players;
+            }
+            sessionStorage.setItem('group', sumPlayers);
+        }});      
+    }
+}
+
+function updateGroup() {
+    var group = JSON.parse(sessionStorage.getItem('group'));
+    var yourGroup = parseInt(sessionStorage.getItem('yourGroup'));
+    var temp_group
+    var modePlayers;
+    var modeName = sessionStorage.getItem('modeName');
+    if (group != null) {
+        temp_group = group+yourGroup; 
+    } else {
+        temp_group = yourGroup; 
+        group = '?';
+    }
+    if (modeName != null) {
+       modePlayers = parseInt(sessionStorage.getItem('modePlayers'));
+    } else {
+        modePlayers = '?';
+    }
+    
+    $('span.group').text(temp_group+'/'+modePlayers);
+    
+}
+
+function refreshSession() {
+    var id = JSON.parse(sessionStorage.getItem('id'));
+    if(id == null || id.length == 0) {
+        var gameName = $('select.game').val();
+        var modeName = $( 'select.modeName' ).val();
+        var modePlayers = $( 'select.modePlayers' ).val();
+        var yourGroup = $( 'select.yourGroup' ).val();
+        var rank = $( 'select.rank' ).val();
+        var platform = $( 'select.platform' ).val();
+        var region = $( 'select.region' ).val();
+        if (rank != null && rank != sessionStorage.getItem('rank') ) {
+            sessionStorage.setItem('rank', rank);
+            $('select.rank').val(rank).change();
+        }
+        if (gameName != null && gameName != sessionStorage.getItem('gameName') ) { 
+            sessionStorage.setItem('gameName', gameName); 
+            sessionStorage.removeItem('modeName'); 
+            sessionStorage.removeItem('modePlayers');
+            sessionStorage.removeItem('rank'); 
+            sessionStorage.removeItem('platform');
+            $('select.game').val(gameName).change();
+            //$('select.modeName').val();
+        }
+        if (modeName != null && modeName != sessionStorage.getItem('modeName') ) {
+            sessionStorage.setItem('modeName', modeName); 
+            sessionStorage.removeItem('modePlayers');
+            sessionStorage.removeItem('yourGroup');
+            $('select.modeName').val(modeName).change();
+        }
+        if (modePlayers != null && modePlayers != sessionStorage.getItem('modePlayers') ) {
+            sessionStorage.setItem('modePlayers', modePlayers);
+            sessionStorage.removeItem('yourGroup');
+            $('select.yourGroup').val(yourGroup).change();
+        }
+        
+
+        
+        if (platform != null && platform != sessionStorage.getItem('platform') ) {
+            sessionStorage.setItem('platform', platform);
+            $('select.platform').val(platform).change();
+        } 
+
+        if (region != null && region != sessionStorage.getItem('region') ) {
+            sessionStorage.setItem('region', region);
+            $('select.region').val(region).change();
+        }
+        updatePicks(false);
+    }
+    //updatePicks(false);
 }

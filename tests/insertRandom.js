@@ -35,7 +35,7 @@ module.exports = function(q) {
 	        //var qNr = mf.getNrOfQ(log);
 	        //if (qNr) {
 	            //global.wasInserted[qNr] = true;
-	            push2q(q, log._id, log.user_id, log.game, log.platform, log.region, log.modeName, log.modePlayers, false);
+	            push2q(q, log._id, log.userId, log.game, log.platform, log.region, log.modeName, log.modePlayers, false);
 	        //}
 	    });
 	}

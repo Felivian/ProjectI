@@ -71,6 +71,7 @@
 		select option, select {
 			background-color: #99aab5 !important;
 			color: #000000 !important;
+
 		}
 		/*.add-ad {
 			display: none;
@@ -93,6 +94,11 @@
 			-webkit-filter: sepia(100%);
 			filter:sepia(100%);
 		}
+		.notSuiting {
+			//border-radius: 10px;
+    		
+		}
+
 		.user-info {
 			opacity: 1;
 			display: block;
@@ -131,7 +137,10 @@
 			max-height: 60%;
 			padding: 0px;
 			bottom: 60px !important;
-			overflow-y: scroll;
+			overflow-y: hidden;
+			color: white;
+			border-radius: 10px;
+    		//border: 2px solid white; 
 		}
 		div.pick > img {
 			width: 20%;
@@ -156,9 +165,6 @@
 		.mobile-nav > ul {
 			height: 100%;
 			padding: 0;
-
-
-
 		}
 		.mobile-nav > ul > li {
 			display: inline-block;
@@ -171,8 +177,8 @@
 		.mobile-nav > ul > li.active {
 			background-color: #080808;
 		}
-		.pick {
-			color: white;
+		div.pick {
+			
 		}
 
 		.pick > .pick-data > table > thead {
@@ -197,13 +203,17 @@
 			font-size: 20px;
 
 		}
-			
+		button.select {
+
+		}
     </style>
+		
 
 </head>
 <body>
-<div class="container-fluid">
-    <%- include('partial/navbar', {user: user, url: url}); %>
+	<%- include('partial/navbar', {user: user, url: url}); %>
+<div class="container">
+
     
     <div class="row select-area col-md-12">
     	<div class="col-md-12">
@@ -253,6 +263,8 @@
 				<option value="" disabled selected hidden>Region</option>
 			</select>
 		</div>
+		<button class="select refresh col-xs-1 col-xs-offset-5">refresh</button>
+		<button class="select reset col-xs-1">reset</button>
 	</div>
 	<button class="new-ads">New content!</button>
 	<div class="row content-area col-sm-12">

@@ -240,6 +240,16 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
             }
         });
     });
+
+    app.post('/picks', function (req, res) {
+        JSON.stringify(req.body.id);
+        Log.find({_id: {$in: req.body.id}}, 'userId userName qd_players', function(err, log) {
+            console.log(log);
+            res.json(log);
+        });
+        //res.sendStatus(200);
+    });
+
 };
 
 // route middleware to make sure a user is logged in
