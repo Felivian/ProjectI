@@ -231,6 +231,7 @@ module.exports = function(app, passport, session, mongoose/**/,q) {
         var maxQdP = players - req.body.qd_players;
 
         req.body.data.active = true;
+        console.log(req.body.data);
         Log.find({ $and: [req.body.data, {'qd_players': {$lte: maxQdP} }]}).skip(req.body.offset).limit(req.body.limit).sort({updated: -1})
         .exec(function(err, log) {
             if(log.length === 0) {

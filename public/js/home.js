@@ -2,7 +2,6 @@ $(document).ready(function() {
     socket = io.connect('http://localhost:8080');
     socket.on('new', function (data) {
         var valid = true;
-        //console.log(data);
 
         var gameName = $( 'select.game' ).val();
         if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
@@ -11,9 +10,7 @@ $(document).ready(function() {
         var qd_players = $( 'select.yourGroup' ).val();
         var rank_s = $( 'select.rank' ).val();
         var platform = $( 'select.platform' ).val();
-        var region = $( 'select.region' ).val();
-        //console.log(modePlayers);
-        //console.log(data.modePlayers != modePlayers && modePlayers !== null);
+        var region = $( 'select.region' ).val();;
         if (data.game != gameName && gameName !== null) valid = false;
         if (data.modeName != modeName && modeName !== null) valid = false;
         if (data.modePlayers != modePlayers && modePlayers !== null) valid = false;
@@ -23,7 +20,6 @@ $(document).ready(function() {
         if (modePlayers !== null && qd_players !== null) {
             if (data.qd_players >= parseInt(modePlayers) - parseInt(qd_players)) valid = false;
         }
-        //if (data.qd_players > (modePlayers - qd_players)) valid = false;
         if(valid) {
             prependUserAd(data);
             $('button.new-ads').show();
@@ -49,7 +45,6 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('select.game').change(function() {
         var gameName = $( 'select.game' ).val();
-        //gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
         socket.emit('room', gameName);
     });
 });        
@@ -57,16 +52,78 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     generateUserAds(true);
-    
+    $('select.modePlayers').change(function() {
+        var maxPlayers = $('select.modePlayers').val();
+        var group = $('select.yourGroup').val();
+       
+            $('select.yourGroup').empty();
+            $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
+
+            for (var i = 1; i < maxPlayers; i++) {
+                $('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
+            }
+        if ( group !== null ) {
+            if ($('select.yourGroup>option[value='+group+']').length >0) {
+                $('select.yourGroup').val(group);
+                sessionStorage.setItem('modePlayers',group);
+            } else {
+                $('select.yourGroup').val(1);
+                sessionStorage.setItem('modePlayers',1);
+            }
+        }
+        if (sessionStorage.getItem('init')) $('select.yourGroup').val(sessionStorage.getItem('yourGroup')).change();
+    });
+
+    $('select.modeName').change(function() {
+
+        var gameName = $( 'select.game' ).val();
+        var modeName = $( 'select.modeName' ).val();
+        gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
+        $.ajax({
+        type: 'POST',
+        url: '/queue',
+        data: {gameName: gameName, modeName: modeName},
+        success:  function(json) {
+            json.modePlayers = json.modePlayers.sort(sortNumber);
+            //console.log(json.modePlayers);
+            $('select.modePlayers').empty();
+            $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
+
+            for (var i = 0; i < json.modePlayers.length; i++) {
+                $('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
+            }
+            $('select.yourGroup').empty();
+            $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
+            var maxPlayers = json.modePlayers.sort(sortNumber).reverse()[0];
+            for (var i = 1; i < maxPlayers; i++) {
+                $('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
+            }
+
+
+            if (sessionStorage.getItem('init') && sessionStorage.getItem('modePlayers') != null) $('select.modePlayers').val(sessionStorage.getItem('modePlayers')).change();
+            if (sessionStorage.getItem('init')) sessionStorage.removeItem('init')
+            generateUserAds(true);
+        }});
+    });
+
+
+
+    $('select.modePlayers, select.rank, select.platform, select.region').change(function() {
+
+        generateUserAds(true);
+    });
+
+    $('select.yourGroup').change(function() {
+        sessionStorage.setItem('yourGroup',$('select.yourGroup').val());
+    });
 
 	$('select.game').change(function() {
-        //sessionStorage.setItem('gameName', $( 'select.game' ).val());
-        //sessionStorage.removeItem('modeName');
-
 		var gameName = $( 'select.game' ).val();
 		var modeName = $( 'select.modeName' ).val();
-		gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
+		if(gameName != null) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
 		$('select').toggleClass('hidden',false);
+        
+        var elem = $(this);
 		$.ajax({
         type: 'POST',
         url: '/game',
@@ -102,101 +159,22 @@ $(document).ready(function() {
             for (var i = 0; i < json.region.length; i++) {
             	$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
             }   
-            if (sessionStorage.getItem('modeName') != null ) $('select.modeName').val(sessionStorage.getItem('modeName'));
-            if (sessionStorage.getItem('modePlayers') != null ) $('select.modePlayers').val(sessionStorage.getItem('modePlayers'));
-            if (sessionStorage.getItem('rank') != null ) $('select.rank').val(sessionStorage.getItem('rank'));
-            if (sessionStorage.getItem('platform') != null ) $('select.platform').val(sessionStorage.getItem('platform'));
-            if (sessionStorage.getItem('region') != null ) $('select.region').val(sessionStorage.getItem('region'));
-            if (sessionStorage.getItem('yourGroup') != null ) {
-                $('select.yourGroup').val(sessionStorage.getItem('yourGroup'));
-            } else {
-                $('select.yourGroup').val(1);
-            }
+            if (sessionStorage.getItem('init') && sessionStorage.getItem('modeName') != null) $('select.modeName').val(sessionStorage.getItem('modeName')).change();
+            if (sessionStorage.getItem('init') && sessionStorage.getItem('rank') != null) $('select.rank').val(sessionStorage.getItem('rank')).change();
+            if (sessionStorage.getItem('init') && sessionStorage.getItem('platform') != null) $('select.platform').val(sessionStorage.getItem('platform')).change();
+            if (sessionStorage.getItem('init') && sessionStorage.getItem('region') != null) $('select.region').val(sessionStorage.getItem('region')).change();
             generateUserAds(true);
-            refreshSession();
-            //change selects here
+
         }
         });
 
 	});
 
-	$('select.modeName').change(function() {
-        //sessionStorage.setItem('modeName', $( 'select.modeName' ).val());
-
-		var gameName = $( 'select.game' ).val();
-		var modeName = $( 'select.modeName' ).val();
-		gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
-    	$.ajax({
-        type: 'POST',
-        url: '/queue',
-        data: {gameName: gameName, modeName: modeName},
-        success:  function(json) {
-        	json.modePlayers = json.modePlayers.sort(sortNumber);
-        	console.log(json.modePlayers);
-        	$('select.modePlayers').empty();
-            $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
-
-            for (var i = 0; i < json.modePlayers.length; i++) {
-            	$('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
-            }
-            $('select.yourGroup').empty();
-            $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
-			var maxPlayers = json.modePlayers.sort(sortNumber).reverse()[0];
-            for (var i = 1; i < maxPlayers; i++) {
-            	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
-            }
-            refreshSession();
-        }});
-    });
-
-
-
-	$('select.modePlayers').change(function() {
-        var maxPlayers = $('select.modePlayers').val();
-        var group = $('select.yourGroup').val();
-        console.log(group);
-       
-            $('select.yourGroup').empty();
-            $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
-
-            for (var i = 1; i < maxPlayers; i++) {
-            	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
-            }
-       	if ( group !== null ) {
-            if ($('select.yourGroup>option[value='+group+']').length >0) {
-            	$('select.yourGroup').val(group);
-                sessionStorage.setItem('modePlayers',group);
-            } else {
-                $('select.yourGroup').val(1);
-                sessionStorage.setItem('modePlayers',1);
-            }
-        }
-        refreshSession();
-	});
-
-    $('select').not('.game').change(function() {
-        refreshSession();
-        generateUserAds(true);
-    });
-
-    $('select.yourGroup').change(function() {
-        sessionStorage.setItem('yourGroup',$('select.yourGroup').val());
-        refreshSession();
-        updatePicks();
-    });
-
-    /*$('select.rank').change(function() {
-        refreshSession();
-    });
-    $('select.platform').change(function() {
-        refreshSession();
-    });
-    $('select.region').change(function() {
-        refreshSession();
-    });*/
+	
 
     $('button.select.refresh').click(function() {
-        updatePicks(true);
+        //updatePicks(true);
+        updatePicks(true); 
     });
     $('button.select.reset').click(function() {
         sessionStorage.clear();
@@ -223,6 +201,8 @@ $(document).ready(function() {
         }
     });
 });
+
+
 
 $(document).ready(function() {
     //$('.no-ads').hide();
@@ -252,20 +232,6 @@ $(document).ready(function() {
             //$('.pick-data').toggle('hide');
         }
     });
-    /*$('.pick').bind('scroll', function(event) {
-        if (event.originalEvent.wheelDelta >= 0) {
-            $('.pick-data').show();
-        } else {
-            $('.pick-data').hide();
-        }
-    });
-    $('.pick').bind('touchmove', function(event) {
-        if (event.originalEvent.wheelDelta >= 0) {
-            $('.pick-data').show();
-        } else {
-            $('.pick-data').hide();
-        }
-    });*/
 
     $('.pick').bind('mousewheel touchmove DOMMouseScroll', function(e) {
         var scrollTo = null;
@@ -291,13 +257,13 @@ function generateUserPick(logId, userId,nick,group) {
                     '<div class=\"col-sm-5\">Group: '+group+'</div>'+
                     '<button class=\"col-sm-1\">X</button>'+
                 '</div>');
-    var group = JSON.parse(sessionStorage.getItem('group'));
+    /*var group = JSON.parse(sessionStorage.getItem('group'));
     var modePlayers = JSON.parse(sessionStorage.getItem('modePlayers'));
     if (group != modePlayers) {
         $('.pick > button').attr('disabled', true);
     } else {
         $('.pick > button').attr('disabled', false);
-    }
+    }*/
 }
 
 function generateUserAds(init) {
@@ -313,7 +279,7 @@ function generateUserAds(init) {
     var rank_s = $( 'select.rank' ).val();
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();
-
+    console.log(rank_s);
     var offset = 0;
     if(!init) offset = $('div.user-ad-outer').length;
 
@@ -363,7 +329,7 @@ function appendUserAd(ad) {
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
                             '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+ad.modePlayers+'</kbd></td></tr>'+
-                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s+'</kbd></td></tr>'+
+                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
                             '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qd_players+'</kbd></td></tr>'+
                             '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+ad.platform+'</kbd></td></tr>'+
                             '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+ad.region+'</kbd></td></tr>'+
@@ -389,7 +355,7 @@ function prependUserAd(ad) {
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
                             '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+ad.modePlayers+'</kbd></td></tr>'+
-                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s+'</kbd></td></tr>'+
+                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
                             '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qd_players+'</kbd></td></tr>'+
                             '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+ad.platform+'</kbd></td></tr>'+
                             '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+ad.region+'</kbd></td></tr>'+
@@ -435,15 +401,10 @@ function RefreshSomeEventListener() {
         var gameName = $(this).parent().siblings('div.user-ad-inner').find('img').attr('alt');
         gameName = gameName.replace(/\s/g, '');
 
-        /*if(gameName != $('select.game').val()) {
-            $('select.game').val(gameName).change();
-            console.log(selVal[0]);
-        }*/
         var nick = $(this).parent().siblings('div.user-ad-inner').find('a.nick').text();
         var userId = $(this).parent().siblings('div.user-ad-inner').find('a.nick').attr('href');
         userId = userId.split('/');
         userId = userId[userId.length-1];
-        //var nick = $('#'+id).children().find('a.nick').text();
         var actualGroup = selVal[3];
 
         var valid = true;
@@ -471,6 +432,7 @@ function RefreshSomeEventListener() {
         if (valid) {
             id.push($(this).parents('.user-ad-outer').attr('id'));
             sessionStorage.setItem('id', JSON.stringify(id));
+            console.log(id);
             group = parseInt(group) + parseInt(actualGroup);
             sessionStorage.setItem('group', JSON.stringify(group));
             
@@ -480,13 +442,19 @@ function RefreshSomeEventListener() {
             sessionStorage.setItem('rank',selVal[2]);
             sessionStorage.setItem('platform',selVal[4]);
             sessionStorage.setItem('region',selVal[5]);
-            $('select.rank').val(selVal[2]).change();
+            
+            //$('select.rank').val(selVal[2]).change();
             //$(this).parent().siblings('div.user-ad-inner').toggleClass('panel-primary', false);
             //$(this).parent().siblings('div.user-ad-inner').toggleClass('panel-info', true);
             
-
-            updatePicks(false);
+            if ($('.picked-user').length > 0) { 
+                updatePicks(false);
+            } else {
+                updatePicks(true);  
+            }
+            
             generateUserPick(id,userId,nick,actualGroup);
+            recreatePicks();
             RefreshSomeEventListener();
                 //$('select.modeName').val(selVal[0]).change();
         }
@@ -500,12 +468,16 @@ function RefreshSomeEventListener() {
         sessionStorage.setItem('id', JSON.stringify(id));
         var sub = parseInt($(this).prev().text().replace( /^\D+/g, ''));
         var group = JSON.parse(sessionStorage.getItem('group'));
-        group = group - sub;
+        if (!$(this).parents('picked-user').hasClass('grayscale')) group = group - sub;
         sessionStorage.setItem('group',group);
         updateGroup();
         $(this).parent().remove();
-        refreshSession();
-        if ($('.picked-user').length > 0) updatePicks(false);
+        if ($('.picked-user').length > 0) { 
+            updatePicks(false);
+        } else {
+            //refreshSession();
+        }
+
     });
 
     $('div.user-info, .add').on('mouseover', function() {
@@ -550,12 +522,8 @@ function updatePicks(init) {
     var modePlayers = sessionStorage.getItem('modePlayers');
     var qd_players = $( 'select.yourGroup' ).val();
     var rank = sessionStorage.getItem('rank');
-    //if (rank != null) rank = rank;//.replace(/([A-Z])/g, ' $1').trim();
     var platform = sessionStorage.getItem('platform');
     var region = sessionStorage.getItem('region');
-
-    //$('select.rank').val(rank).change();
-
     $('th.gameName').text(gameName);
     $('th.modeName').text(modeName);
     $('th.modePlayers').text(modePlayers);
@@ -572,13 +540,19 @@ function updatePicks(init) {
     }
     sessionStorage.setItem('yourGroup',yourGroup);
     
-    if(sessionStorage.getItem('gameName') != $('select.game').val()) {
-        $('select.game').val(sessionStorage.getItem('gameName')).change();
+    //if(gameName != $('select.game').val()) {
+    if (init) {
+        sessionStorage.setItem('init',true);
+
+        if(JSON.parse(sessionStorage.getItem('id')) == null) sessionStorage.setItem('id',JSON.stringify([]));
+        if(sessionStorage.getItem('gameName')!= null) $('select.game').val(sessionStorage.getItem('gameName')).change();
     }
 
-    
     updateGroup();
-    if(init) recreatePicks();
+    if(init) {
+        recreatePicks();
+    }
+    //refreshSession();
 
     
 }
@@ -592,7 +566,7 @@ function recreatePicks() {
         url: '/picks',
         data: {id: id},
         success:  function(json) { 
-            console.log(json);
+            //console.log(json);
             $('.picked-users').empty();
             var sumPlayers = 0;//parseInt(sessionStorage.getItem('yourGroup'));
             for (var i = 0; i < json.length; i++) {
@@ -600,6 +574,7 @@ function recreatePicks() {
                 sumPlayers += json[i].qd_players;
             }
             sessionStorage.setItem('group', sumPlayers);
+            RefreshSomeEventListener();
         }});      
     }
 }
@@ -628,51 +603,19 @@ function updateGroup() {
 
 function refreshSession() {
     var id = JSON.parse(sessionStorage.getItem('id'));
-    if(id == null || id.length == 0) {
-        var gameName = $('select.game').val();
-        var modeName = $( 'select.modeName' ).val();
-        var modePlayers = $( 'select.modePlayers' ).val();
-        var yourGroup = $( 'select.yourGroup' ).val();
-        var rank = $( 'select.rank' ).val();
-        var platform = $( 'select.platform' ).val();
-        var region = $( 'select.region' ).val();
-        if (rank != null && rank != sessionStorage.getItem('rank') ) {
-            sessionStorage.setItem('rank', rank);
-            $('select.rank').val(rank).change();
-        }
-        if (gameName != null && gameName != sessionStorage.getItem('gameName') ) { 
-            sessionStorage.setItem('gameName', gameName); 
-            sessionStorage.removeItem('modeName'); 
-            sessionStorage.removeItem('modePlayers');
-            sessionStorage.removeItem('rank'); 
-            sessionStorage.removeItem('platform');
-            $('select.game').val(gameName).change();
-            //$('select.modeName').val();
-        }
-        if (modeName != null && modeName != sessionStorage.getItem('modeName') ) {
-            sessionStorage.setItem('modeName', modeName); 
-            sessionStorage.removeItem('modePlayers');
-            sessionStorage.removeItem('yourGroup');
-            $('select.modeName').val(modeName).change();
-        }
-        if (modePlayers != null && modePlayers != sessionStorage.getItem('modePlayers') ) {
-            sessionStorage.setItem('modePlayers', modePlayers);
-            sessionStorage.removeItem('yourGroup');
-            $('select.yourGroup').val(yourGroup).change();
-        }
-        
-
-        
-        if (platform != null && platform != sessionStorage.getItem('platform') ) {
-            sessionStorage.setItem('platform', platform);
-            $('select.platform').val(platform).change();
-        } 
-
-        if (region != null && region != sessionStorage.getItem('region') ) {
-            sessionStorage.setItem('region', region);
-            $('select.region').val(region).change();
-        }
-        updatePicks(false);
+    if(id.length != 0  ) {
+        sessionStorage.setItem('gameName',$('select.game').val());
+        sessionStorage.setItem('modeName',$('select.modeName').val());
+        sessionStorage.setItem('modePlayers',$('select.modePlayers').val());
+        sessionStorage.setItem('rank',$('select.rank').val());
+        sessionStorage.setItem('platform',$('select.platform').val());
+        sessionStorage.setItem('region',$('select.region').val());
+        /*sessionStorage.removeItem('gameName');
+        sessionStorage.removeItem('modeName');
+        sessionStorage.removeItem('modePlayers');
+        sessionStorage.removeItem('rank');
+        sessionStorage.removeItem('platform');
+        sessionStorage.removeItem('region');*/
+        //updatePicks(true);
     }
-    //updatePicks(false);
 }

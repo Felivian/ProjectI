@@ -74,7 +74,7 @@ module.exports = function() {
     } else if(r3 === 5) {
       rank_s = 'Master';
     } else {
-      rank_s = 'Grand Master';
+      rank_s = 'GrandMaster';
     }
 
   } else if (rg == 1) {
