@@ -39,12 +39,10 @@ socket.on('delete', function (data) {
         $('#'+data.id[i]+'.picked-user').toggleClass('grayscale',true);
         console.log(data.id[i]);
     }
-    //    //
-        
-    //     console.log('delete '+val);
-    // });
 });
-
+socket.on('match', function (data) {
+    generateAlert('alert-info','<a href=\"/profile\">Match was found!</a>');
+});
 
 
 
@@ -54,11 +52,14 @@ $(document).ready(function() {
         $('button.new-ads').hide();
         $('div.user-ad-outer').toggleClass('hidden', false);
     });
+
+    $('ul.mobile-nav > li').click(function() {
+        $('ul.mobile-nav > li').toggleClass('active',false);
+        $(this).toggleClass('active', true);
+
+        $('.row, .no-ads').toggleClass('hidden-xs');
+    });
 });
-
-$(document).ready(function() {
-
-});        
 
 
 $(document).ready(function() {
@@ -234,8 +235,20 @@ $(document).ready(function() {
                     data: {id: id},
                     url: '/match',
                     success:  function(json) {
-                        alert('asd');
-                    }});
+                        $('div.alert.alert-info').show();
+                        generateAlert('alert-info','Your request was registered.');
+                    },
+                    statusCode: {
+                        404: function() {
+                            generateAlert('alert-danger','At least one ad is no longer active.');
+                        },
+                        401: function() {
+                            generateAlert('alert-danger','You need to login to preform this activity.');
+                        }
+                    }
+                    });
+                } else {
+                    generateAlert('alert-danger','Wrong sizes of groups.')
                 }
             }
             
@@ -244,6 +257,12 @@ $(document).ready(function() {
     });
 
 });
+
+function generateAlert(alertType, message) {
+    $('.alert').remove();
+    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+'</div>');
+}
+
 
 $(document).ready(function() {
     var win = $(window);
@@ -272,7 +291,7 @@ $(document).ready(function() {
     });
     $('button.picked').click(function() { 
 
-        $('div.pick').toggle('display');
+        $('div.pick.fixed').toggle('display');
         $('.pick-data').show();
         //$(this).hide();
     });
@@ -284,7 +303,7 @@ $(document).ready(function() {
         }
 
     });*/
-    $('.pick').bind('mousewheel touchmove', function(event) {
+    $('.pick.fixed').bind('mousewheel touchmove', function(event) {
         if (event.originalEvent.wheelDelta >= 0) {
             //$('.pick-data').toggle('show');
             $('.pick-data').show('slow');
@@ -294,7 +313,7 @@ $(document).ready(function() {
         }
     });
 
-    $('.pick').bind('mousewheel touchmove DOMMouseScroll', function(e) {
+    $('.pick.fixed').bind('mousewheel touchmove DOMMouseScroll', function(e) {
         var scrollTo = null;
 
         if (e.type == 'mousewheel') {
@@ -314,16 +333,16 @@ $(document).ready(function() {
 
 function generateUserPick(logId, userId,nick,group,active) {
     if (active) {
-        $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 picked-user\">'+
-            '<div class=\"col-sm-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
-            '<div class=\"col-sm-5\">Group: '+group+'</div>'+
-            '<button class=\"col-sm-1\">X</button>'+
+        $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 col-xs-12 picked-user\">'+
+            '<div class=\"col-sm-5 col-xs-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
+            '<div class=\"col-sm-5 col-xs-5\">Group: '+group+'</div>'+
+            '<button class=\"col-sm-1 col-xs-1\">X</button>'+
         '</div>');
     } else {
-        $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 picked-user grayscale\">'+
-            '<div class=\"col-sm-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
-            '<div class=\"col-sm-5\">Group: '+group+'</div>'+
-            '<button class=\"col-sm-1\">X</button>'+
+        $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 col-xs-12 picked-user grayscale\">'+
+            '<div class=\"col-sm-5 col-xs-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
+            '<div class=\"col-sm-5 col-xs-5\">Group: '+group+'</div>'+
+            '<button class=\"col-sm-1 col-xs-1\">X</button>'+
         '</div>');
     }
     /*var group = JSON.parse(sessionStorage.getItem('group'));
@@ -348,7 +367,6 @@ function generateUserAds(init) {
     var rank_s = $( 'select.rank' ).val();
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();
-    console.log(rank_s);
     var offset = 0;
     if(!init) offset = $('div.user-ad-outer').length;
 
@@ -605,10 +623,10 @@ function updatePicks(init) {
     var rank = sessionStorage.getItem('rank');
     var platform = sessionStorage.getItem('platform');
     var region = sessionStorage.getItem('region');
-    $('th.gameName').text(gameName);
+    $('th.gameName').text(gameName.replace(/([A-Z])/g, ' $1').trim());
     $('th.modeName').text(modeName);
     $('th.modePlayers').text(modePlayers);
-    $('th.rank').text(rank);
+    $('th.rank').text(rank.replace(/([A-Z])/g, ' $1').trim());
     $('th.platform').text(platform);
     $('th.region').text(region);
 
@@ -683,7 +701,6 @@ function updateGroup() {
     if (sessionStorage.getItem('modePlayers') != null) {
        modePlayers = parseInt(sessionStorage.getItem('modePlayers'));
     } else {
-        console.log(modePlayers);
         modePlayers = '?';
     }
     

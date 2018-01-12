@@ -42,9 +42,6 @@
     	div.user-data {
     		padding-bottom: 10px;
     	}
-    	/*.panel-primary {
-    		border-color: #28292f;
-    	}*/
     	.panel-primary, .panel-primary>.panel-heading {
     		background-color: #28292f;
     		border-color: #28292f;
@@ -73,12 +70,6 @@
 			color: #000000 !important;
 
 		}
-		/*.add-ad {
-			display: none;
-			position: absolute;
-		    top: 50%;
-		    left: 50%;
-		}*/
 
 		.grayscale {
 		    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
@@ -97,6 +88,91 @@
 		.notSuiting {
 			//border-radius: 10px;
     		
+		}
+	
+		
+		button.close {
+			position: relative;
+			float: left;
+			top: 0;
+			left: 0;
+			background-color: red;
+			color: white;
+		}
+		div.mobile-nav {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			margin: 0;
+			background-color: #333;
+			padding: 0;
+			height: 40px;
+		}
+		ul.mobile-nav  {
+			height: 100%;
+			padding: 0;
+		}
+		ul.mobile-nav > li {
+			display: inline-block;
+			background-color: #333;
+			height: 100%;
+			line-height: 40px;
+			color: white;
+
+		}
+		ul.mobile-nav > li.active {
+			background-color: #080808;
+		}
+
+		.pick.fixed > .pick-data > table > thead {
+			font-size: 12px;
+			
+		}
+		.pick > .pick-data > table > thead > tr > th {
+			padding-top: 4px;
+			padding-bottom: 4px;
+		}
+		.picked-user > div, .picked-user > button {
+			padding: 0px;
+		}
+		.picked-user {
+			padding: 0px;
+			border-radius: 10px;
+    		border: 2px solid #2c2c2f;
+    		background-color: #f4feff;
+    		color: black;
+		}
+		span.group {
+			font-size: 20px;
+
+		}
+		.select-area,  .buttons {
+			margin-bottom: 10px;
+		}
+
+		.pick.fixed, button.picked.fixed {
+			position: fixed;
+			right: 20px;
+			bottom: 10px;
+		}
+		div.pick.fixed {
+			display: none;
+			max-height: 60%;
+			background-color: #2c2c2f;
+			padding: 0px;
+			bottom: 60px !important;
+			overflow-y: hidden;
+			color: white;
+			border-radius: 10px;
+		}
+		div.mobile.pick {
+			position: inherit;
+			color: white;
+			background-color: #404b62;
+			border: 2px solid #2c2c2f;
+			border-color: #28292f;
+			border-radius: 10px;
+			margin: 0;
 		}
 
 		.user-info {
@@ -121,101 +197,20 @@
 		.user-ad-outer:hover .user-info {
 			opacity: 0.3;
 		}
-
 		.user-ad-outer:hover .add-ad {
 			opacity: 1 !important;
 		}
-		.fixed.hidden-xs {
-			position: fixed;
-			right: 20px;
-			bottom: 10px;
-		}
 		
-		div.pick {
-			display: none;
-			background-color: #2c2c2f;
-			max-height: 60%;
-			padding: 0px;
-			bottom: 60px !important;
-			overflow-y: hidden;
-			color: white;
-			border-radius: 10px;
-    		//border: 2px solid white; 
-		}
-		div.pick > img {
-			width: 20%;
-		}
-		button.close {
-			position: relative;
-			float: left;
-			top: 0;
-			left: 0;
-			background-color: red;
-			color: white;
-		}
-		.mobile-nav {
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			margin: 0;
-			background-color: #333;
-			padding: 0;
-			height: 40px;
-		}
-		.mobile-nav > ul {
-			height: 100%;
-			padding: 0;
-		}
-		.mobile-nav > ul > li {
-			display: inline-block;
-			background-color: #333;
-			height: 100%;
-			line-height: 40px;
-			color: white;
 
-		}
-		.mobile-nav > ul > li.active {
-			background-color: #080808;
-		}
-		div.pick {
-			
-		}
 
-		.pick > .pick-data > table > thead {
-			font-size: 12px;
-			
-		}
-		.pick > .pick-data > table > thead > tr > th {
-			padding-top: 4px;
-			padding-bottom: 4px;
-		}
-		.picked-user > div, .picked-user > button {
-			padding: 0px;
-		}
-		.picked-user {
-			padding: 0px;
-			border-radius: 10px;
-    		border: 2px solid #2c2c2f;
-    		background-color: #f4feff;
-    		color: black;
-		}
-		span.group {
-			font-size: 20px;
-
-		}
-		button.select {
-
-		}
     </style>
 		
 
 </head>
 <body>
 	<%- include('partial/navbar', {user: user, url: url}); %>
-<div class="container">
-
-    
-    <div class="row select-area col-md-12">
+<div class="container ">
+    <div class="row select-area col-md-12 text-center">
     	<div class="col-md-12">
 	    	<select required class="form-control game">
 				<option value="" disabled selected hidden>Game name</option>
@@ -263,40 +258,44 @@
 				<option value="" disabled selected hidden>Region</option>
 			</select>
 		</div>
-		<button class="select refresh col-xs-1 col-xs-offset-5">refresh</button>
-		<button class="select reset col-xs-1">reset</button>
+		
 	</div>
-	<button class="new-ads">New content!</button>
-	<div class="row content-area col-sm-12">
-		<!--<div id="asd" class="user-ad-outer col-md-3 col-sm-4 col-xs-12 ">
-			<div class="user-ad-inner panel panel-primary col-md-12 text-center" >
-				<a class="nick panel-heading" href="whatever you want"> Nick </a>
-				<div class="user-info">
-					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Overwatch_circle_logo.svg/500px-Overwatch_circle_logo.svg.png" alt="..." class="rounded-circle game-logo">
-					<div class="user-data panel-body">
-						<table width="100%" class="table-striped"><tbody>
-							<tr><td>Mode</td> <td class="text-center"><kbd>Competitive</kbd></td></tr>
-							<tr><td>Maximum group</td> <td class="text-center"><kbd>6</kbd></td></tr>
-							<tr><td>Rank</td> <td class="text-center"><kbd>Platinum</kbd></td></tr>
-							<tr><td>Size of group</td> <td class="text-center"><kbd>1</kbd></td></tr>
-							<tr><td>Platform</td> <td class="text-center"><kbd>PC</kbd></td></tr>
-							<tr><td>Region</td> <td class="text-center"><kbd>EU</kbd></td></tr>
-						</tbody></table>
-					</div>
-				</div>
-			</div>
-			<div class="add-ad">
-				<button class="add">+</button>
-			</div>
-		</div>-->
+	<div class="row col-md-12 text-center buttons">
+		<button class="select refresh col-md-6 col-xs-12">refresh</button>
+		<button class="select reset col-md-6 col-xs-12">reset</button>
 	</div>
-	<div class="hidden-xs col-sm-3 pick fixed text-center"> <!--col-lg-2 -->
-		<!--<button class="close">X</button>-->
+	<div class="row col-md-12 text-center">
+		<button class="new-ads">New content!</button>
+	</div>
+	<div class="row content-area col-sm-12 text-center">
+
+	</div>
+	<div class="hidden-xs col-sm-3 pick fixed text-center">
 		<span class="group">?/?</span>
-		<div class="pick-data">
-			
+		<div class="pick-data">	
 			<br>
-			<!--<img src="/img/Overwatch.png" alt="Overwatch" class="img-circle game-logo">-->
+			<table width="100%" class="table">
+				<thead class="thead-inverse">
+					<tr> <th class="text-center">Game:</th><th class="text-center gameName"></th></tr>
+					<tr> <th class="text-center">Mode:</th><th class="text-center modeName"></th></tr>
+					<tr> <th class="text-center">Maximum group:</th><th class="text-center modePlayers"></th></tr>
+					<tr> <th class="text-center">Rank:</th><th class="text-center rank"></th></tr>
+					<tr> <th class="text-center">Platform:</th><th class="text-center platform"></th></tr>
+					<tr> <th class="text-center">Region:</th><th class="text-center region"></th></tr>
+				</thead>
+			</table>
+		</div>
+		Your team
+		<div class="picked-users">
+		</div>
+		<button>Send</button>	
+	</div>
+	<button class="hidden-xs fixed picked">CLICK</button>
+	
+	<div class="row col-xs-12 hidden-xs hidden-sm hidden-md hidden-lg mobile pick text-center">
+		<span class="group">?/?</span>
+		<div class="pick-data">	
+			<br>
 			<table width="100%" class="table">
 				<thead class="thead-inverse">
 					<tr> <th class="text-center">Game:</th><th class="text-center gameName"></th></tr>
@@ -311,16 +310,13 @@
 		</div>
 		Your team
 		<div class="picked-users">
-			<!--<div class="col-sm-12 picked-user">
-				<div class="col-sm-5"><a href="/profile/Felivian">Felivian</a></div>
-				<div class="col-sm-5">Group: 4</div>
-				<button class="col-sm-1 ">X</button>
-			</div>-->
+
 		</div>
 		<button>Send</button>
 			
 	</div>
-	<button class="hidden-xs fixed picked">CLICK</button>
+
+
 	<p id="loading">
 		<img src="images/loading.gif" alt="Loading…" />
 	</p>
@@ -329,9 +325,9 @@
 
 
   		<div class="mobile-nav text-center col-xs-12 align-middle visible-xs">
-  			<ul class="">
-  				<li class="col-xs-6 align-middle active">asd</li>
-  				<li class="col-xs-6 align-middle ">qwe</li>
+  			<ul class="mobile-nav">
+  				<li class="col-xs-6 align-middle active">Ads</li>
+  				<li class="col-xs-6 align-middle">Picks</li>
   			</ul>
   		</div>
 </div><!-- /.container-fluid -->

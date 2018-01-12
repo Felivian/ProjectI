@@ -254,21 +254,25 @@ module.exports = function(app, passport, session, mongoose, q) {
     });
 
     app.post('/match', function (req, res) {
-        JSON.stringify(req.body.id);;
-        Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
-            if (log.length != req.body.id.length) {
-                res.sendStatus(404);
-            } else {
-                var arr = [];
-                log.forEach(function(val){
-                    arr.push(val._id);
-                });
-                push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
-                res.sendStatus(200);
-            }
-            //res.json(log);
-            
-        });
+        if (req.isAuthenticated()) {
+            JSON.stringify(req.body.id);;
+            Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
+                if (log.length != req.body.id.length) {
+                    res.sendStatus(404);
+                } else {
+                    var arr = [];
+                    log.forEach(function(val){
+                        arr.push(val._id);
+                    });
+                    push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
+                    res.sendStatus(200);
+                }
+                //res.json(log);
+                
+            });
+        } else {
+            res.sendStatus(401);
+        }
         //res.sendStatus(200);
     });
 

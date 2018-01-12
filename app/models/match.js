@@ -7,7 +7,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var matchSchema = mongoose.Schema({
 	end				: Date,
 	matches			: [mongoose.Schema.Types.ObjectId],
-
+	users			: [mongoose.Schema.Types.ObjectId],
 
 
 	tested			: Boolean,

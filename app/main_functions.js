@@ -1,6 +1,8 @@
 //var _    = require('underscore');
 var User     = require('./models/user');
-var Queue     = require('./models/queue');
+var Queue    = require('./models/queue');
+var Session  = require('./models/session');
+var async    = require('async');
 module.exports = {
 	changeChance: function(to_user, by) {
 		to_user = '5a11d3786496960a50b33e50';
@@ -18,5 +20,17 @@ module.exports = {
 				});
 			}
 		});
+	},
+	sendInfo: function(io, matchesId) {
+		Session.find({'data.passport.user': {$in: matchesId}}, function(err, session) {
+			async.each(session, function(session_i, callback) {
+				io.to(session_i.socketId).emit('match', '');
+				callback();  
+			}, function(err) {
+				console.log(matchesId);
+			});
+		});
+
+		
 	}
 }

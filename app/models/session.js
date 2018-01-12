@@ -13,7 +13,7 @@ var sessionSchema = mongoose.Schema({
 			user	: String
 		}
 	},
-    socket_id		: String
+    socketId		: String
 });
 
 // methods ======================

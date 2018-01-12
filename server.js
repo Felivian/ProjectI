@@ -61,7 +61,7 @@ app.use(session({
         port: 27017, // optional 
         db: 'test', // optional 
         collection: 'sessions', // optional 
-        //expire: 86400 // optional 
+        expire: 86400 // optional 
     }),
 	unset: 'destroy'
 }));

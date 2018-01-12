@@ -4,6 +4,7 @@ var Match             = require('./models/match');//
 //var Qinfo           = require('../config/Qinfo');//
 var wG              = require('./whatGroups');//
 var async           = require('async');
+var mf              = require('./main_functions');//
 
 module.exports =  {
   automatic: function (io, task, callback) {
@@ -38,7 +39,11 @@ module.exports =  {
             actualLog.save(function(err, updatedActualLog){
               var dup = wG.dups(wg);
               var lf = wG.keys_n(dup);
-              var arr = [actualLog._id];
+              //var arr = [actualLog._id];
+              var json = {};
+              json.id = [actualLog._id];
+              json.userId = [actualLog.userId];
+
               var i = 0;
               async.whilst(
                 function() { return i < lf.length; },
@@ -63,23 +68,27 @@ module.exports =  {
                       log_i.success=true;
                       log_i.active=false;
                       log_i.save(function(err, ulog) {
-                          arr.push(log_i._id);
+                          //arr.push(log_i._id);
+                          json.id.push(log_i._id);
+                          json.userId.push(log_i.userId);
                           callback2();  
                       });
                     }, function(err) {
                       i++;
-                      callback3(null, arr);
+                      //callback3(null, arr);
+                      callback3(null, json);
                     });
                   });  
                 },
                 function (err, n) {
                   match = new Match;
-                  match.matches = n;
-                  //io remove
-                  //io.emit('delete',n);
+                  //match.matches = n;
+                  match.matches = n.id;
+                  match.users = n.userId;
                   if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
                   match.save(function(err, match){
                     callback();
+                    mf.sendInfo(io, match.users);
                   });
                 }
               );
@@ -116,9 +125,11 @@ module.exports =  {
         newLog.modePlayers = log[0].modePlayers;
         newLog.rank_s = log[0].rank_s;
 
+        var userIds = [task.userId];
         var qd_playersSum = 0;
-                async.each(log, function(val, callback2) { 
+        async.each(log, function(val, callback2) { 
           qd_playersSum += val.qd_players;
+          userIds.push(val.userId);
           callback2();
         }, function(err) {
           newLog.qd_players = log[0].modePlayers - qd_playersSum;
@@ -126,6 +137,7 @@ module.exports =  {
             console.log(sLog._id);
             match = new Match;
             match.matches = task.arr;
+            match.users = userIds;
                     
             Log.updateMany({_id: {$in: task.arr}},
             {$set: {active: false, success: true, end: date} } , 
@@ -136,8 +148,9 @@ module.exports =  {
               match.matches.push(sLog._id);
               match.save(function(err, match){
                 callback();
-                console.log('yeah');
+                //console.log('yeah');
                 //send info to matches
+                mf.sendInfo(io, match.users);
               });
             });
           });
