@@ -9,7 +9,7 @@ module.exports = function(async,q, io) {
 	Queue.count({}, function(err, count){
 		console.log(count);
 		for (var i=0; i<count; i++) {
-			global.count.push(0);
+			//global.count.push(0);
 			q[i] = async.queue(function(task, callback) {
 				if (task.arr.length != 0) {
 					insideQ.manual(io, task, callback);

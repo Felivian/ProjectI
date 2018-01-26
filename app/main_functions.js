@@ -29,8 +29,15 @@ module.exports = {
 			}, function(err) {
 				console.log(matchesId);
 			});
-		});
+		});	
+	}
 
-		
+	sendError: function(io, userId) {
+		Session.find({'data.passport.user': userId}, function(err, session) {
+			if(session) {
+				io.to(session.socketId).emit('notactive', '');
+				//console.log(matchesId);
+			}
+		});	
 	}
 }

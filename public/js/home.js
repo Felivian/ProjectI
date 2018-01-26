@@ -1,6 +1,3 @@
-$(document).ready(function() {
-    
-});
 socket = io.connect('http://localhost:8080');
 
 socket.on('new', function (data) {
@@ -43,27 +40,19 @@ socket.on('delete', function (data) {
 socket.on('match', function (data) {
     generateAlert('alert-info','<a href=\"/profile\">Match was found!</a>');
 });
-
-
-
-$(document).ready(function() {
-    
-    $('button.new-ads').click(function() {
-        $('button.new-ads').hide();
-        $('div.user-ad-outer').toggleClass('hidden', false);
-    });
-
-    $('ul.mobile-nav > li').click(function() {
-        $('ul.mobile-nav > li').toggleClass('active',false);
-        $(this).toggleClass('active', true);
-
-        $('.row, .no-ads').toggleClass('hidden-xs');
-    });
+socket.on('notactive', function (data) {
+    generateAlert('alert-danger','At least one ad is no longer active.');
 });
+
+
+
 
 
 $(document).ready(function() {
     generateUserAds(true);
+    $('select').change(function() {
+        $(this).toggleClass('red-border', false);
+    });
     $('select.modePlayers').change(function() {
         var maxPlayers = $('select.modePlayers').val();
         var group = $('select.yourGroup').val();
@@ -194,7 +183,7 @@ $(document).ready(function() {
 
 	
 
-    $('button.select.refresh').click(function() {
+    $('button.select.reverse').click(function() {
         if(!(sessionStorage.getItem('init') != null)) updatePicks(true); 
     });
     $('button.select.reset').click(function() {
@@ -244,6 +233,9 @@ $(document).ready(function() {
                         },
                         401: function() {
                             generateAlert('alert-danger','You need to login to preform this activity.');
+                        },
+                        406: function() {
+                            generateAlert('alert-danger','You can\'t add Your own ad.');
                         }
                     }
                     });
@@ -265,27 +257,21 @@ function generateAlert(alertType, message) {
 
 
 $(document).ready(function() {
-    var win = $(window);
-    var nearToBottom = 200;
-    //var nearToBottom = 0;
-    // Each time the user scrolls
-    win.scroll(function() {
-        // End of the document reached?
-        //if ($(document).height() - win.height() == win.scrollTop()) {
-        if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
-            if(!$('button.no-ads').is(':visible'))
-            //if($('.no-ads:visible').length == 0)
-            {
-                generateUserAds(false); 
-            }
-        }
+    RefreshSomeEventListener();
+    updatePicks(true);
+
+     $('button.new-ads').click(function() {
+        $('button.new-ads').hide();
+        $('div.user-ad-outer').toggleClass('hidden', false);
     });
-});
 
+    $('ul.mobile-nav > li').click(function() {
+        $('ul.mobile-nav > li').toggleClass('active',false);
+        $(this).toggleClass('active', true);
 
+        $('.row, .no-ads').toggleClass('hidden-xs');
+    });
 
-$(document).ready(function() {
-    //$('.no-ads').hide();
     $('.no-ads').click(function() { 
         generateUserAds(false); 
     });
@@ -293,16 +279,8 @@ $(document).ready(function() {
 
         $('div.pick.fixed').toggle('display');
         $('.pick-data').show();
-        //$(this).hide();
     });
 
-    /*$('.pick').scroll(function(event){
-        var st = $(this).scrollTop();
-        if (st > 0){
-            $('.pick-data').hide();
-        }
-
-    });*/
     $('.pick.fixed').bind('mousewheel touchmove', function(event) {
         if (event.originalEvent.wheelDelta >= 0) {
             //$('.pick-data').toggle('show');
@@ -328,6 +306,75 @@ $(document).ready(function() {
             $(this).scrollTop(scrollTo + $(this).scrollTop());
         }
     });
+
+    var win = $(window);
+    var nearToBottom = 200;
+    //var nearToBottom = 0;
+    // Each time the user scrolls
+    win.scroll(function() {
+        // End of the document reached?
+        //if ($(document).height() - win.height() == win.scrollTop()) {
+        if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
+            if(!$('button.no-ads').is(':visible'))
+            //if($('.no-ads:visible').length == 0)
+            {
+                generateUserAds(false); 
+            }
+        }
+    });
+
+    $('.create-new').click(function() {
+        var gameName = $( 'select.game' ).val();
+        if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
+        var modeName = $( 'select.modeName' ).val();
+        var modePlayers = $( 'select.modePlayers' ).val();
+        var qd_players = $( 'select.yourGroup' ).val();
+        var rank_s = $( 'select.rank' ).val();
+        var platform = $( 'select.platform' ).val();
+        var region = $( 'select.region' ).val();
+        var automatic;
+        if ( $('input[type=checkbox][name=auto]').is(':checked') ) {
+            automatic = true;
+        } else {
+            automatic = false;
+        }
+        console.log(automatic);
+        var data = {};
+        var valid = true;
+        if(qd_players) data.qd_players = parseInt(qd_players); else valid = false;
+        if(modePlayers) data.modePlayers = parseInt(modePlayers); else valid = false;
+        if(gameName) data.game = gameName; else valid = false;
+        if(modeName) data.modeName = modeName; else valid = false;
+        if(rank_s) data.rank_s = rank_s; else valid = false;
+        if(platform) data.platform = platform; else valid = false;
+        if(region) data.region = region; else valid = false;
+        console.log(valid);
+        if (valid) {
+            $.ajax({
+            type: 'POST',
+            data: {data: data, automatic: automatic},
+            url: '/new-ad',
+            success:  function(json) {
+                generateAlert('alert-info','Your ad was added successfully.');
+            },
+            statusCode: {
+                401: function() {
+                    generateAlert('alert-danger','You need to login to preform this activity.');
+                },
+                406: function() {
+                    generateAlert('alert-danger','You can\'t add another ad.');
+                }
+            }
+            });
+        } else {
+            $('select').each(function(index, obj) {
+                if ($(this).val() == null) {
+                //console.log($(this).val() == null);
+                    $(this).toggleClass('red-border', true);
+                }
+            });
+        }
+    });
 });
 
 
@@ -345,13 +392,6 @@ function generateUserPick(logId, userId,nick,group,active) {
             '<button class=\"col-sm-1 col-xs-1\">X</button>'+
         '</div>');
     }
-    /*var group = JSON.parse(sessionStorage.getItem('group'));
-    var modePlayers = JSON.parse(sessionStorage.getItem('modePlayers'));
-    if (group != modePlayers) {
-        $('.pick > button').attr('disabled', true);
-    } else {
-        $('.pick > button').attr('disabled', false);
-    }*/
 }
 
 function generateUserAds(init) {
@@ -401,10 +441,6 @@ function generateUserAds(init) {
             //if(init) NO ads
             //if(!init) no MORE ads
         }
-        /*if(JSON.parse(sessionStorage.getItem('id')) != []) {
-            refreshSession();
-            updatePicks(false);
-        }*/
         if (init) updatePicks(false);
     }
     });
@@ -438,7 +474,7 @@ function appendUserAd(ad) {
 
 function prependUserAd(ad) {
     $('div.content-area').prepend(
-        '<div id=\"'+ad._id+'\"class=\"user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
+        '<div id=\"'+ad._id+'\"class=\"hidden user-ad-outer col-md-3 col-sm-4 col-xs-12 \">'+
             '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
                 '<a class="nick panel-heading\" href=\"/profile/'+ad.userId+'\">'+ad.userName+'</a>'+
                 '<div class=\"user-info\">'+
@@ -467,17 +503,6 @@ function sortNumber(a,b) {
     return a - b;
 }
 
-$(document).ready(function() {
-    
-    RefreshSomeEventListener();
-    updatePicks(true);
-
-    /*$('.content-area').mouseleave(function(){
-        $('div.user-ad-inner').toggleClass('focused',false);
-        $('button.add').hide();
-    });*/
-    
-});
 
 function RefreshSomeEventListener() {
     $('button.add').off();
@@ -623,10 +648,10 @@ function updatePicks(init) {
     var rank = sessionStorage.getItem('rank');
     var platform = sessionStorage.getItem('platform');
     var region = sessionStorage.getItem('region');
-    $('th.gameName').text(gameName.replace(/([A-Z])/g, ' $1').trim());
+    if(gameName != null) $('th.gameName').text(gameName.replace(/([A-Z])/g, ' $1').trim());
     $('th.modeName').text(modeName);
     $('th.modePlayers').text(modePlayers);
-    $('th.rank').text(rank.replace(/([A-Z])/g, ' $1').trim());
+    if(rank !=null) $('th.rank').text(rank.replace(/([A-Z])/g, ' $1').trim());
     $('th.platform').text(platform);
     $('th.region').text(region);
 

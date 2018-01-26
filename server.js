@@ -81,7 +81,7 @@ var bot = new BootBot({
 });
 
 q = [];
-global.count = [];
+//global.count = [];
 
 
 var Log             = require('./app/models/log');//
@@ -100,11 +100,11 @@ require('./tests/testsRouter.js')(app, mongoose, q);
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q);
 
-// routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose, q); // load our routes and pass in our app and fully configured passport
-
 // socket.io ======================================================================
 require('./app/socketio.js')(app, io, mongoose);
+
+// routes ======================================================================
+require('./app/routes.js')(app, passport, session, mongoose, q, io); // load our routes and pass in our app and fully configured passport
 
 // BootBot ======================================================================
 require('./app/bot.js')(app, bot, mongoose, q);

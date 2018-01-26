@@ -19,6 +19,7 @@ module.exports =  {
         Log.aggregate([ 
           { $match: 
             {'_id': {$ne: task.log_id},
+            'userId': {$ne: task.userId},
             'active':true, 
             //datetime
             'updated': {$gte: new Date(datetime)},
@@ -50,6 +51,7 @@ module.exports =  {
                 function(callback3) {
                   Log.find({
                   '_id': {$ne: task.log_id},
+                  'userId': {$ne: task.userId},
                   'active':true, 
                   //datetime
                   'updated': {$gte: new Date(datetime)},
@@ -147,7 +149,13 @@ module.exports =  {
               if (!task.atf) io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.arr});
               match.matches.push(sLog._id);
               match.save(function(err, match){
-                callback();
+                //stoping active ads (one) of person that triggered match event
+                var date = new Date();
+                Log.updateMany({userId: task.userId, active:true},
+                {$set: {active: false, success: false, end: date} } , 
+                function(err, uLog) {
+                  callback();
+                });
                 //console.log('yeah');
                 //send info to matches
                 mf.sendInfo(io, match.users);
@@ -156,6 +164,10 @@ module.exports =  {
           });
         });
       } else { 
+        //send error info
+        //~some ads are not active anymore
+        //mf.sendInfo(io, task.userId);
+        mf.sendError(io, task.userId);
         callback(); 
       }
     });

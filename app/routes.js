@@ -1,4 +1,4 @@
-module.exports = function(app, passport, session, mongoose, q) {
+module.exports = function(app, passport, session, mongoose, q, io) {
 	var Session            	= require('../app/models/session');
 	var cookieParser 		= require('cookie-parser');
     var request             = require('request');
@@ -6,8 +6,10 @@ module.exports = function(app, passport, session, mongoose, q) {
     var Game = require('./models/game');
     var Queue = require('./models/queue');//
     var Log = require('./models/log');//
+    var User = require('./models/user');//
     var _    = require('underscore');
     var push2q  = require('./push2q');
+    var mf              = require('./main_functions');//
 	//cookie toucher
 	/*var cookieToucher = function (req, res, next) {
 		req.session.touch();
@@ -256,19 +258,66 @@ module.exports = function(app, passport, session, mongoose, q) {
     app.post('/match', function (req, res) {
         if (req.isAuthenticated()) {
             JSON.stringify(req.body.id);;
-            Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
-                if (log.length != req.body.id.length) {
-                    res.sendStatus(404);
-                } else {
-                    var arr = [];
-                    log.forEach(function(val){
-                        arr.push(val._id);
+            if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
+                Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
+                    if (log.length != req.body.id.length) {
+                        res.sendStatus(404);
+                    } else {
+                        
+                        var arr = [];
+                        log.forEach(function(val){
+                            arr.push(val._id);
+                        });
+                        push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
+                        res.sendStatus(200);
+                    }
+                    //res.json(log); 
+                });
+            } else {
+                res.sendStatus(406);
+            }
+        } else {
+            res.sendStatus(401);
+        }
+        //res.sendStatus(200);
+    });
+
+
+    app.post('/new-ad', function (req, res) {
+        if (req.isAuthenticated()) {
+            //console.log(req.body.automatic);
+            Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
+                if(!otherLog) { 
+                    var date = new Date();
+                    newLog = new Log;
+                    newLog.platform = req.body.data.platform;
+                    newLog.region = req.body.data.region;
+                    newLog.game = req.body.data.game;
+                    newLog.modeName = req.body.data.modeName;
+                    newLog.modePlayers = req.body.data.modePlayers;
+                    newLog.rank_s = req.body.data.rank_s;
+                    newLog.qd_players = req.body.data.qd_players;
+                    newLog.userId = req.session.passport.user;
+                    //newLog.userName =
+                    newLog.active = true;
+                    newLog.start = date;
+                    newLog.updated = date;
+                    User.findOne({_id: req.session.passport.user}, function(err, user) {
+                        newLog.userName = user.displayName;
+                        newLog.save(function(err, log) {
+                            console.log(req.body.data.automatic);
+                            //push to queue
+                            if(req.body.automatic) {
+                                push2q(q, log._id, req.session.passport.user, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);
+                            } else {
+                                io.to(newLog.game.replace(/\s/g, '')).emit('new', newLog);
+                            }
+                            res.sendStatus(200);
+                        });
                     });
-                    push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
-                    res.sendStatus(200);
+                } else {
+                    res.sendStatus(406);
                 }
-                //res.json(log);
-                
             });
         } else {
             res.sendStatus(401);

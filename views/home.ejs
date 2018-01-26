@@ -17,7 +17,7 @@
     		margin-bottom: 10px;
     	}
     	.content-area {
-    		margin: auto;
+    		//margin: auto;
     	}
     	div.user-data {
     		padding: 0px;
@@ -149,7 +149,10 @@
 		.select-area,  .buttons {
 			margin-bottom: 10px;
 		}
-
+		.buttons {
+			padding-left: 30px;
+			padding-right: 30px;
+		}
 		.pick.fixed, button.picked.fixed {
 			position: fixed;
 			right: 20px;
@@ -200,7 +203,20 @@
 		.user-ad-outer:hover .add-ad {
 			opacity: 1 !important;
 		}
-		
+		.select-area {
+			color: white;
+		}
+		.create-new {
+			background-color: green;
+			border-color: green;
+		}
+		.pick > button {
+			background-color: green;
+			border-color: green;
+		}
+		.red-border {
+			border-color: red;
+		}
 
 
     </style>
@@ -258,16 +274,19 @@
 				<option value="" disabled selected hidden>Region</option>
 			</select>
 		</div>
-		
+		<input type="checkbox" name="auto">Automatic match
+		<button class="select create-new">Create new ad!</button>
 	</div>
+
 	<div class="row col-md-12 text-center buttons">
-		<button class="select refresh col-md-6 col-xs-12">refresh</button>
+
+		<button class="select reverse col-md-6 col-xs-12">reverse</button>
 		<button class="select reset col-md-6 col-xs-12">reset</button>
 	</div>
 	<div class="row col-md-12 text-center">
 		<button class="new-ads">New content!</button>
 	</div>
-	<div class="row content-area col-sm-12 text-center">
+	<div class="row content-area  col-md-12 text-center">
 
 	</div>
 	<div class="hidden-xs col-sm-3 pick fixed text-center">
