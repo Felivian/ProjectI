@@ -271,7 +271,6 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                         push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
                         res.sendStatus(200);
                     }
-                    //res.json(log); 
                 });
             } else {
                 res.sendStatus(406);
@@ -279,7 +278,6 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         } else {
             res.sendStatus(401);
         }
-        //res.sendStatus(200);
     });
 
 

@@ -110,7 +110,7 @@ require('./app/routes.js')(app, passport, session, mongoose, q, io); // load our
 require('./app/bot.js')(app, bot, mongoose, q);
 
 // Init Queues ====================================================================
-require('./config/Qconfig')(async, q, io);
+require('./config/Qconfig')(async, q, io, bot);
 
 // launch ======================================================================
 bot.start();

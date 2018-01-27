@@ -7,7 +7,7 @@ var async           = require('async');
 var mf              = require('./main_functions');//
 
 module.exports =  {
-  automatic: function (io, task, callback) {
+  automatic: function (io, bot, task, callback) {
     Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
       if (!actualLog) { callback(); } else {
         //io.emit('new',actualLog);//delete this
@@ -90,7 +90,7 @@ module.exports =  {
                   if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
                   match.save(function(err, match){
                     callback();
-                    mf.sendInfo(io, match.users);
+                    mf.sendInfo(io, bot, match.users);
                   });
                 }
               );
@@ -106,9 +106,11 @@ module.exports =  {
       }
     });
   },
-  manual: function (io, task, callback) {
+  manual: function (io, bot, task, callback) {
     //task.userId
     Log.find({_id: {$in: task.arr}, active:true}, function(err, log) {
+      console.log(log);
+      console.log(task.arr);
       if (log.length == task.arr.length) {
         console.log('yep');
         var date = new Date();
@@ -158,7 +160,7 @@ module.exports =  {
                 });
                 //console.log('yeah');
                 //send info to matches
-                mf.sendInfo(io, match.users);
+                mf.sendInfo(io, bot, match.users);
               });
             });
           });
@@ -167,7 +169,7 @@ module.exports =  {
         //send error info
         //~some ads are not active anymore
         //mf.sendInfo(io, task.userId);
-        mf.sendError(io, task.userId);
+        mf.sendError(io, bot, task.userId);
         callback(); 
       }
     });
