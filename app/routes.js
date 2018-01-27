@@ -268,6 +268,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                         log.forEach(function(val){
                             arr.push(val._id);
                         });
+                        mf.changeChance(req.session.passport.user, -1);
                         push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
                         res.sendStatus(200);
                     }

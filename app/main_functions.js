@@ -7,21 +7,78 @@ var fetch = require('node-fetch');
 var GIPHY_URL = `http://api.giphy.com/v1/gifs/random?api_key=30lORG6s0LhJAz4EZW09N5ifmvYgnlYN&tag=`;
 module.exports = {
 	changeChance: function(to_user, by) {
-		to_user = '5a11d3786496960a50b33e50';
+		//to_user = '5a11d3786496960a50b33e50';
 		var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 		var d = new Date();
 		var dayName = days[d.getDay()];
 		var hour = d.getHours();
+		var month = d.getMonth();
+		var year = d.getYear();
 
-		User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour}} },
-		{ $inc: { [`active.${dayName}.$.chance`] : by }}, function(err, user) {
-			if (user.nModified === 0) {
-				User.updateOne({_id: to_user },
-				{ $push: { [`active.${dayName}`] : {hour: hour, chance: by} }}, function(err, user) {
+		User.findOne({_id: to_user}, function(err, user) {
+			var lastDayName = days[user.lastActive.getDay()];
+			var lastHour = user.lastActive.getHours();
+			var lastMonth = user.lastActive.getMonth();
+			var lastYear = user.lastActive.getYear();
+			console.log([`user.active.$(dayName)`]);
+			if (by > 0) {
+				if (lastYear != year || lastMonth != month || lastDayName != dayName || lastHour != hour) {
+				
+					User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour } } },
+					{ $set: {lastActive: d} }, 
+					function(err, user2) {
+						if (user2.nModified === 0) {
+							User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$lt: 10} } } },
+							{ $inc: { [`active.${dayName}.$.chance`] : by }, $set: {lastActive: d} }, 
+							function(err, user3) {
 
+							});
+						} else {
+							User.updateOne({_id: to_user },
+							{ $push: { [`active.${dayName}`] : {hour: hour, chance: 1} }, $set: {lastActive: d} }, 
+							function(err, user3) {
+
+							});
+						}
+					});
+				
+
+
+				// User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$lt: 10} } } },
+				// { $inc: { [`active.${dayName}.$.chance`] : by }, $set: {lastActive: d} }, 
+				// function(err, user2) {
+				// 	if (user2.nModified === 0) {
+				// 		User.updateOne({_id: to_user },
+				// 		{ $push: { [`active.${dayName}`] : {hour: hour, chance: 1} }, $set: {lastActive: d} }, 
+				// 		function(err, user3) {
+
+				// 		});
+				// 	}
+				// });
+				}
+			} else {
+				User.findOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour } } },
+				function(err, user2) {
+					if (user2) {
+						User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gt: 1} } } },
+						{ $inc: { [`active.${dayName}.$.chance`] : by } }, 
+						function(err, user3) {
+
+						});
+					} 
 				});
 			}
 		});
+
+		// User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour}} },
+		// { $inc: { [`active.${dayName}.$.chance`] : by }}, function(err, user) {
+		// 	if (user.nModified === 0) {
+		// 		User.updateOne({_id: to_user },
+		// 		{ $push: { [`active.${dayName}`] : {hour: hour, chance: by} }}, function(err, user) {
+
+		// 		});
+		// 	}
+		// });
 	},
 	sendInfo: function(io, bot, matchesId) {
 		User.find({_id: {$in: matchesId}}, function(err, user) {

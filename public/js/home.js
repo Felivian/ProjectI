@@ -391,6 +391,7 @@ function generateUserPick(logId, userId,nick,group,active) {
             '<div class=\"col-sm-5 col-xs-5\">Group: '+group+'</div>'+
             '<button class=\"col-sm-1 col-xs-1\">X</button>'+
         '</div>');
+        $('#'+logId).toggleClass('grayscale',true);
     }
 }
 
