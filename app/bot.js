@@ -2,6 +2,7 @@ module.exports = function(app, bot, mongoose, q) {
 	var sh 		= require('shorthash');
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
+	var Session 	= require('../app/models/session');
 	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
 	var wG 		= require('../app/whatGroups');
 	//var Qinfo 	= require('../config/Qinfo');
@@ -69,7 +70,7 @@ module.exports = function(app, bot, mongoose, q) {
 		chat.say({
 			text: 'How can I help You?',
 			quickReplies: ['Commends', 'About']
-		}, { typing: 2000 })
+		}, { typing: true })
 	});
 
 	bot.hear('about', (payload, chat) => {
@@ -79,6 +80,57 @@ module.exports = function(app, bot, mongoose, q) {
 		})*/
 	});
 
+	/*bot.hear('renew', (payload, chat) => {
+		chat.getUserProfile().then((mUser) => {
+			console.log(mUser.id);
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				if (user) {
+					var datetime = new Date;
+					console.log(user._id);
+					Log.findOne({ userId: user._id, active: true}, function(err, log) {
+						if (log) {
+							console.log(log)
+							log.updated = datetime;
+							log.save(function(err, uLog) {
+								chat.say('Your ad was renewed for another hour.', {typing: true});
+							});
+						}
+					});
+				}
+			});
+		});
+	});*/
+	bot.hear('renew', (payload, chat) => {
+		chat.getUserProfile().then((mUser) => {
+			console.log(mUser.id);
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				if (user) {
+					var datetime = new Date;
+					console.log(user._id);
+					Log.updateOne({ userId: user._id, active: true},{ $set: {updated: datetime}}, function(err, log) {
+						if (log) {
+							chat.say('Your ad was renewed for another hour.', {typing: true});
+						}
+					});
+				}
+			});
+		});
+	});
+	bot.hear('terminate', (payload, chat) => {
+		chat.getUserProfile().then((mUser) => {
+			console.log(mUser.id);
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				var datetime = new Date;
+				Log.updateOne({ userId: user._id, active: true}, { $set: {end: datetime, active: false, success: false} }, function(err, log) {
+					if (log) {
+						chat.say('Your ad was terminated.', {typing: true});
+					}
+				});
+			});
+		});
+	});
+	// if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
+	// 'Renew', 'Terminate'
 
 	/*bot.hear('ow', (payload, chat) => {
 		//if user exists or smth

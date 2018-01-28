@@ -81,6 +81,11 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                 user.save(function(err) {
                     //res.redirect('/profile');
                 });
+                User.updateMany({'messenger.id': obj.recipient, _id: {$ne: req.session.passport.user} }, 
+                {$set: {'messenger.id':null} },
+                function(err, user2) {
+
+                }) 
             });
             res.redirect(r_uri+'&authorization_code=200');
         } else {

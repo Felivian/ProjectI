@@ -97,9 +97,6 @@ var Log             = require('./app/models/log');//
 
 require('./tests/testsRouter.js')(app, mongoose, q);
 
-// schedules ======================================================================
-require('./app/schedules.js')(app, mongoose, schedule, q);
-
 // socket.io ======================================================================
 require('./app/socketio.js')(app, io, mongoose);
 
@@ -111,6 +108,9 @@ require('./app/bot.js')(app, bot, mongoose, q);
 
 // Init Queues ====================================================================
 require('./config/Qconfig')(async, q, io, bot);
+
+// schedules ======================================================================
+require('./app/schedules.js')(app, mongoose, schedule, q, io, bot);
 
 // launch ======================================================================
 bot.start();

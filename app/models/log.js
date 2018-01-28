@@ -26,7 +26,8 @@ var logSchema = mongoose.Schema({
 	qd_players		: Number,
 	//matches			: [mongoose.Schema.Types.ObjectId]
 });
-logSchema.index({ start: 1});
+//logSchema.index({ start: 1});
+logSchema.index({ updated: 1});
 
 
 // create the model for users and expose it to our app

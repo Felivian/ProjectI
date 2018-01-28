@@ -2,6 +2,7 @@
 var User     = require('./models/user');
 var Queue    = require('./models/queue');
 var Session  = require('./models/session');
+var Log  = require('./models/log');
 var async    = require('async');
 var fetch = require('node-fetch');
 var GIPHY_URL = `http://api.giphy.com/v1/gifs/random?api_key=30lORG6s0LhJAz4EZW09N5ifmvYgnlYN&tag=`;
@@ -150,6 +151,24 @@ module.exports = {
 		Session.find({'data.passport.user': userId}, function(err, session) {
 			if(session) {
 				io.to(session.socketId).emit('notactive', '');
+				//console.log(matchesId);
+			}
+		});	
+	},
+	sendInactive: function(io, bot, userId) {
+		console.log(userId);
+		User.findOne({_id: userId}, function(err, user) {
+	    	bot.say(user.messenger.id, {
+		        text: 'Your ad reached end of it\'s lifespan. What do You want to do?',
+				quickReplies: ['Renew', 'Terminate']
+			}, {
+		        typing: true
+			});
+	    });
+		
+		Session.find({'data.passport.user': userId}, function(err, session) {
+			if(session) {
+				io.to(session.socketId).emit('inactive', '');
 				//console.log(matchesId);
 			}
 		});	
