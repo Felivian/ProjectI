@@ -453,7 +453,7 @@ function appendUserAd(ad) {
             '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
                 '<a class="nick panel-heading\" href=\"/profile/'+ad.userId+'\">'+ad.userName+'</a>'+
                 '<div class=\"user-info\">'+
-                    '<img src=\"/img/'+ad.game+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
+                    '<img src=\"/img/'+ad.game.replace(/\s/g, '')+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
                     '<div class=\"user-data panel-body\">'+
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
@@ -479,7 +479,7 @@ function prependUserAd(ad) {
             '<div class="user-ad-inner panel panel-primary col-md-12 text-center\">'+
                 '<a class="nick panel-heading\" href=\"/profile/'+ad.userId+'\">'+ad.userName+'</a>'+
                 '<div class=\"user-info\">'+
-                    '<img src=\"/img/'+ad.game+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
+                    '<img src=\"/img/'+ad.game.replace(/\s/g, '')+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
                     '<div class=\"user-data panel-body\">'+
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+

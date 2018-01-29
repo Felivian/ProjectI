@@ -8,7 +8,7 @@ var logSchema = mongoose.Schema({
 	userId			: mongoose.Schema.Types.ObjectId,
 	userName 		: String,
 	active			: Boolean,
-	pending			: Boolean,//
+	//pending			: Boolean,//
 	success			: Boolean,
 	start			: Date,
 	updated			: Date,
@@ -24,6 +24,7 @@ var logSchema = mongoose.Schema({
 	//rank			: [Number],
 
 	qd_players		: Number,
+	automatic 		: Boolean
 	//matches			: [mongoose.Schema.Types.ObjectId]
 });
 //logSchema.index({ start: 1});

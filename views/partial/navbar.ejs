@@ -16,6 +16,8 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="navbar-collapse-1">
         <ul class="nav navbar-nav">
+          <% var re = new RegExp('/profile/.*'); %>
+                    <% console.log(mineProfile+' here3'); %>
           <!--home -->
           <% if (url == '/') { %>
             <!--home/home -->
@@ -28,13 +30,21 @@
             <li><a href="/about">About</a></li>  
           
           <!--profile -->
-          <% } else if (url == '/profile') { %>
+          <% } else if (re.test(url)) { %>  
             <!--profile/home -->
             <li><a href="/">Home</a></li>
             <!--profile/profile -->
-            <li class="active profile"><a href="/profile">Profile</a></li>
+            <% if (user) { %>
+              <% if (mineProfile) { %>
+                <li class="active profile"><a href="/profile">Profile</a></li>
+              <% } else { %>
+                <li><a href="/profile">Profile</a></li>
+              <% } %>
+            <% } %>
             <!--profile/about -->
             <li><a href="/about">About</a></li>
+
+
           <!--about -->
           <% } else if (url == '/about') { %>
             <!--profile/home -->

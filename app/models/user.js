@@ -32,8 +32,6 @@ var userSchema = mongoose.Schema({
     games            : [{
         name         : String,
         account      : String,
-        rank_n       : Number,
-        rank_s       : String,
         platform     : String,
         region       : String
     }],

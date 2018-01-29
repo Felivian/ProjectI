@@ -7,6 +7,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     var Queue = require('./models/queue');//
     var Log = require('./models/log');//
     var User = require('./models/user');//
+    var Match = require('./models/match');//
     var _    = require('underscore');
     var push2q  = require('./push2q');
     var mf              = require('./main_functions');//
@@ -67,6 +68,16 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     });
 
 
+
+    // app.get(/profile.*/, function(req, res, next) {
+    //     console.log(req.params.userId);
+    //     User.findOne({_id: req.session.passport.user}, 'games', function(err, user) {
+    //         console.log(user);
+    //         next();
+    //     });
+        
+    // });
+
     app.get('/profile', isLoggedIn, function(req, res) {
         //messenger login redirect
         if (req.session.redirect_uri) { 
@@ -82,16 +93,42 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                     //res.redirect('/profile');
                 });
                 User.updateMany({'messenger.id': obj.recipient, _id: {$ne: req.session.passport.user} }, 
-                {$set: {'messenger.id':null} },
+                {$set: {'messenger.id':undefined} },
                 function(err, user2) {
 
                 }) 
             });
             res.redirect(r_uri+'&authorization_code=200');
         } else {
-            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url });
+            //res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.session.passport.user, mineProfile: true });
+            res.redirect('/profile/'+req.session.passport.user);
         }
     });
+    app.get('/profile/:userId', function(req, res) {
+
+        User.findOne({_id: req.params.userId}, 'games', function(err, userGames) {
+            console.log(userGames);
+            Log.find({userId: req.params.userId}).sort({start: -1}).limit(5).exec(function(err, userLogs) {
+                console.log(userLogs);
+                Match.findOne({matches: {$in: [ userLogs[0]._id ]} }, function(err, oneMatch) {
+                    console.log(oneMatch);
+                
+                    if (req.isAuthenticated()) {
+                        if (req.params.userId == req.session.passport.user) {
+                            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: true });
+                        } else {
+                            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: false });
+                        }
+                    } else {
+                        res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false });   
+                    }
+                });
+            });
+        });
+    });
+
+
+    
 
     app.get('/logout', function(req, res) {
         req.logout();
