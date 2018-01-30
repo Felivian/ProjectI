@@ -10,8 +10,6 @@ module.exports =  {
   automatic: function (io, bot, task, callback) {
     Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
       if (!actualLog) { callback(); } else {
-        //io.emit('new',actualLog);//delete this
-        //if (!task.atf) io.emit('new',actualLog);
         //get datetime here
         var datetime = new Date().toISOString();
         datetime = Date.parse(datetime) - (1*60*60*1000);//1h
@@ -19,9 +17,8 @@ module.exports =  {
         Log.aggregate([ 
           { $match: 
             {'_id': {$ne: task.log_id},
-            'userId': {$ne: task.userId},
+            //'userId': {$ne: task.userId},
             'active':true, 
-            //datetime
             'updated': {$gte: new Date(datetime)},
             'game': actualLog.game, 
             'platform': actualLog.platform,
@@ -37,6 +34,7 @@ module.exports =  {
             console.log('wg:' + wg);
             actualLog.active = false;
             actualLog.success = true;
+            actualLog.end = new Date();
             actualLog.save(function(err, updatedActualLog){
               var dup = wG.dups(wg);
               var lf = wG.keys_n(dup);
@@ -51,9 +49,8 @@ module.exports =  {
                 function(callback3) {
                   Log.find({
                   '_id': {$ne: task.log_id},
-                  'userId': {$ne: task.userId},
+                  //'userId': {$ne: task.userId},
                   'active':true, 
-                  //datetime
                   'updated': {$gte: new Date(datetime)},
                   'game': actualLog.game, 
                   'platform': actualLog.platform,
@@ -69,6 +66,7 @@ module.exports =  {
                     async.each(log, function(log_i, callback2) {
                       log_i.success=true;
                       log_i.active=false;
+                      log_i.end = new Date();
                       log_i.save(function(err, ulog) {
                           //arr.push(log_i._id);
                           json.id.push(log_i._id);
@@ -144,7 +142,7 @@ module.exports =  {
             match.users = userIds;
                     
             Log.updateMany({_id: {$in: task.arr}},
-            {$set: {active: false, success: true, end: date} } , 
+            {$set: {active: false, success: true, end: new Date(date)} } , 
             function(err, uLog) {
               console.log(match.matches);
               console.log(newLog.game.replace(/\s/g, ''));
@@ -154,7 +152,7 @@ module.exports =  {
                 //stoping active ads (one) of person that triggered match event
                 var date = new Date();
                 Log.updateMany({userId: task.userId, active:true},
-                {$set: {active: false, success: false, end: date} } , 
+                {$set: {active: false, success: false, end: new Date(date)} } , 
                 function(err, uLog) {
                   callback();
                 });

@@ -27,7 +27,9 @@ module.exports = function(q) {
 	    newLog.region = test.region;
 	    newLog.rank_s = test.rank_s;
 	    //u_rank_arr = test.rank;
-		    
+		
+		newLog.userId = '5a3fbdc366484b2058751dad';
+		newLog.userName = 'Felivian';
 
 	    newLog.save(function(err, log) {
 	        if (err) throw err;

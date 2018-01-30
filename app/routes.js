@@ -105,30 +105,29 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         }
     });
     app.get('/profile/:userId', function(req, res) {
-
-        User.findOne({_id: req.params.userId}, 'games', function(err, userGames) {
-            console.log(userGames);
-            Log.find({userId: req.params.userId}).sort({start: -1}).limit(5).exec(function(err, userLogs) {
-                console.log(userLogs);
-                Match.findOne({matches: {$in: [ userLogs[0]._id ]} }, function(err, oneMatch) {
-                    console.log(oneMatch);
-                
-                    if (req.isAuthenticated()) {
-                        if (req.params.userId == req.session.passport.user) {
-                            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: true });
+        Game.find({}, function(err, game) {
+            User.findOne({_id: req.params.userId}, 'games', function(err, userGames) {
+                console.log(userGames);
+                Log.find({userId: req.params.userId}).sort({start: -1}).limit(10).exec(function(err, userLogs) {
+                    console.log(userLogs);
+                    Match.findOne({matches: {$in: [ userLogs[0]._id ]} }, function(err, oneMatch) {
+                        console.log(oneMatch);
+                        //var timezoneOffset = new Date().getTimezoneOffset()/60;
+                        if (req.isAuthenticated()) {
+                            if (req.params.userId == req.session.passport.user) {
+                                res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: true, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
+                            } else {
+                                res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
+                            }
                         } else {
-                            res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: false });
+                            res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
                         }
-                    } else {
-                        res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false });   
-                    }
+                    });
                 });
             });
         });
     });
 
-
-    
 
     app.get('/logout', function(req, res) {
         req.logout();
@@ -300,7 +299,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     app.post('/match', function (req, res) {
         if (req.isAuthenticated()) {
             JSON.stringify(req.body.id);;
-            if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
+            //if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
                 Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
                     if (log.length != req.body.id.length) {
                         res.sendStatus(404);
@@ -315,9 +314,9 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                         res.sendStatus(200);
                     }
                 });
-            } else {
-                res.sendStatus(406);
-            }
+            // } else {
+            //     res.sendStatus(406);
+            // }
         } else {
             res.sendStatus(401);
         }
@@ -366,7 +365,58 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         //res.sendStatus(200);
     });
 
-};
+    app.get('/profile-logs/:userId', function(req, res) {
+        console.log(req.params.userId)
+        Log.find({userId: req.params.userId}).sort({start: -1}).limit(10).exec(function(err, userLogs) {
+            console.log(userLogs);
+            
+            if (req.isAuthenticated()) {
+                if (req.params.userId == req.session.passport.user) {
+                    res.json({mineProfile: true, userLogs: userLogs });
+                } else {
+                    res.json({ mineProfile: false, userLogs: userLogs });
+                }
+            } else {
+                res.json({ mineProfile: false,  userLogs: userLogs });
+            }
+
+        });
+    });
+
+    app.get('/specific-log/:logId', function(req, res) {
+        console.log(req.params.logId)
+        Log.findOne({_id: req.params.logId}).exec(function(err, userLog) {
+            Match.findOne({matches: {$in: [ req.params.logId ]} }, function(err, oneMatch) {
+                if (req.isAuthenticated()) {
+                    if (req.params.userId == req.session.passport.user) {
+                        res.json({ userLog: userLog, oneMatch: oneMatch });
+                    } else {
+                        res.json({ userLog: userLog, oneMatch: oneMatch });
+                    }
+                } else {
+                    res.json({ userLog: userLog, oneMatch: oneMatch });
+                }
+            });
+        });
+    });
+
+    app.post('/cancel-ad', function(req, res) {
+        console.log(req.body.logId);
+        Log.findOne({_id: req.body.logId}, function(err, userLog) {
+            if (userLog.active) {
+                userLog.end = new Date();
+                userLog.active = false;
+                userLog.success = false;
+                userLog.save(function(err, uLog) {
+                    res.sendStatus(200); 
+                }); 
+            } else {
+                res.sendStatus(406);
+            }
+            
+        });
+    });
+}
 
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {

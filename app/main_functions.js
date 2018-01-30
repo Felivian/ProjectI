@@ -85,28 +85,29 @@ module.exports = {
 		User.find({_id: {$in: matchesId}}, function(err, user) {
 			async.each(user, function(user_i, callback) {
 				console.log(user_i.messenger.id);
-				//bot.say(user_i.messenger.id, 'Found match!');
-				const query = 'happy';
-				fetch(GIPHY_URL + query)
-			    .then(res => res.json())
-			    .then(json => {
-			    	bot.say(user_i.messenger.id, {
-			      //chat.say({
-				        attachment: 'image',
-				        url: json.data.image_url
-					}, {
-				        typing: true
-					}).then(() => {
-						bot.sendGenericTemplate(user_i.messenger.id, [{ 
-							title: 'Found match!', 
-							buttons: [{ 
-								type: 'web_url',
-								url: 'localhost:8080/profile',
-	  							title: 'See Your match!',
-				            }]
-			        	}]);
-					});
-			    });
+				if (user_i.messenger.id) {
+					const query = 'happy';
+					fetch(GIPHY_URL + query)
+				    .then(res => res.json())
+				    .then(json => {
+				    	bot.say(user_i.messenger.id, {
+				      //chat.say({
+					        attachment: 'image',
+					        url: json.data.image_url
+						}, {
+					        typing: true
+						}).then(() => {
+							bot.sendGenericTemplate(user_i.messenger.id, [{ 
+								title: 'Found match!', 
+								buttons: [{ 
+									type: 'web_url',
+									url: 'localhost:8080/profile',
+		  							title: 'See Your match!',
+					            }]
+				        	}]);
+						});
+				    });
+				}
 				callback();
 			});
 		});

@@ -5,7 +5,8 @@
 <title>ProjectI - profile page</title>
 <%- include('partial/head', {}); %>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-<script src="js/profile.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment-with-locales.js"></script>
+<script src="/js/profile.js"></script>
 <style>
 	img.game-logo {
 		padding-top: 10px;
@@ -54,6 +55,10 @@
 		background-color: #99aab5 !important;
 		color: #000000 !important;
 	}
+	div.container * input::placeholder {
+		color: #ffffff !important;
+	}
+
 	div.container * button {
 		background-color: #ff8d07;
 		border-color: #ff8d07;
@@ -107,18 +112,20 @@
 		padding-bottom: 10px;
 		width: 100px;
 	}
-
-	img:hover {
-		filter:opacity(30%);
-		cursor: pointer;
-	}
-	img.active {
+	img.game-logo.add {
 		filter:opacity(30%);
 	}
-	img.active:hover {
+	img.game-logo.add:hover {
 		filter:opacity(100%);
-		cursor: pointer;
 	}
+	img.game-logo.add.active {
+		filter:opacity(100%);
+	}
+	img.game-logo.add.active:hover {
+		filter:opacity(30%);
+	}
+
+	
 	select {
 		margin-bottom: 10px;
 	}
@@ -129,6 +136,7 @@
 		padding: 8px;
 		margin-bottom: 10px;
 	}
+
 </style>
 	
 
@@ -139,12 +147,11 @@
 <div class="container">
 	<div class="row">
 		<div class="games col-xs-12 col-md-12">
-			<img src="/img/Overwatch.png" alt="Overwatch" class="img-circle game-logo">
-			<img src="/img/SplinterCellConviction.png" alt="Splinter Cell Conviction" class="img-circle game-logo">
-			<img src="/img/HeroesOfTheStorm.png" alt="Heroes Of The Storm" class="img-circle game-logo">
-			<img src="/img/Hearthstone.png" alt="Hearthstone" class="img-circle game-logo">
+			<% for(i=0; i<userGames.games.length; i++) { %>
+				<% var str = userGames.games[i].name.replace(/\s/g, ''); %>
+				<img src=/img/<%= str %>.png alt= <%= str %> class="img-circle game-logo">
+			<% } %>
 
-			<!--<img src=\"/img/'+ad.game.replace(/\s/g, '')+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\">-->
 			<% if (mineProfile) { %>
 				<img src="/img/add2.png" alt="add" class="img-circle game-logo add">
 			<% } %>
@@ -154,17 +161,20 @@
 		<div class="col-md-2">
 			<select required class="form-control game">
 				<option value="" disabled selected hidden>Game name</option>
-				<option value="Overwatch">Overwatch</option>
+				<% for(i=0; i<games.length; i++) { %>
+					<% var str = games[i].name.replace(/\s/g, ''); %>
+					<option value= <%= str %> ><%= games[i].name %></option>
+				<% } %>
 			</select>
 		</div>
 		<div class="col-md-2">
 			<select required class="form-control platform">
 				<option value="" disabled selected hidden>Platform</option>
-				<option value="PC">PC</option>
+				
 			</select>
 		</div>
 		<div class="col-md-2  col-xs-8 col-sm-10">
-			<input type="text" class="form-control" name="nick">
+			<input placeholder="nick" type="text" class="form-control" name="nick">
 		</div>
 		<div class="col-xs-4 col-sm-2">
 			<button class="glyphicon glyphicon-ok"></button>
@@ -185,10 +195,14 @@
 						<% } %>
 					</tr>
 					<tr>
-						<td class="text-center">Overwatch</td>
-						<td class="text-center">Felivian#1111</td>
-						<td class="text-center">PC</td>
-						<td class="text-center">EU</td>
+						<% for(i=0; i<userGames.games.length; i++) { %>
+							<% var str = userGames.games[i].name.replace(/\s/g, ''); %>
+							<td class="text-center"><%=userGames.games[i].name%></td>
+							<td class="text-center"><%=userGames.games[i].account%></td>
+							<td class="text-center"><%=userGames.games[i].platform%></td>
+							<td class="text-center"><%=userGames.games[i].region%></td>
+						<% } %>
+						
 						<% if (mineProfile) { %>
 							<td class="text-center">
 								<button class="glyphicon glyphicon-remove"></button>					
@@ -200,7 +214,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="over-table col-md-8 col-sm-8 col-xs-12 text-center">
+		<div id="logs" class="over-table col-md-8 col-sm-8 col-xs-12 text-center">
 			<table width="100%" class="table">
 				<thead class="thead-inverse">
 					<tr> 
@@ -211,30 +225,19 @@
 							<th class="text-center">Action</th>	
 						<% } %>	
 					</tr>
-					<tr class=""> 
-						<td class="text-center">Overwatch</td>
-						<td class="text-center">Competitive</td>
-						<td class="text-center">2018-01-04</td>
-						<% if (mineProfile) { %>
-							<td class="text-center">
-								<button class="glyphicon glyphicon-plus"></button>
-								<button class="glyphicon glyphicon-remove"></button>
-								<button class="glyphicon glyphicon-info-sign"></button>
-							</td>
-						<% } %>
-					</tr>
-					
-					<tr>
-						<% if (mineProfile) { %>
-							<td colspan="4" class="text-center"><button class="more-history">More</button></td>
-						<% } else { %>
-							<td colspan="3" class="text-center"><button class="more-history">More</button></td>
-						<% } %>
-					</tr>
 				</thead>
+				<tbody>
+					<tr class="more-history">
+						<% if (mineProfile) { %>
+							<td colspan="4" class="text-center more-history"><button class="more-history">More</button></td>
+						<% } else { %>
+							<td colspan="3" class="text-center more-history"><button class="more-history">More</button></td>
+						<% } %>
+					</tr>
+				</tbody>
 			</table>
 		</div>
-		<div class="over-table col-md-4 col-sm-4 col-xs-12">
+		<div id="specific-log" class="over-table col-md-4 col-sm-4 col-xs-12">
 			<table width="100%" class="table">
 				<thead class="thead-inverse">
 					<tr>
@@ -242,57 +245,52 @@
 					</tr>
 					<tr> 
 						<td class="">Game</td> 
-						<td class="text-center">Overwatch</td>
+						<td class="text-center game"></td>
 					</tr>
 					<tr> 
 						<td class="">Mode</td> 
-						<td class="text-center">Competitive</td>
+						<td class="text-center mode"></td>
 					</tr>
 					<tr> 
 						<td class="">Your group</td>
-						<td class="text-center">2</td> 
+						<td class="text-center your-group"></td> 
 					</tr>
 					<tr> 
 						<td class="">Maximum group</td> 
-						<td class="text-center">6</td>
+						<td class="text-center maximum-group"></td>
 					</tr>
 					<tr> 
 						<td class="">Rank</td> 
-						<td class="text-center">Platinum</td>
+						<td class="text-center rank"></td>
 					</tr>
 					<tr> 
 						<td class="">Platform</td> 
-						<td class="text-center">PC</td>
+						<td class="text-center platform"></td>
 					</tr>
 					<tr> 
 						<td class="">Region</td> 
-						<td class="text-center">EU</td>
+						<td class="text-center region"></td>
 					</tr>
 					<tr> 
 						<td class="">Start</td> 
-						<td class="text-center">2018-01-04 18:53</td>
+						<td class="text-center start"></td>
 					</tr>
 					<tr> 
 						<td class="">End</td> 
-						<td class="text-center">2018-01-04 18:53</td>
+						<td class="text-center end"></td>
 					</tr>
 					<tr> 
 						<td class="">Active</td> 
-						<td class="text-center">No</td>
+						<td class="text-center is-actv"></td>
 					</tr>
 					<tr> 
 						<td class="">Success</td> 
-						<td class="text-center">Yes</td>
+						<td class="text-center is-success"></td>
 					</tr>
 					<tr>
 						<td class="">Players</td> 
-						<td class="text-center">
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
-							<a href="http://localhost:8080/profile/5a3fbdc366484b2058751dad">Felivian</a>
+						<td class="text-center players">
+							
 						</td>
 					</tr>
 				</thead>
