@@ -8,6 +8,7 @@
 	<script src="js/home.js"></script>
     <style>
     	button.no-ads {
+    		margin: auto;
     		display: none;
     	}
     	button.new-ads {
@@ -15,9 +16,6 @@
     	}
     	select {
     		margin-bottom: 10px;
-    	}
-    	.content-area {
-    		//margin: auto;
     	}
     	div.user-data {
     		padding: 0px;
@@ -55,10 +53,7 @@
     		color: white;
    
     	}
-    	div.user-ad-inner:hover {
-    		//background-color: #5C6BC0;
 
-    	}
     	.table-striped>tbody>tr:nth-child(odd) {
 		   background-color: #30384a;
 		}
@@ -84,10 +79,6 @@
 		.sepia {
 			-webkit-filter: sepia(100%);
 			filter:sepia(100%);
-		}
-		.notSuiting {
-			//border-radius: 10px;
-    		
 		}
 	
 		
@@ -141,6 +132,8 @@
     		border: 2px solid #2c2c2f;
     		background-color: #f4feff;
     		color: black;
+    		padding-top: 5px;
+    		padding-bottom: 5px;
 		}
 		span.group {
 			font-size: 20px;
@@ -152,6 +145,10 @@
 		.buttons {
 			padding-left: 30px;
 			padding-right: 30px;
+		}
+		.buttons > button {
+			border-color: #242d44;
+			color: black;
 		}
 		.pick.fixed, button.picked.fixed {
 			position: fixed;
@@ -206,19 +203,36 @@
 		.select-area {
 			color: white;
 		}
-		.create-new {
+		/*.create-new {
 			background-color: green;
 			border-color: green;
-		}
-		.pick > button {
+		}*/
+		/*.pick > button {
 			background-color: green;
 			border-color: green;
-		}
+		}*/
 		.red-border {
 			border-color: red;
 		}
-
-
+		button.picked {
+			border-radius: 50px;
+		    -moz-border-radius: 50px;
+		    -webkit-border-radius: 50px;
+		}
+		.pick > button {
+			margin-bottom: 10px;
+		}
+		.picked-users * a:hover {
+			color:black;
+		}
+		div.row.info {
+			padding-left: 30px;
+			padding-right: 30px;
+			margin-bottom: 10px;
+		}
+		span.close {
+			float: right;
+		}
     </style>
 		
 
@@ -226,6 +240,10 @@
 <body>
 	<%- include('partial/navbar', {user: user, url: url, mineProfile: null}); %>
 <div class="container ">
+	<div class="alert alert-danger col-md-6 col-md-offset-3 text-center">
+		bla bla bla
+		<span class="close glyphicon glyphicon-remove"></span>
+	</div>
     <div class="row select-area col-md-12 text-center">
     	<div class="col-md-12">
 	    	<select required class="form-control game">
@@ -274,17 +292,23 @@
 				<option value="" disabled selected hidden>Region</option>
 			</select>
 		</div>
-		<input type="checkbox" name="auto">Automatic match
-		<button class="select create-new">Create new ad!</button>
+		<!--<input type="checkbox" name="auto">Automatic match-->
+		<div class="form-check form-check-inline">
+			
+			<!--<label class="form-check-label" for="checkbox">Automatic match</label>-->
+			<input class="form-check-input" type="checkbox" name="auto" data-label-text="Automatic">
+			<button class="select create-new btn btn-info btn-md">Create new ad!</button>
+		</div>
+		
 	</div>
 
+	
 	<div class="row col-md-12 text-center buttons">
-
-		<button class="select reverse col-md-6 col-xs-12">reverse</button>
-		<button class="select reset col-md-6 col-xs-12">reset</button>
+		<button class="select reverse col-md-6 col-xs-12 btn btn-xs">reverse</button>
+		<button class="select reset col-md-6 col-xs-12 btn btn-xs">reset</button>
 	</div>
-	<div class="row col-md-12 text-center">
-		<button class="new-ads">New content!</button>
+	<div class="info row col-md-12 text-center">
+		<button class="new-ads btn btn-warning btn-block glyphicon glyphicon-exclamation-sign"> New content! Click to show.</button>
 	</div>
 	<div class="row content-area  col-md-12 text-center">
 
@@ -307,9 +331,9 @@
 		Your team
 		<div class="picked-users">
 		</div>
-		<button>Send</button>	
+		<button class="btn btn btn-warning btn-smd">Send</button>	
 	</div>
-	<button class="hidden-xs fixed picked">CLICK</button>
+	<button class="hidden-xs fixed picked btn btn-md btn-danger fa fa-plus-circle fa-2x"></button>
 	
 	<div class="row col-xs-12 hidden-xs hidden-sm hidden-md hidden-lg mobile pick text-center">
 		<span class="group">?/?</span>
@@ -329,18 +353,19 @@
 		</div>
 		Your team
 		<div class="picked-users">
-
 		</div>
-		<button>Send</button>
+		<button class="btn btn-warning btn-sm">Send</button>
 			
 	</div>
 
 
-	<p id="loading">
-		<img src="images/loading.gif" alt="Loading…" />
-	</p>
+	<div class="row info text-center col-xs-12">
+		<div class="loader"></div>
+		<button class="no-ads btn btn-warning btn-block glyphicon glyphicon-refresh"> No more ads.</button>
+	</div>
 
-	<button class="no-ads">No more ads. Click to refresh</button>
+
+	
 
 
   		<div class="mobile-nav text-center col-xs-12 align-middle visible-xs">

@@ -1,0 +1,14 @@
+body {
+    background-color: #242d44;
+    color: white;
+}
+input {
+    background-color: #99aab5 !important;
+    color: #000000;
+}
+a {
+    color: #ff8d07;
+}
+a:hover {
+    color: white;
+}

@@ -106,24 +106,18 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     });
     app.get('/profile/:userId', function(req, res) {
         Game.find({}, function(err, game) {
-            User.findOne({_id: req.params.userId}, 'games', function(err, userGames) {
-                console.log(userGames);
-                Log.find({userId: req.params.userId}).sort({start: -1}).limit(10).exec(function(err, userLogs) {
-                    console.log(userLogs);
-                    Match.findOne({matches: {$in: [ userLogs[0]._id ]} }, function(err, oneMatch) {
-                        console.log(oneMatch);
-                        //var timezoneOffset = new Date().getTimezoneOffset()/60;
-                        if (req.isAuthenticated()) {
-                            if (req.params.userId == req.session.passport.user) {
-                                res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: true, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
-                            } else {
-                                res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
-                            }
-                        } else {
-                            res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, userLogs: userLogs, oneMatch: oneMatch, games:game });
-                        }
-                    });
-                });
+            User.findOne({_id: req.params.userId}).select({'games': 1, '_id': 0}).sort({'games.name': 1}).exec(function(err, userGames) {
+                console.log(userGames.games);
+                var userGames =  _.sortBy(userGames.games, 'name') ;
+                if (req.isAuthenticated()) {
+                    if (req.params.userId == req.session.passport.user) {
+                        res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: true, userGames: userGames, games:game });
+                    } else {
+                        res.render('profile.ejs', { user: req.user.facebook.name, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, games:game });
+                    }
+                } else {
+                    res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, games:game });
+                }
             });
         });
     });
@@ -309,7 +303,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                         log.forEach(function(val){
                             arr.push(val._id);
                         });
-                        mf.changeChance(req.session.passport.user, -1);
+                        mf.changeChance(req.session.passport.user, 1);
                         push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
                         res.sendStatus(200);
                     }
@@ -342,15 +336,23 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                     newLog.active = true;
                     newLog.start = date;
                     newLog.updated = date;
+                    if(req.body.data.automatic) {
+                        newLog.automatic=true;
+                    } else {
+                        newLog.automatic=false;
+                    }
                     User.findOne({_id: req.session.passport.user}, function(err, user) {
                         newLog.userName = user.displayName;
+                        console.log(newLog);
                         newLog.save(function(err, log) {
                             console.log(req.body.data.automatic);
+                            mf.changeChance(req.session.passport.user, 1);
                             //push to queue
                             if(req.body.automatic) {
                                 push2q(q, log._id, req.session.passport.user, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);
                             } else {
-                                io.to(newLog.game.replace(/\s/g, '')).emit('new', newLog);
+                                io.to('')
+                                io.to('5a3fbdc366484b2058751dad').emit('new', newLog);
                             }
                             res.sendStatus(200);
                         });
@@ -365,9 +367,9 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         //res.sendStatus(200);
     });
 
-    app.get('/profile-logs/:userId', function(req, res) {
-        console.log(req.params.userId)
-        Log.find({userId: req.params.userId}).sort({start: -1}).limit(10).exec(function(err, userLogs) {
+    app.get('/profile-logs/:userId/:offset', function(req, res) {
+        req.params.offset = parseInt(req.params.offset);
+        Log.find({userId: req.params.userId}).sort({start: -1}).skip(req.params.offset).limit(10).exec(function(err, userLogs) {
             console.log(userLogs);
             
             if (req.isAuthenticated()) {
@@ -407,13 +409,39 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                 userLog.end = new Date();
                 userLog.active = false;
                 userLog.success = false;
+                var json = {};
+                json.id = [userLog._id];
+                json.userId = [userLog.userId];
                 userLog.save(function(err, uLog) {
+                    io.to(userLog.game.replace(/\s/g, '')).emit('delete', json);
                     res.sendStatus(200); 
                 }); 
             } else {
                 res.sendStatus(406);
             }
             
+        });
+    });
+
+    app.post('/add-game', function(req, res) {
+        console.log(req.body);
+
+        User.findOneAndUpdate({_id: req.body.userId}, 
+        { $push: { games: {name: req.body.game, account: req.body.nick, platform: req.body.platform, region: req.body.region} } },
+        function(err, user) {
+            if (err) res.sendStatus(500); 
+            res.sendStatus(200); 
+        });
+    });
+
+    app.post('/game-remove', function(req, res) {
+        console.log(req.body);
+
+        User.findOneAndUpdate({_id: req.body.userId}, 
+        { $pull: { games: {name: req.body.userGame[0], account: req.body.userGame[1], platform: req.body.userGame[2], region: req.body.userGame[3]} } },
+        function(err, user) {
+            if (err) res.sendStatus(500); 
+            res.sendStatus(200); 
         });
     });
 }

@@ -30,9 +30,9 @@
 	body {
 		min-width: 370px;
 	}
-	div.container * {
+	/*div.container * {
 		color: white;
-	}
+	}*/
 	table {
 		background-color: #272d35;
 		border: 1px solid;
@@ -56,10 +56,10 @@
 		color: #000000 !important;
 	}
 	div.container * input::placeholder {
-		color: #ffffff !important;
+		color: #82838a !important;
 	}
 
-	div.container * button {
+	/*div.container * button {
 		background-color: #ff8d07;
 		border-color: #ff8d07;
 		border-radius: 26px;
@@ -70,12 +70,12 @@
 		background-color: #ffbf0c;
 		border-color: #ffbf0c;
 
-	}
+	}*/
 	
-	.more-history{
+	/*.more-history{
 		width: 80%;
 		margin: auto;
-	}
+	}*/
 	div.container * a {
 		color: #ff8d07;
 	}
@@ -131,12 +131,19 @@
 	}
 	.add-games {
 		display: none;
-	}
-	.add-games > div > button {
-		padding: 8px;
 		margin-bottom: 10px;
 	}
-
+	.add-games > div > button {
+		//padding: 8px;
+		//margin-right: 10px
+		margin-bottom: 10px;
+	}
+	.table-striped>tbody>tr:nth-child(odd) {
+		background-color: #2c3240;
+	}
+	thead > tr {
+		background-color: #16191d;
+	}
 </style>
 	
 
@@ -147,9 +154,19 @@
 <div class="container">
 	<div class="row">
 		<div class="games col-xs-12 col-md-12">
-			<% for(i=0; i<userGames.games.length; i++) { %>
-				<% var str = userGames.games[i].name.replace(/\s/g, ''); %>
-				<img src=/img/<%= str %>.png alt= <%= str %> class="img-circle game-logo">
+			<% var arr = [] %>
+			<% for(i=0; i<userGames.length; i++) { %>
+				<% var str = userGames[i].name.replace(/\s/g, ''); %>
+				<% arr.push(str); %>
+			<% } %>
+			<% function onlyUnique(value, index, self) { %>
+			    <% return self.indexOf(value) === index; %>
+			<% } %>
+			<% var unique = arr.filter( onlyUnique ); %>
+
+
+			<% for(i=0; i<unique.length; i++) { %>
+				<img src=/img/<%= unique[i] %>.png alt= <%= unique[i] %> class="img-circle game-logo">
 			<% } %>
 
 			<% if (mineProfile) { %>
@@ -173,17 +190,23 @@
 				
 			</select>
 		</div>
+		<div class="col-md-2">
+			<select required class="form-control region">
+				<option value="" disabled selected hidden>Region</option>
+				
+			</select>
+		</div>
 		<div class="col-md-2  col-xs-8 col-sm-10">
 			<input placeholder="nick" type="text" class="form-control" name="nick">
 		</div>
 		<div class="col-xs-4 col-sm-2">
-			<button class="glyphicon glyphicon-ok"></button>
-			<button class="glyphicon glyphicon-remove"></button>
+			<button class="glyphicon glyphicon-ok add btn btn-warning btn-md"></button>
+			<button class="glyphicon glyphicon-remove cancel btn btn-warning btn-md"></button>
 		</div>
 	</div>
 	<div class="row">
-		<div class="over-table col-md-12 col-sm-12 col-xs-12 text-center">
-			<table width="100%" class="table">
+		<div id="games" class="over-table col-md-12 col-sm-12 col-xs-12 text-center">
+			<table width="100%" class="table table-striped">
 				<thead class="thead-inverse">
 					<tr>
 						<th class="text-center">Game</th>
@@ -194,28 +217,31 @@
 							<th class="text-center">Action</th>
 						<% } %>
 					</tr>
-					<tr>
-						<% for(i=0; i<userGames.games.length; i++) { %>
-							<% var str = userGames.games[i].name.replace(/\s/g, ''); %>
-							<td class="text-center"><%=userGames.games[i].name%></td>
-							<td class="text-center"><%=userGames.games[i].account%></td>
-							<td class="text-center"><%=userGames.games[i].platform%></td>
-							<td class="text-center"><%=userGames.games[i].region%></td>
-						<% } %>
-						
-						<% if (mineProfile) { %>
-							<td class="text-center">
-								<button class="glyphicon glyphicon-remove"></button>					
-							</td>
-						<% } %>
-					</tr>
 				</thead>
+				<tbody>
+					<% for(i=0; i<userGames.length; i++) { %>
+						<tr>
+							<% var str = userGames[i].name; %>
+							<td class="text-center"><%=str%></td>
+							<td class="text-center"><%=userGames[i].account%></td>
+							<td class="text-center"><%=userGames[i].platform%></td>
+							<td class="text-center"><%=userGames[i].region%></td>
+
+							<% if (mineProfile) { %>
+								<td class="text-center">
+									<button class="glyphicon glyphicon-remove btn btn-warning btn-xs"></button>					
+								</td>
+							<% } %>
+						</tr>
+					<% } %>
+					
+				</tbody>
 			</table>
 		</div>
 	</div>
 	<div class="row">
 		<div id="logs" class="over-table col-md-8 col-sm-8 col-xs-12 text-center">
-			<table width="100%" class="table">
+			<table width="100%" class="table table-striped">
 				<thead class="thead-inverse">
 					<tr> 
 						<th class="text-center">Game</th>
@@ -229,20 +255,26 @@
 				<tbody>
 					<tr class="more-history">
 						<% if (mineProfile) { %>
-							<td colspan="4" class="text-center more-history"><button class="more-history">More</button></td>
+							<td colspan="4" class="text-center ">
+								<button class="more-history btn btn-warning btn-block">More</button>
+							</td>
 						<% } else { %>
-							<td colspan="3" class="text-center more-history"><button class="more-history">More</button></td>
+							<td colspan="3" class="text-center more-history btn btn-warning btn-md">
+								<button class="more-history btn btn-warning btn-block">More</button>
+							</td>
 						<% } %>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<div id="specific-log" class="over-table col-md-4 col-sm-4 col-xs-12">
-			<table width="100%" class="table">
+			<table width="100%" class="table table-striped">
 				<thead class="thead-inverse">
 					<tr>
 						<th colspan="2" class="text-center">Info</th>
 					</tr>
+				</thead>
+				<tbody>
 					<tr> 
 						<td class="">Game</td> 
 						<td class="text-center game"></td>
@@ -293,7 +325,7 @@
 							
 						</td>
 					</tr>
-				</thead>
+				</tbody>
 			</table>
 		</div>
 	</div>

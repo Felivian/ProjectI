@@ -3,6 +3,14 @@
     padding: 14px 14px 0;
     overflow:hidden;
     background-color:rgba(255,255,255,.8);
+    color: black;
+}
+#login-dp * input{ 
+    color: black;
+    background-color: white !important;
+}
+#login-dp * a {
+    color: #337ab7;
 }
 #login-dp .help-block{
     font-size:12px    
@@ -23,11 +31,11 @@
     margin-bottom: 10px;
 }
 .btn-fb{
-    color: #fff;
+    color: #fff !important;
     background-color:#3b5998;
 }
 .btn-fb:hover{
-    color: #fff;
+    color: #fff !important;
     background-color:#496ebc;
 }
 

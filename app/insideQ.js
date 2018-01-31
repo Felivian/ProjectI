@@ -18,6 +18,7 @@ module.exports =  {
           { $match: 
             {'_id': {$ne: task.log_id},
             //'userId': {$ne: task.userId},
+            'automatic': true,
             'active':true, 
             'updated': {$gte: new Date(datetime)},
             'game': actualLog.game, 
@@ -50,6 +51,7 @@ module.exports =  {
                   Log.find({
                   '_id': {$ne: task.log_id},
                   //'userId': {$ne: task.userId},
+                  'automatic': true,
                   'active':true, 
                   'updated': {$gte: new Date(datetime)},
                   'game': actualLog.game, 

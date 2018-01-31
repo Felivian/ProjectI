@@ -1,6 +1,7 @@
 socket = io.connect('http://localhost:8080');
 
 socket.on('new', function (data) {
+    console.log('new');
     var valid = true;
 
     var gameName = $( 'select.game' ).val();
@@ -9,6 +10,7 @@ socket.on('new', function (data) {
     var modePlayers = $( 'select.modePlayers' ).val();
     var qd_players = $( 'select.yourGroup' ).val();
     var rank_s = $( 'select.rank' ).val();
+    if(rank_s) rank_s = rank_s.replace(/([A-Z])/g, ' $1').trim();
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();;
     if (data.game != gameName && gameName !== null) valid = false;
@@ -18,7 +20,7 @@ socket.on('new', function (data) {
     if (data.platform != platform && platform !== null) valid = false;
     if (data.region != region && region !== null) valid = false;
     if (modePlayers !== null && qd_players !== null) {
-        if (data.qd_players >= parseInt(modePlayers) - parseInt(qd_players)) valid = false;
+        if (data.qd_players > parseInt(modePlayers) - parseInt(qd_players)) valid = false;
     }
     if(valid) {
         prependUserAd(data);
@@ -49,6 +51,7 @@ socket.on('notactive', function (data) {
 
 
 $(document).ready(function() {
+    $("[name='auto']").bootstrapSwitch();
     generateUserAds(true);
     $('select').change(function() {
         $(this).toggleClass('red-border', false);
@@ -252,7 +255,9 @@ $(document).ready(function() {
 
 function generateAlert(alertType, message) {
     $('.alert').remove();
-    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+'</div>');
+    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+
+        '<span class="close glyphicon glyphicon-remove"></span></div>');
+    RefreshSomeEventListener();
 }
 
 
@@ -269,12 +274,12 @@ $(document).ready(function() {
         $('ul.mobile-nav > li').toggleClass('active',false);
         $(this).toggleClass('active', true);
 
-        $('.row, .no-ads').toggleClass('hidden-xs');
+        //$('.row, .no-ads').toggleClass('hidden-xs');
     });
 
-    $('.no-ads').click(function() { 
-        generateUserAds(false); 
-    });
+    // $('.no-ads').click(function() { 
+    //     generateUserAds(false); 
+    // });
     $('button.picked').click(function() { 
 
         $('div.pick.fixed').toggle('display');
@@ -313,13 +318,11 @@ $(document).ready(function() {
     // Each time the user scrolls
     win.scroll(function() {
         // End of the document reached?
-        //if ($(document).height() - win.height() == win.scrollTop()) {
         if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
-            if(!$('button.no-ads').is(':visible'))
-            //if($('.no-ads:visible').length == 0)
-            {
+            // if(!$('button.no-ads').is(':visible'))
+            // {
                 generateUserAds(false); 
-            }
+            // }
         }
     });
 
@@ -383,21 +386,21 @@ function generateUserPick(logId, userId,nick,group,active) {
         $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 col-xs-12 picked-user\">'+
             '<div class=\"col-sm-5 col-xs-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
             '<div class=\"col-sm-5 col-xs-5\">Group: '+group+'</div>'+
-            '<button class=\"col-sm-1 col-xs-1\">X</button>'+
+            '<button class=\"col-sm-1 col-xs-1 btn btn-warning btn-xs glyphicon glyphicon-remove\"></button>'+
         '</div>');
     } else {
         $('.picked-users').append('<div id=\"'+logId+'\" class=\"col-sm-12 col-xs-12 picked-user grayscale\">'+
             '<div class=\"col-sm-5 col-xs-5\"><a href=\"/profile/'+userId+'\">'+nick+'</a></div>'+
             '<div class=\"col-sm-5 col-xs-5\">Group: '+group+'</div>'+
-            '<button class=\"col-sm-1 col-xs-1\">X</button>'+
+            '<button class=\"col-sm-1 col-xs-1 btn btn-warning btn-xs glyphicon glyphicon-remove\"></button>'+
         '</div>');
         $('#'+logId).toggleClass('grayscale',true);
     }
 }
 
 function generateUserAds(init) {
-    $('#loading').show();
-    $('button.no-ads').hide();
+    $('.loader').show();
+    //$('button.no-ads').hide();
     var data = {};
     
     var gameName = $( 'select.game' ).val();
@@ -433,14 +436,12 @@ function generateUserAds(init) {
                 appendUserAd(json.log[i]);
                 
             }
-            $('#loading').hide();
+            $('.loader').hide();
             RefreshSomeEventListener();
         } else {
             if(init) $('div.content-area').empty();
-            $('#loading').hide();
-            $('button.no-ads').show();
-            //if(init) NO ads
-            //if(!init) no MORE ads
+            $('.loader').hide();
+            //$('button.no-ads').show();
         }
         if (init) updatePicks(false);
     }
@@ -467,7 +468,7 @@ function appendUserAd(ad) {
                 '</div>'+
             '</div>'+
             '<div class="add-ad">'+
-                '<button class="add">+</button>'+
+                '<button class="add btn btn-primary btn-md">+</button>'+
             '</div>'+
         '</div>'
     );
@@ -493,7 +494,7 @@ function prependUserAd(ad) {
                 '</div>'+
             '</div>'+
             '<div class="add-ad">'+
-                '<button class="add">+</button>'+
+                '<button class="add btn btn-primary btn-md">+</button>'+
             '</div>'+
         '</div>'
     );
@@ -509,6 +510,11 @@ function RefreshSomeEventListener() {
     $('button.add').off();
     $('.picked-user > button').off();
     $('div.user-info').off();
+    $('span.close').off();
+    $('span.close').on('click', function(){
+        $(this).parent().remove();
+    });
+
     $('button.add').on('click', function(){
         var selVal =[];
         $(this).parent().siblings('div.user-ad-inner').find('kbd').each(function(index, obj)

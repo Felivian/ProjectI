@@ -7,6 +7,32 @@ var async    = require('async');
 var fetch = require('node-fetch');
 var GIPHY_URL = `http://api.giphy.com/v1/gifs/random?api_key=30lORG6s0LhJAz4EZW09N5ifmvYgnlYN&tag=`;
 module.exports = {
+	sendReminder: function(bot) {
+		var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+		var d = new Date();
+		var dayName = days[d.getDay()];
+		var hour = d.getHours();
+
+		var datetime = new Date().toISOString();
+		datetime = Date.parse(datetime) - (8*24*60*60*1000);//8days
+		datetime = new Date(datetime).toISOString();
+		//lastActive: {$gte: new Date(datetime)} ,
+		User.find({lastActive: {$lte: new Date(datetime)}, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gte: 5}  } } }, function(err, user) {
+		//User.find({[`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gte: 1}   } } }, function(err, user) {	
+			console.log(user);
+			async.each(user, function(user_i, callback) {
+				bot.say(user_i.messenger.id, {
+			        text: 'Long time no see. Maybe you\'ll visit me?',
+					quickReplies: ['Sure', 'Maybe later']
+				}, {
+			        typing: true
+				});
+				callback();  
+			}, function(err) {
+			});
+		});
+	},
+
 	changeChance: function(to_user, by) {
 		//to_user = '5a11d3786496960a50b33e50';
 		var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -17,6 +43,8 @@ module.exports = {
 		var year = d.getYear();
 
 		User.findOne({_id: to_user}, function(err, user) {
+			console.log(user);
+			console.log(dayName);
 			var lastDayName = days[user.lastActive.getDay()];
 			var lastHour = user.lastActive.getHours();
 			var lastMonth = user.lastActive.getMonth();
@@ -25,7 +53,7 @@ module.exports = {
 			if (by > 0) {
 				if (lastYear != year || lastMonth != month || lastDayName != dayName || lastHour != hour) {
 				
-					User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour } } },
+					User.updateOne({_id: to_user },
 					{ $set: {lastActive: d} }, 
 					function(err, user2) {
 						if (user2.nModified === 0) {

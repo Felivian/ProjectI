@@ -1,0 +1,23 @@
+to do list:
+
+-automatic jako parametr w log - done
+-usun¹æ 'keep me log in' - done
+-dodawanie gier -done
+-usuwanie gier -done
+-more logs -done
+-przerobienie wygl¹du logowanie i rejestracji w messengerze - done
+-przypomnienia o apce na messengerze - done
+-socket.io - komunikat o znalezieniu na profilu - done
+
+
+
+-reakcja na odpowiedŸ o przypominajce
+-wykresy
+-dodawanie og³oszenia w messengerze
+-settings
+
+
+
+
+
+-czy anulowanie poprzednich logów jest potrzebne?
