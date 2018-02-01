@@ -1,4 +1,7 @@
-socket = io.connect('http://localhost:8080');
+var urlArr = window.location.href.split("/"); 
+socket = io.connect(urlArr[0]+'//'+urlArr[2]);
+
+//socket = io.connect('http://localhost:8080');
 
 socket.on('match', function (data) {
     generateAlert('alert-info','<a href=\"/profile\">Match was found!</a>');
@@ -271,7 +274,7 @@ function RefreshSomeEventListener() {
 					'<td class=\"text-center\">'+platform+'</td>'+
 					'<td class=\"text-center\">'+region+'</td>'+
 					'<td class=\"text-center\">'+
-						'<button class=\"glyphicon glyphicon-remove\"></button>'+
+						'<button class=\"glyphicon glyphicon-remove btn btn-warning btn-xs\"></button>'+
 					'</td>'+
 				'</tr>');
 				var str = game.replace(/\s/g, '');

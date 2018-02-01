@@ -1,4 +1,8 @@
-socket = io.connect('http://localhost:8080');
+var urlArr = window.location.href.split("/"); 
+console.log(urlArr[0]+'//'+urlArr[2]);
+socket = io.connect(urlArr[0]+'//'+urlArr[2]);
+
+
 
 socket.on('new', function (data) {
     console.log('new');
@@ -49,7 +53,6 @@ socket.on('notactive', function (data) {
 
 
 
-
 $(document).ready(function() {
     $("[name='auto']").bootstrapSwitch();
     generateUserAds(true);
@@ -89,10 +92,11 @@ $(document).ready(function() {
             //console.log(json.modePlayers);
             $('select.modePlayers').empty();
             $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
-
-            for (var i = 0; i < json.modePlayers.length; i++) {
-                $('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
-            }
+            //for (var j = 0; j < json.mode.length; j++) {
+                for (var i = 0; i < json.modePlayers.length; i++) {
+                    $('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
+                }
+            //}
             $('select.yourGroup').empty();
             $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
             var maxPlayers = json.modePlayers.sort(sortNumber).reverse()[0];
@@ -143,36 +147,59 @@ $(document).ready(function() {
         url: '/game',
         data: {gameName: gameName},
         success:  function(json) { 
+            //modeName
             $('select.modeName').empty();
             $('select.modeName').append( '<option value="" disabled selected hidden>Mode name</option>');
-            for (var i = 0; i < json.modeName.length; i++) {
-            	$('select.modeName').append( '<option value='+json.modeName[i]+'>'+json.modeName[i]+'</option>');
+            for (var i = 0; i < json.mode.length; i++) {
+                    $('select.modeName').append( '<option value='+json.mode[i].modeName+'>'+json.mode[i].modeName+'</option>');
             }
+            //modeName
+            //modePlayers
             $('select.modePlayers').empty();
             $('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
-            for (var i = 0; i < json.modePlayers.length; i++) {
-            	$('select.modePlayers').append( '<option value='+json.modePlayers[i]+'>'+json.modePlayers[i]+'</option>');
+            var players = [];
+            for (var i = 0; i < json.mode.length; i++) {
+                for (var j = 0; j < json.mode[i].modePlayers.length; j++) {
+                    players.push(json.mode[i].modePlayers[j]);
+                }
             }
+            players =_.uniq(players);
+            for (var i = 0; i < players.length; i++) {
+            	$('select.modePlayers').append( '<option value='+players[i]+'>'+players[i]+'</option>');
+            }
+            //modePlayers
+            //yourGroup
             $('select.yourGroup').empty();
             $('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
-            for (var i = json.modePlayers.sort(sortNumber).reverse()[0]-1; i >0 ; i--) {
+            players = [];
+            for (var j = 0; j < json.mode.length; j++) {
+                players.push(json.mode[j].modePlayers);
+            }
+            for (var i = players.sort(sortNumber).reverse()[0]-1; i >0 ; i--) {
             	$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
             }
+            //yourGroup
+            //rank
             $('select.rank').empty();
             $('select.rank').append( '<option value="" disabled selected hidden>Rank</option>');
             for (var i = 0; i < json.rank.length; i++) {
             	$('select.rank').append( '<option value='+json.rank[i].replace(/\s/g, '')+'>'+json.rank[i]+'</option>');
             }
+            //rank
+            //platform
             $('select.platform').empty();
             $('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');
             for (var i = 0; i < json.platform.length; i++) {
             	$('select.platform').append( '<option value='+json.platform[i]+'>'+json.platform[i]+'</option>');
             }
+            //platform
+            //region
             $('select.region').empty();
             $('select.region').append( '<option value="" disabled selected hidden>Region</option>');
             for (var i = 0; i < json.region.length; i++) {
             	$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
-            }   
+            }  
+            //region 
             if (sessionStorage.getItem('init') && sessionStorage.getItem('modeName') != null) $('select.modeName').val(sessionStorage.getItem('modeName')).change();
             if (sessionStorage.getItem('init') && sessionStorage.getItem('rank') != null) $('select.rank').val(sessionStorage.getItem('rank')).change();
             if (sessionStorage.getItem('init') && sessionStorage.getItem('platform') != null) $('select.platform').val(sessionStorage.getItem('platform')).change();
@@ -274,7 +301,7 @@ $(document).ready(function() {
         $('ul.mobile-nav > li').toggleClass('active',false);
         $(this).toggleClass('active', true);
 
-        //$('.row, .no-ads').toggleClass('hidden-xs');
+        $('.row, .no-ads').toggleClass('hidden-xs');
     });
 
     // $('.no-ads').click(function() { 
@@ -319,10 +346,10 @@ $(document).ready(function() {
     win.scroll(function() {
         // End of the document reached?
         if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
-            // if(!$('button.no-ads').is(':visible'))
-            // {
+            if(!$('button.no-ads').is(':visible'))
+            {
                 generateUserAds(false); 
-            // }
+            }
         }
     });
 
@@ -361,12 +388,16 @@ $(document).ready(function() {
                 generateAlert('alert-info','Your ad was added successfully.');
             },
             statusCode: {
+                400: function() {
+                    generateAlert('alert-danger','<a href=\"/profile\">You need to add game info to Your profile!</a>');
+                },
                 401: function() {
                     generateAlert('alert-danger','You need to login to preform this activity.');
                 },
                 406: function() {
                     generateAlert('alert-danger','You can\'t add another ad.');
                 }
+
             }
             });
         } else {

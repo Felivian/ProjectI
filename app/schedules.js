@@ -14,7 +14,7 @@ module.exports = function(app, mongoose, schedule, q, io, bot) {
 			console.log('The answer to life, the universe, and everything!');
 		});
 	});*/
-	var j = schedule.scheduleJob('0 * * * * *', function(){ //every full minute
+	var j = schedule.scheduleJob('0 * * * *', function(){ //every full hour
 		console.log('triggered');
 		mf.sendReminder(bot);
 	});

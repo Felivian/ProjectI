@@ -1,11 +1,14 @@
 //var _    = require('underscore');
-var User     = require('./models/user');
-var Queue    = require('./models/queue');
-var Session  = require('./models/session');
-var Log  = require('./models/log');
-var async    = require('async');
-var fetch = require('node-fetch');
-var GIPHY_URL = `http://api.giphy.com/v1/gifs/random?api_key=30lORG6s0LhJAz4EZW09N5ifmvYgnlYN&tag=`;
+var User 		= require('./models/user');
+var Queue 		= require('./models/queue');
+var Session		= require('./models/session');
+var Log 		= require('./models/log');
+var async 		= require('async');
+var fetch 		= require('node-fetch');
+var configAuth = require('../config/auth');
+var configExtras = require('../config/extras');
+
+var GIPHY_URL 	= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
 module.exports = {
 	sendReminder: function(bot) {
 		var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -16,18 +19,19 @@ module.exports = {
 		var datetime = new Date().toISOString();
 		datetime = Date.parse(datetime) - (8*24*60*60*1000);//8days
 		datetime = new Date(datetime).toISOString();
-		//lastActive: {$gte: new Date(datetime)} ,
 		User.find({lastActive: {$lte: new Date(datetime)}, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gte: 5}  } } }, function(err, user) {
-		//User.find({[`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gte: 1}   } } }, function(err, user) {	
-			console.log(user);
 			async.each(user, function(user_i, callback) {
-				bot.say(user_i.messenger.id, {
-			        text: 'Long time no see. Maybe you\'ll visit me?',
-					quickReplies: ['Sure', 'Maybe later']
-				}, {
-			        typing: true
-				});
-				callback();  
+				user_i.lastActive = d;
+				user_i.save(function(err, sUser) {
+					console.log(user_i);
+					bot.say(user_i.messenger.id, {
+				        text: 'Long time no see. Maybe you\'ll visit me?',
+						quickReplies: ['Sure', 'Maybe later']
+					}, {
+				        typing: true
+					});
+					callback(); 
+				}); 
 			}, function(err) {
 			});
 		});
@@ -129,7 +133,7 @@ module.exports = {
 								title: 'Found match!', 
 								buttons: [{ 
 									type: 'web_url',
-									url: 'localhost:8080/profile',
+									url: configExtras.websiteURL+'/profile',
 		  							title: 'See Your match!',
 					            }]
 				        	}]);
@@ -169,7 +173,7 @@ module.exports = {
 						title: 'Sorry, some ad is no longer active', 
 						buttons: [{ 
 							type: 'web_url',
-							url: 'localhost:8080',
+							url: configExtras.websiteURL,
   							title: 'Go to website!',
 			            }]
 		        	}]);	

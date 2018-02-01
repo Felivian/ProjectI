@@ -1,13 +1,16 @@
-module.exports = function(app, bot, mongoose, q) {
+module.exports = function(app, bot, mongoose, q, io) {
 	var sh 		= require('shorthash');
 	var User 	= require('../app/models/user');
 	var Log 	= require('../app/models/log');
 	var Session 	= require('../app/models/session');
-	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q)*/;
+	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q,io)*/;
 	var wG 		= require('../app/whatGroups');
 	//var Qinfo 	= require('../config/Qinfo');
 	var _ 		= require('underscore');
-
+	var configAuth = require('../config/auth');
+	var configExtras = require('../config/extras');
+	var GIPHY_URL 	= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
+	var fetch 		= require('node-fetch');
 	//bot.say(1493247637377838, 'test');
 
 	bot.hear('login', (payload, chat) => {
@@ -15,7 +18,7 @@ module.exports = function(app, bot, mongoose, q) {
 			title: 'Welcome to ProjectI', 
 			buttons: [{ 
 				type: 'account_link',
-            	url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me/messenger-login' 
+            	url: configExtras.websiteURL+'/messenger-login' 
             	//url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me' 
             }] 
         }]);
@@ -34,13 +37,19 @@ module.exports = function(app, bot, mongoose, q) {
 		{
 			type: 'web_url',
 			title: 'Go to Website',
-			url: 'http://localhost:8080'
+			url: configExtras.websiteURL
 		},
 	]);
 	
 	bot.hear('hello', (payload, chat) => {
 		chat.conversation((convo) => {
 			Ask.askAccount(convo);
+		});
+	});
+
+	bot.hear(['add','ad'], (payload, chat) => {
+		chat.conversation((convo) => {
+			Ask.askAdd(convo, io);
 		});
 	});
 
@@ -51,19 +60,30 @@ module.exports = function(app, bot, mongoose, q) {
 		});
 	});
 
-	bot.hear('battletag', (payload, chat) => {
-		chat.conversation((convo) => {
-			// convo is available here...
-			Ask.askBattletag(convo);
+	bot.hear(['delete'], (payload, chat) => {
+		chat.getUserProfile().then((mUser) => {
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				Log.findOne({userId: user,active:true}, function(err, userLog) {
+		            if (userLog) {
+		                userLog.end = new Date();
+		                userLog.active = false;
+		                userLog.success = false;
+		                var json = {};
+		                json.id = [userLog._id];
+		                json.userId = [userLog.userId];
+		                userLog.save(function(err, uLog) {
+		                    io.to(userLog.game.replace(/\s/g, '')).emit('delete', json);
+		                    chat.say('Your ad was deleted', { typing: true });
+		                }); 
+		            } else {
+		                chat.say('You don\'t have active ad.', { typing: true });
+		            }
+		            
+		        });
+		    });
 		});
 	});
-
-	bot.hear('sr', (payload, chat) => {
-		chat.conversation((convo) => {
-			// convo is available here...
-			Ask.askSR(convo);
-		});
-	});
+	
 
 	//zmenic pozniej na pierwsza wiadomosc
 	bot.hear('help', (payload, chat) => {
@@ -73,33 +93,50 @@ module.exports = function(app, bot, mongoose, q) {
 		}, { typing: true })
 	});
 
+
 	bot.hear('about', (payload, chat) => {
 		chat.say('ProjectI bot', { typing: true });
-		/*chat.getUserProfile().then((muser) => {
-			console.log(muser);
-		})*/
 	});
 
-	/*bot.hear('renew', (payload, chat) => {
-		chat.getUserProfile().then((mUser) => {
-			console.log(mUser.id);
-			User.findOne({'messenger.id': mUser.id}, function(err, user) {
-				if (user) {
-					var datetime = new Date;
-					console.log(user._id);
-					Log.findOne({ userId: user._id, active: true}, function(err, log) {
-						if (log) {
-							console.log(log)
-							log.updated = datetime;
-							log.save(function(err, uLog) {
-								chat.say('Your ad was renewed for another hour.', {typing: true});
-							});
-						}
-					});
-				}
+	bot.hear('sure', (payload, chat) => {
+		const query = 'noice';
+		fetch(GIPHY_URL + query)
+	    .then(res => res.json())
+	    .then(json => {
+	      	chat.say({
+		        attachment: 'image',
+		        url: json.data.image_url
+			}, {
+		        typing: true
+			}).then(() => {
+				chat.sendGenericTemplate( [{ 
+					title: 'Noice!', 
+					buttons: [{ 
+						type: 'web_url',
+						url: configExtras.websiteURL,
+						title: 'C\'mon, lets find some friends!',
+		            }]
+	        	}]);
 			});
-		});
-	});*/
+	    });	
+	});
+
+	bot.hear('maybe later', (payload, chat) => {
+		const query = 'sad';
+		fetch(GIPHY_URL + query)
+	    .then(res => res.json())
+	    .then(json => {
+	        chat.say({
+		        attachment: 'image',
+		        url: json.data.image_url
+			}, {
+		        typing: true
+			}).then(() => {
+				chat.say('Got it.', {typing: true});
+			});
+	    });	
+	});
+
 	bot.hear('renew', (payload, chat) => {
 		chat.getUserProfile().then((mUser) => {
 			console.log(mUser.id);
@@ -129,104 +166,15 @@ module.exports = function(app, bot, mongoose, q) {
 			});
 		});
 	});
-	// if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
-	// 'Renew', 'Terminate'
-
-	/*bot.hear('ow', (payload, chat) => {
-		//if user exists or smth
-		chat.say('Got it', { typing: true });
-
-		//data from user
-		var u_qd_players = 1;
-		var u_mode_players = 3;
-		var u_mode_name = 'comp_'+u_mode_players;
-		var u_rank_arr = [2500,2100,2600];
-		var min = u_rank_arr.sort()[0];
-		var max = u_rank_arr.sort().reverse()[0];
-		var u_rank_n = Math.floor((max+min)/2);
-
-		//var u_roles = [['d','h','t'],['d','h','t'],['d','h','t']];
-		//data from user
+	
 
 
-		var newLog = new Log();
-		chat.getUserProfile().then((muser) => {
-			User.findOne({'messenger.id': muser.id}, function (err, user) {
-				newLog.user_id = user._id;
-				newLog.start = new Date();
-				newLog.active = true;
+	// bot.hear('code', (payload, chat) => {
+	// 	chat.getUserProfile().then((user) => {
+	// 		console.log(sh.unique(user.id));
+	// 		chat.say(sh.unique(user.id), { typing: true });
+	// 	});
+	// });
 
-				//game specific
-				newLog.game = 'overwatch';
-				newLog.platform = user.overwatch.platform;
-				newLog.region = user.overwatch.region;
-
-
-				//change later
-				if (max-min == 500) {
-					newLog.minSR = min;
-					newLog.maxSR = max;
-				} else {
-					newLog.minSR = min - (500 - Math.floor((max - min)/2));
-					newLog.maxSR = max + (500 - Math.floor((max - min)/2));
-				}
-				newLog.mode.name = u_mode_name;
-				newLog.mode.players = u_mode_players;
-				newLog.rank_n = u_rank_n;
-				newLog.qd_players = u_qd_players;
-				if (newLog.mode.players == 6) {
-					newLog.roles = wG.getRoles(u_roles);
-				}
-				//change later
-
-				//game specific
-
-				//console.log(newLog);
-				newLog.save(function(err) {
-                	if (err) throw err;
-
-                });
-			});
-		});
-		
-	});*/
-
-
-	bot.hear('code', (payload, chat) => {
-		chat.getUserProfile().then((user) => {
-			console.log(sh.unique(user.id));
-			chat.say(sh.unique(user.id), { typing: true });
-		});
-	});
-
-
-
-
-
-
-	/*function push2q(x,y, game, platform, region, mode_name, mode_players) {
-		//do przerobienia... match json?
-		var json = {
-            'game'      	: game,
-            'platform'  	: platform, 
-            'region'    	: region,
-            'mode'      	: {
-            	'name'		: mode_name,
-            	'players' 	: mode_players
-            } 
-        };
-        var i=0;
-        var Qfound = false;
-        do {
-        	if ( _.isEqual(Qinfo.queue[i], json) ) {
-        		console.log('test '+i);
-        		q[i].push({log_id: x, user_id: y, mode_players: mode_players}, function(err) {
-					console.log('finished processing '+x);
-				});
-				Qfound = true;
-        	}
-        	i++
-		} while( !Qfound && i<Qinfo.queue.length );
-	}*/
 
 };

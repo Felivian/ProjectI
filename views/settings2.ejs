@@ -1,0 +1,60 @@
+<!-- views/home.ejs -->
+<!doctype html>
+<html lang="en">
+<head>
+<title>ProjectI - profile page</title>
+<%- include('partial/head', {}); %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+
+<script src="/js/settings.js"></script>
+<script src="/js/settings.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/settings.css"/>
+	
+
+</head>
+<body>
+<%- include('partial/navbar', {user: user, url: url, mineProfile: mineProfile}); %>
+
+<div class="container">
+
+	<div class="row">
+		<div class="games col-xs-12 col-md-6">
+			<table width="100%" class="table table-striped">
+				<thead class="thead-inverse">
+					<tr>
+						<th class="text-center">Game</th>
+						<th class="text-center">Nick</th>
+						<th class="text-center">Platform</th>
+						<th class="text-center">Region</th>
+						<% if (mineProfile) { %>
+							<th class="text-center">Action</th>
+						<% } %>
+					</tr>
+				</thead>
+				<tbody>
+					<% for(i=0; i<userGames.length; i++) { %>
+						<tr>
+							<% var str = userGames[i].name; %>
+							<td class="text-center"><%=str%></td>
+							<td class="text-center"><%=userGames[i].account%></td>
+							<td class="text-center"><%=userGames[i].platform%></td>
+							<td class="text-center"><%=userGames[i].region%></td>
+
+							<% if (mineProfile) { %>
+								<td class="text-center">
+									<button class="glyphicon glyphicon-remove btn btn-warning btn-xs"></button>					
+								</td>
+							<% } %>
+						</tr>
+					<% } %>
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+</div>
+
+</body>
+
+</html>

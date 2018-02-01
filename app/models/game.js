@@ -9,11 +9,13 @@ var gameSchema = mongoose.Schema({
     name        : String,
     platform    : [String],
     region      : [String],
-    modeName    : [String],
-    modePlayers : [Number],
+    mode : [{
+    	modeName    : [String],
+    	modePlayers : [Number],
+    }],
     rank		: [String]
 });
+gameSchema.index({ name: 'text' });
 
-//gameSchema.index({ qNr: 1});
 // create the model for users and expose it to our app
 module.exports = mongoose.model('Game', gameSchema);
