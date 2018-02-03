@@ -1,6 +1,6 @@
 var Log             = require('./models/log');//
 var Match             = require('./models/match');//
-
+var mongoose = require('mongoose');
 //var Qinfo           = require('../config/Qinfo');//
 var wG              = require('./whatGroups');//
 var async           = require('async');
@@ -32,75 +32,61 @@ module.exports =  {
         ],function(err, log_nb) {
           var wg = wG.whatGroups(log_nb,actualLog.modePlayers-actualLog.qd_players);
           if(wg) {
-            console.log('wg:' + wg);
             actualLog.active = false;
             actualLog.success = true;
             actualLog.end = new Date();
-            actualLog.save(function(err, updatedActualLog){
-              var dup = wG.dups(wg);
-              var lf = wG.keys_n(dup);
-              //var arr = [actualLog._id];
-              var json = {};
-              json.id = [actualLog._id];
-              json.userId = [actualLog.userId];
+            var dup = wG.dups(wg);
+            var lf = wG.keys_n(dup);
+ 
+            var json = {};
+            json.id = [actualLog._id];
+            json.userIds = [actualLog.userId];
 
-              var i = 0;
-              async.whilst(
-                function() { return i < lf.length; },
-                function(callback3) {
-                  Log.find({
-                  '_id': {$ne: task.log_id},
-                  //'userId': {$ne: task.userId},
-                  'automatic': true,
-                  'active':true, 
-                  'updated': {$gte: new Date(datetime)},
-                  'game': actualLog.game, 
-                  'platform': actualLog.platform,
-                  'region': actualLog.region,
-                  'modeName': actualLog.modeName,
-                  'modePlayers': actualLog.modePlayers,
-                  'rank_s':  actualLog.rank_s,
-                  'qd_players': lf[i][1]
-                  })
-                  .limit(lf[i][0])
-                  .exec(function(err, log) {
-                    var j = 0;
-                    async.each(log, function(log_i, callback2) {
-                      log_i.success=true;
-                      log_i.active=false;
-                      log_i.end = new Date();
-                      log_i.save(function(err, ulog) {
-                          //arr.push(log_i._id);
-                          json.id.push(log_i._id);
-                          json.userId.push(log_i.userId);
-                          callback2();  
-                      });
-                    }, function(err) {
-                      i++;
-                      //callback3(null, arr);
+            var i = 0;
+            async.whilst(
+              function() { return i < lf.length; },
+              function(callback3) {
+                Log.find({
+                '_id': {$ne: task.log_id},
+                //'userId': {$ne: task.userId},
+                'automatic': true,
+                'active':true, 
+                'updated': {$gte: new Date(datetime)},
+                'game': actualLog.game, 
+                'platform': actualLog.platform,
+                'region': actualLog.region,
+                'modeName': actualLog.modeName,
+                'modePlayers': actualLog.modePlayers,
+                'rank_s':  actualLog.rank_s,
+                'qd_players': lf[i][1]
+                })
+                .limit(lf[i][0])
+                .exec(function(err, log) {
+                  var j = 0;
+                  async.each(log, function(log_i, callback2) {
+                    json.id.push(log_i._id);
+                    json.userIds.push(log_i.userId);
+                    callback2();  
+                  }, function(err) {
+                    i++;
+                    log.push(actualLog);
+                    Log.updateMany({_id: {$in: json.id}},
+                    {$set: {active: false, success: true, end: new Date() , 'match.matches': json.id, 'match.users': json.userIds} } , 
+                    function(err, uLog) {
                       callback3(null, json);
-                    });
-                  });  
-                },
-                function (err, n) {
-                  match = new Match;
-                  //match.matches = n;
-                  match.matches = n.id;
-                  match.users = n.userId;
-                  if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
-                  match.save(function(err, match){
-                    callback();
-                    mf.sendInfo(io, bot, match.users);
+                    })
                   });
-                }
-              );
-            });
+                });  
+              },
+              function (err, n) {
+                if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
+                mf.sendInfo(io, bot, n.userIds);
+                callback();
+              }
+            );
           } else {
             if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('new', actualLog);
-            //if (!task.atf) io.emit('new',actualLog);
             callback();
-            //not found
-            //serch in user DB
           }
         });
       }
@@ -108,15 +94,11 @@ module.exports =  {
   },
   manual: function (io, bot, task, callback) {
     //task.userId
-    Log.find({_id: {$in: task.arr}, active:true}, function(err, log) {
-      console.log(log);
-      console.log(task.arr);
-      if (log.length == task.arr.length) {
-        console.log('yep');
+    Log.find({_id: {$in: task.logIdArr}, active:true}, function(err, log) {
+      if (log.length == task.logIdArr.length) {
         var date = new Date();
         newLog = new Log;
         newLog.userId = task.userId;
-        //newLog.userName =
         newLog.active = false;
         newLog.success = true;
         newLog.start = date;
@@ -137,38 +119,27 @@ module.exports =  {
           callback2();
         }, function(err) {
           newLog.qd_players = log[0].modePlayers - qd_playersSum;
+          //match = new Match;
+          var matches = task.logIdArr;
+          matches.push(newLog._id);
+          newLog.match.matches = matches;
+          newLog.match.users = userIds;
+          //match.matches = task.logIdArr;
+          //match.matches.push(newLog._id);
+          //match.users = userIds;
           newLog.save(function(err,sLog) {
-            console.log(sLog._id);
-            match = new Match;
-            match.matches = task.arr;
-            match.users = userIds;
-                    
-            Log.updateMany({_id: {$in: task.arr}},
-            {$set: {active: false, success: true, end: new Date(date)} } , 
+            newLog.match.matches = matches;
+            newLog.match.users = userIds;
+            Log.updateMany({_id: {$in: task.logIdArr}},
+            {$set: {active: false, success: true, end: new Date(date) , 'match.matches': matches, 'match.users': userIds} } , 
             function(err, uLog) {
-              console.log(match.matches);
-              console.log(newLog.game.replace(/\s/g, ''));
-              if (!task.atf) io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.arr});
-              match.matches.push(sLog._id);
-              match.save(function(err, match){
-                //stoping active ads (one) of person that triggered match event
-                var date = new Date();
-                Log.updateMany({userId: task.userId, active:true},
-                {$set: {active: false, success: false, end: new Date(date)} } , 
-                function(err, uLog) {
-                  callback();
-                });
-                //console.log('yeah');
-                //send info to matches
-                mf.sendInfo(io, bot, match.users);
-              });
+              if (!task.atf) io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.logIdArr});
+              mf.sendInfo(io, bot, userIds);
+              callback();
             });
           });
         });
       } else { 
-        //send error info
-        //~some ads are not active anymore
-        //mf.sendInfo(io, task.userId);
         mf.sendError(io, bot, task.userId);
         callback(); 
       }

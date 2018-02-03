@@ -11,13 +11,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     var _    = require('underscore');
     var push2q  = require('./push2q');
     var mf              = require('./main_functions');//
-	//cookie toucher
-	/*var cookieToucher = function (req, res, next) {
-		req.session.touch();
-		//console.log('touched');
-		next();
-	}
-	app.use(cookieToucher);*/
+
 	
     app.get('/messenger-login', function(req, res) {
         req.session.redirect_uri = req.query.redirect_uri;
@@ -72,16 +66,6 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     });
 
 
-
-    // app.get(/profile.*/, function(req, res, next) {
-    //     console.log(req.params.userId);
-    //     User.findOne({_id: req.session.passport.user}, 'games', function(err, user) {
-    //         console.log(user);
-    //         next();
-    //     });
-        
-    // });
-
     app.get('/profile', isLoggedIn, function(req, res) {
         //messenger login redirect
         if (req.session.redirect_uri) { 
@@ -112,7 +96,6 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         
         Game.find({}, function(err, game) {
             User.findOne({_id: req.params.userId}).select({'games': 1, '_id': 0}).sort({'games.name': 1}).exec(function(err, userGames) {
-                //console.log(userGames.games);
                 var userGames =  _.sortBy(userGames.games, 'name') ;
                 if (req.isAuthenticated()) {
                     if (req.params.userId == req.session.passport.user) {
@@ -274,7 +257,6 @@ module.exports = function(app, passport, session, mongoose, q, io) {
         var maxQdP = players - req.body.qd_players;
 
         req.body.data.active = true;
-        //console.log(req.body.data);
         Log.find({ $and: [req.body.data, {'qd_players': {$lte: maxQdP} }]}).skip(req.body.offset).limit(req.body.limit).sort({updated: -1})
         .exec(function(err, log) {
             if(log.length === 0) {
@@ -286,10 +268,8 @@ module.exports = function(app, passport, session, mongoose, q, io) {
     });
 
     app.post('/picks', function (req, res) {
-        //console.log(req.body.id);
         JSON.stringify(req.body.id);
         Log.find({_id: {$in: req.body.id}}, 'userId userName qd_players active', function(err, log) {
-            //console.log(log);
             res.json(log);
         });
         //res.sendStatus(200);
@@ -297,7 +277,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
 
     app.post('/match', function (req, res) {
         if (req.isAuthenticated()) {
-            JSON.stringify(req.body.id);;
+            JSON.stringify(req.body.id);
             //if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
                 Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
                     if (log.length != req.body.id.length) {
@@ -323,10 +303,10 @@ module.exports = function(app, passport, session, mongoose, q, io) {
 
 
     app.post('/new-ad', function (req, res) {
+        console.log('automatic: '+req.body.automatic);
         if (req.isAuthenticated()) {
-            //console.log(req.body.automatic);
             Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
-                if(!otherLog) { 
+                // if(!otherLog) { //testy nie beda dzialac
                     var date = new Date();
                     newLog = new Log;
                     newLog.platform = req.body.data.platform;
@@ -337,23 +317,24 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                     newLog.rank_s = req.body.data.rank_s;
                     newLog.qd_players = req.body.data.qd_players;
                     newLog.userId = req.session.passport.user;
-                    //newLog.userName =
                     newLog.active = true;
                     newLog.start = date;
                     newLog.updated = date;
-                    if(req.body.data.automatic) {
-                        newLog.automatic=true;
-                    } else {
-                        newLog.automatic=false;
-                    }
-                    //User.findOne({_id: req.session.passport.user}, function(err, user) {
-                        //newLog.userName = user.displayName;
+                    console.log('automatic2: '+req.body.automatic);
+                    newLog.automatic=req.body.automatic;
+                    console.log('automatic3: '+newLog.automatic);
+                    // if(req.body.automatic == true) {
+                    //     newLog.automatic=true;
+                    //     console.log('TRUE');
+                    // } else {
+                    //     newLog.automatic=false;
+                    //     console.log('FALSE');
+                    // }
                     User.aggregate([
                     {$match: {_id:newLog.userId}},
                     {$project: {games:1, displayName:1,_id:0}},
                     {$unwind: '$games'},
                     {$match: {'games.name':req.body.data.game,'games.platform':req.body.data.platform,'games.region':req.body.data.region } },
-                    // {$match: {'games.name':req.body.data.game } },
                     {$project: {'games.account':1, displayName:1} }
                     ], function(err, user) {
                         if (user.length != 0) {
@@ -368,8 +349,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                                 if(req.body.automatic) {
                                     push2q(q, log._id, req.session.passport.user, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);
                                 } else {
-                                    io.to('')
-                                    io.to(newLog.game.game.replace(/\s/g, '')).emit('new', newLog);
+                                    io.to(newLog.game.replace(/\s/g, '')).emit('new', newLog);
                                 }
                                 res.sendStatus(200);
                             });
@@ -377,9 +357,9 @@ module.exports = function(app, passport, session, mongoose, q, io) {
                             res.sendStatus(400);
                         }
                     });
-                } else {
-                    res.sendStatus(406);
-                }
+                // } else {
+                //     res.sendStatus(406);
+                // }
             });
         } else {
             res.sendStatus(401);
@@ -459,9 +439,7 @@ module.exports = function(app, passport, session, mongoose, q, io) {
 
     app.get('/chart1/:userId', function(req, res) {
         newLog = new Log;
-        console.log(req.params.userId);
         newLog.userId = req.params.userId;
-        console.log(newLog);
         Log.aggregate([
         {$match: {userId: newLog.userId, active:false} },
         {$group: {_id: '$success', count: { $sum: 1 }} }
@@ -473,15 +451,12 @@ module.exports = function(app, passport, session, mongoose, q, io) {
 
     app.get('/chart2/:userId', function(req, res) {
         newLog = new Log;
-        console.log(req.params.userId);
         newLog.userId = req.params.userId;
-        console.log(newLog);
         Log.aggregate([
         {$match: {userId: newLog.userId, active:false} },
         {$group: {_id: '$game', count: { $sum: 1 }} }
         ], function(err, log) {
             if (err) res.sendStatus(500); 
-            console.log(log);
             res.json(log); 
         });
     });

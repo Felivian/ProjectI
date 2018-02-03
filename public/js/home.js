@@ -28,6 +28,7 @@ socket.on('new', function (data) {
     }
     if(valid) {
         prependUserAd(data);
+        RefreshSomeEventListener();
         $('button.new-ads').show();
         console.log(data);
     }
@@ -301,7 +302,7 @@ $(document).ready(function() {
         $('ul.mobile-nav > li').toggleClass('active',false);
         $(this).toggleClass('active', true);
 
-        $('.row, .no-ads').toggleClass('hidden-xs');
+        $('.row,').toggleClass('hidden-xs');
     });
 
     // $('.no-ads').click(function() { 
@@ -346,7 +347,7 @@ $(document).ready(function() {
     win.scroll(function() {
         // End of the document reached?
         if ($(window).scrollTop() + $(window).height() + nearToBottom >= $('.content-area').offset().top + $('.content-area').height() ) { 
-            if(!$('button.no-ads').is(':visible'))
+            if(!$('span.no-ads').is(':visible'))
             {
                 generateUserAds(false); 
             }
@@ -378,7 +379,6 @@ $(document).ready(function() {
         if(rank_s) data.rank_s = rank_s; else valid = false;
         if(platform) data.platform = platform; else valid = false;
         if(region) data.region = region; else valid = false;
-        console.log(valid);
         if (valid) {
             $.ajax({
             type: 'POST',
@@ -431,7 +431,7 @@ function generateUserPick(logId, userId,nick,group,active) {
 
 function generateUserAds(init) {
     $('.loader').show();
-    //$('button.no-ads').hide();
+    $('span.no-ads').hide();
     var data = {};
     
     var gameName = $( 'select.game' ).val();
@@ -464,15 +464,14 @@ function generateUserAds(init) {
         if(json.result) {
             if(init) $('div.content-area').empty();
             for (var i = 0; i < json.log.length; i++) {
-                appendUserAd(json.log[i]);
-                
+                appendUserAd(json.log[i]);  
             }
             $('.loader').hide();
             RefreshSomeEventListener();
         } else {
             if(init) $('div.content-area').empty();
             $('.loader').hide();
-            //$('button.no-ads').show();
+            $('span.no-ads').show();
         }
         if (init) updatePicks(false);
     }

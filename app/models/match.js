@@ -1,6 +1,6 @@
 // load the things we need
 var mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+//mongoose.Promise = require('bluebird');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 // define the schema for our user model

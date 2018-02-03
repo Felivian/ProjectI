@@ -144,9 +144,28 @@ module.exports = function(app, bot, mongoose, q, io) {
 				if (user) {
 					var datetime = new Date;
 					console.log(user._id);
-					Log.updateOne({ userId: user._id, active: true},{ $set: {updated: datetime}}, function(err, log) {
-						if (log) {
-							chat.say('Your ad was renewed for another hour.', {typing: true});
+					Log.find({userId: user._id}).sort({updated: -1}).limit(1).exec(function(err, userLogs) {
+						if (!userLogs[0].active) {
+							newLog = new Log;
+							newLog.userId = userLogs[0].userId;
+							newLog.userName = userLogs[0].userName;
+							newLog.qd_players = userLogs[0].qd_players;
+							newLog.rank_s = userLogs[0].rank_s;
+							newLog.modePlayers = userLogs[0].modePlayers;
+							newLog.modeName = userLogs[0].modeName;
+							newLog.game = userLogs[0].game;
+							newLog.region = userLogs[0].region;
+							newLog.platform = userLogs[0].platform;
+							newLog.active = true;
+							newLog.start = datetime;
+							newLog.updated = datetime;
+							newLog.save(function(err, log) {
+								if (log) {
+									chat.say('Your ad was renewed for another hour.', {typing: true});
+								}
+							});
+						} else {
+							chat.say('Can\'t add another ad while one is active.', {typing: true});
 						}
 					});
 				}

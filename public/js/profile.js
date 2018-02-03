@@ -120,8 +120,8 @@ function generateSpecificLog(logId) {
 		$( '#specific-log > table > tbody > tr > td.is-actv' ).empty();
 		$( '#specific-log > table > tbody > tr > td.is-success' ).empty();
 		$( '#specific-log > table > tbody > tr > td.players' ).empty();
-		var timezoneOffset = new Date().getTimezoneOffset()*60*1000; //60*60*1000
-
+		//var timezoneOffset = new Date().getTimezoneOffset()*60*1000; //60*60*1000
+		var timezoneOffset = 0;
 	    json.userLog.start = Date.parse(json.userLog.start) - timezoneOffset;
 	    json.userLog.start = new Date(json.userLog.start).toISOString();
 		$( '#specific-log > table > tbody > tr > td.start' ).append(moment(json.userLog.start).format('DD-MM-YYYY, hh:mm a'));
@@ -131,7 +131,7 @@ function generateSpecificLog(logId) {
 		} else {
 			json.userLog.end = Date.parse(json.userLog.end) - timezoneOffset;
 		    json.userLog.end = new Date(json.userLog.end).toISOString();
-			$( '#specific-log > table > thead > tr > td.end' ).append(moment(json.userLog.end).format('DD-MM-YYYY, hh:mm a'));
+			$( '#specific-log > table > tbody > tr > td.end' ).append(moment(json.userLog.end).format('DD-MM-YYYY, hh:mm a'));
 		}
 
 		$( '#specific-log > table > tbody > tr > td.game' ).append(json.userLog.game);
@@ -156,12 +156,12 @@ function generateSpecificLog(logId) {
 				$( '#specific-log > table > tbody > tr > td.is-success' ).append('No');
 			}
 		}
-		if (json.oneMatch == null) {
+		if (json.userLog.match.users.length == 0) {
 			$( '#specific-log > table > tbody > tr > td.players' ).append('-');
 		} else {
-			for (var i = 0; i < json.oneMatch.users.length; i++) {
+			for (var i = 0; i < json.userLog.match.users.length; i++) {
 				var j=i+1;
-				$( '#specific-log > table > tbody > tr > td.players' ).append('<a href=\"/profile\/'+json.oneMatch.users[i]+'\">Leader'+ j +'<\/a> ');
+				$( '#specific-log > table > tbody > tr > td.players' ).append('<a href=\"/profile\/'+json.userLog.match.users[i]+'\">Leader'+ j +'<\/a> ');
 			}
 		}
 		RefreshSomeEventListener();

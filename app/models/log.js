@@ -1,6 +1,6 @@
 // load the things we need
 var mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
+//mongoose.Promise = require('bluebird');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 // define the schema for our user model
@@ -24,7 +24,11 @@ var logSchema = mongoose.Schema({
 	//rank			: [Number],
 
 	qd_players		: Number,
-	automatic 		: Boolean
+	automatic 		: Boolean,
+	match : {
+		matches: [mongoose.Schema.Types.ObjectId],
+		users: [mongoose.Schema.Types.ObjectId]
+	}
 	//matches			: [mongoose.Schema.Types.ObjectId]
 });
 //logSchema.index({ start: 1});
