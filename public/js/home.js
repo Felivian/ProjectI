@@ -12,19 +12,19 @@ socket.on('new', function (data) {
     if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
     var modeName = $( 'select.modeName' ).val();
     var modePlayers = $( 'select.modePlayers' ).val();
-    var qd_players = $( 'select.yourGroup' ).val();
-    var rank_s = $( 'select.rank' ).val();
-    if(rank_s) rank_s = rank_s.replace(/([A-Z])/g, ' $1').trim();
+    var qdPlayers = $( 'select.yourGroup' ).val();
+    var rankS = $( 'select.rank' ).val();
+    if(rankS) rankS = rankS.replace(/([A-Z])/g, ' $1').trim();
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();;
     if (data.game != gameName && gameName !== null) valid = false;
     if (data.modeName != modeName && modeName !== null) valid = false;
     if (data.modePlayers != modePlayers && modePlayers !== null) valid = false;
-    if (data.rank_s != rank_s && rank_s !== null) valid = false;
+    if (data.rankS != rankS && rankS !== null) valid = false;
     if (data.platform != platform && platform !== null) valid = false;
     if (data.region != region && region !== null) valid = false;
-    if (modePlayers !== null && qd_players !== null) {
-        if (data.qd_players > parseInt(modePlayers) - parseInt(qd_players)) valid = false;
+    if (modePlayers !== null && qdPlayers !== null) {
+        if (data.qdPlayers > parseInt(modePlayers) - parseInt(qdPlayers)) valid = false;
     }
     if(valid) {
         prependUserAd(data);
@@ -359,8 +359,8 @@ $(document).ready(function() {
         if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
         var modeName = $( 'select.modeName' ).val();
         var modePlayers = $( 'select.modePlayers' ).val();
-        var qd_players = $( 'select.yourGroup' ).val();
-        var rank_s = $( 'select.rank' ).val();
+        var qdPlayers = $( 'select.yourGroup' ).val();
+        var rankS = $( 'select.rank' ).val();
         var platform = $( 'select.platform' ).val();
         var region = $( 'select.region' ).val();
         var automatic;
@@ -372,11 +372,11 @@ $(document).ready(function() {
         console.log(automatic);
         var data = {};
         var valid = true;
-        if(qd_players) data.qd_players = parseInt(qd_players); else valid = false;
+        if(qdPlayers) data.qdPlayers = parseInt(qdPlayers); else valid = false;
         if(modePlayers) data.modePlayers = parseInt(modePlayers); else valid = false;
         if(gameName) data.game = gameName; else valid = false;
         if(modeName) data.modeName = modeName; else valid = false;
-        if(rank_s) data.rank_s = rank_s; else valid = false;
+        if(rankS) data.rankS = rankS; else valid = false;
         if(platform) data.platform = platform; else valid = false;
         if(region) data.region = region; else valid = false;
         if (valid) {
@@ -438,8 +438,8 @@ function generateUserAds(init) {
     if(gameName) gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
     var modeName = $( 'select.modeName' ).val();
     var modePlayers = $( 'select.modePlayers' ).val();
-    var qd_players = $( 'select.yourGroup' ).val();
-    var rank_s = $( 'select.rank' ).val();
+    var qdPlayers = $( 'select.yourGroup' ).val();
+    var rankS = $( 'select.rank' ).val();
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();
     var offset = 0;
@@ -448,17 +448,17 @@ function generateUserAds(init) {
     var limit = 24 - (offset % 24);//migth need some more love
     //if (limit < 24) limit += 12;
 
-    if(qd_players) qd_players = parseInt(qd_players);
+    if(qdPlayers) qdPlayers = parseInt(qdPlayers);
     if(modePlayers) data.modePlayers = parseInt(modePlayers) ;
     if(gameName) data.game = gameName;
     if(modeName) data.modeName = modeName;
     
-    if(rank_s) data.rank_s = rank_s;
+    if(rankS) data.rankS = rankS;
     if(platform) data.platform = platform;
     if(region) data.region = region;
     $.ajax({
     type: 'POST',
-    data: {data: data, limit: limit, offset: offset, qd_players: qd_players},
+    data: {data: data, limit: limit, offset: offset, qdPlayers: qdPlayers},
     url: '/logs',
     success:  function(json) {
         if(json.result) {
@@ -489,8 +489,8 @@ function appendUserAd(ad) {
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
                             '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+ad.modePlayers+'</kbd></td></tr>'+
-                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
-                            '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qd_players+'</kbd></td></tr>'+
+                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rankS.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
+                            '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qdPlayers+'</kbd></td></tr>'+
                             '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+ad.platform+'</kbd></td></tr>'+
                             '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+ad.region+'</kbd></td></tr>'+
                         '</tbody></table>'+
@@ -515,8 +515,8 @@ function prependUserAd(ad) {
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
                             '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
                             '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+ad.modePlayers+'</kbd></td></tr>'+
-                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rank_s.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
-                            '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qd_players+'</kbd></td></tr>'+
+                            '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rankS.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
+                            '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qdPlayers+'</kbd></td></tr>'+
                             '<tr><td>Platform</td> <td class=\"text-center\"><kbd>'+ad.platform+'</kbd></td></tr>'+
                             '<tr><td>Region</td> <td class=\"text-center\"><kbd>'+ad.region+'</kbd></td></tr>'+
                         '</tbody></table>'+
@@ -681,7 +681,7 @@ function updatePicks(init) {
     var gameName = sessionStorage.getItem('gameName');
     var modeName = sessionStorage.getItem('modeName');
     var modePlayers = sessionStorage.getItem('modePlayers');
-    var qd_players = $( 'select.yourGroup' ).val();
+    var qdPlayers = $( 'select.yourGroup' ).val();
     var rank = sessionStorage.getItem('rank');
     var platform = sessionStorage.getItem('platform');
     var region = sessionStorage.getItem('region');
@@ -731,8 +731,8 @@ function recreatePicks() {
             $('.picked-users').empty();
             var sumPlayers = 0;//parseInt(sessionStorage.getItem('yourGroup'));
             for (var i = 0; i < json.length; i++) {
-                generateUserPick(json[i]._id, json[i].userId,json[i].userName,json[i].qd_players, json[i].active);
-                sumPlayers += json[i].qd_players;
+                generateUserPick(json[i]._id, json[i].userId,json[i].userName,json[i].qdPlayers, json[i].active);
+                sumPlayers += json[i].qdPlayers;
             }
             sessionStorage.setItem('group', sumPlayers);
             RefreshSomeEventListener();

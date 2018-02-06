@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 //var Qinfo           = require('../config/Qinfo');//
 var wG              = require('./whatGroups');//
 var async           = require('async');
-var mf              = require('./main_functions');//
+var mf              = require('./moreFunctions');//
 
 module.exports =  {
   automatic: function (io, bot, task, callback) {
@@ -20,17 +20,17 @@ module.exports =  {
             //'userId': {$ne: task.userId},
             'automatic': true,
             'active':true, 
-            'updated': {$gte: new Date(datetime)},
+            'start': {$gte: new Date(datetime)},
             'game': actualLog.game, 
             'platform': actualLog.platform,
             'region': actualLog.region,
             'modeName': actualLog.modeName,
             'modePlayers': actualLog.modePlayers,
-            'rank_s':  actualLog.rank_s }},
-          { $group: {_id: '$qd_players' , count: { $sum: 1 } } },
-          { $sort: { qd_players: -1 }}
+            'rankS':  actualLog.rankS }},
+          { $group: {_id: '$qdPlayers' , count: { $sum: 1 } } },
+          { $sort: { qdPlayers: -1 }}
         ],function(err, log_nb) {
-          var wg = wG.whatGroups(log_nb,actualLog.modePlayers-actualLog.qd_players);
+          var wg = wG.whatGroups(log_nb,actualLog.modePlayers-actualLog.qdPlayers);
           if(wg) {
             actualLog.active = false;
             actualLog.success = true;
@@ -51,14 +51,14 @@ module.exports =  {
                 //'userId': {$ne: task.userId},
                 'automatic': true,
                 'active':true, 
-                'updated': {$gte: new Date(datetime)},
+                'start': {$gte: new Date(datetime)},
                 'game': actualLog.game, 
                 'platform': actualLog.platform,
                 'region': actualLog.region,
                 'modeName': actualLog.modeName,
                 'modePlayers': actualLog.modePlayers,
-                'rank_s':  actualLog.rank_s,
-                'qd_players': lf[i][1]
+                'rankS':  actualLog.rankS,
+                'qdPlayers': lf[i][1]
                 })
                 .limit(lf[i][0])
                 .exec(function(err, log) {
@@ -102,23 +102,23 @@ module.exports =  {
         newLog.active = false;
         newLog.success = true;
         newLog.start = date;
-        newLog.updated = date;
+        //newLog.updated = date;
         newLog.end = date;
         newLog.platform = log[0].platform;
         newLog.region = log[0].region;
         newLog.game = log[0].game;
         newLog.modeName = log[0].modeName;
         newLog.modePlayers = log[0].modePlayers;
-        newLog.rank_s = log[0].rank_s;
+        newLog.rankS = log[0].rankS;
 
         var userIds = [task.userId];
-        var qd_playersSum = 0;
+        var qdPlayersSum = 0;
         async.each(log, function(val, callback2) { 
-          qd_playersSum += val.qd_players;
+          qdPlayersSum += val.qdPlayers;
           userIds.push(val.userId);
           callback2();
         }, function(err) {
-          newLog.qd_players = log[0].modePlayers - qd_playersSum;
+          newLog.qdPlayers = log[0].modePlayers - qdPlayersSum;
           //match = new Match;
           var matches = task.logIdArr;
           matches.push(newLog._id);

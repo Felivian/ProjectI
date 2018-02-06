@@ -6,14 +6,14 @@ var bcrypt   = require('bcrypt-nodejs');
 
 // define the schema for our user model
 var gameSchema = mongoose.Schema({
-    name        : String,
-    platform    : [String],
-    region      : [String],
-    mode : [{
-    	modeName    : [String],
-    	modePlayers : [Number],
-    }],
-    rank		: [String]
+	name 			: String,
+	platform 		: [String],
+	region 			: [String],
+	mode 			: [{
+		modeName 	: String,
+		modePlayers : [Number],
+	}],
+	rank 			: [String]
 });
 gameSchema.index({ name: 'text' });
 

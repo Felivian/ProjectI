@@ -104,10 +104,10 @@ require('./app/socketio.js')(app, io, mongoose);
 require('./app/routes.js')(app, passport, session, mongoose, q, io); // load our routes and pass in our app and fully configured passport
 
 // BootBot ======================================================================
-require('./app/bot.js')(app, bot, mongoose, q, io);
+require('./app/bot.js')(app, bot, mongoose, io);
 
 // Init Queues ====================================================================
-require('./config/Qconfig')(async, q, io, bot);
+require('./config/qConfig')(async, q, io, bot);
 
 // schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q, io, bot);

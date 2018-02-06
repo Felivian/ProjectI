@@ -8,10 +8,9 @@ var logSchema = mongoose.Schema({
 	userId			: mongoose.Schema.Types.ObjectId,
 	userName 		: String,
 	active			: Boolean,
-	//pending			: Boolean,//
 	success			: Boolean,
 	start			: Date,
-	updated			: Date,
+	//updated			: Date,
 	end				: Date,
 	
 	platform		: String,
@@ -19,20 +18,18 @@ var logSchema = mongoose.Schema({
 	game			: String,
 	modeName 		: String,
 	modePlayers 	: Number,
-	//rank_n			: Number,
-	rank_s			: String, //rank_s exists or not
-	//rank			: [Number],
+	rankS			: String,
 
-	qd_players		: Number,
+
+	qdPlayers		: Number,
 	automatic 		: Boolean,
-	match : {
-		matches: [mongoose.Schema.Types.ObjectId],
-		users: [mongoose.Schema.Types.ObjectId]
+	match 			: {
+		matches 	: [mongoose.Schema.Types.ObjectId],
+		users 		: [mongoose.Schema.Types.ObjectId]
 	}
-	//matches			: [mongoose.Schema.Types.ObjectId]
 });
-//logSchema.index({ start: 1});
-logSchema.index({ updated: 1});
+logSchema.index({ start: 1});
+//logSchema.index({ updated: 1});
 
 
 // create the model for users and expose it to our app

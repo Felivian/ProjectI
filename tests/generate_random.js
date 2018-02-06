@@ -6,7 +6,7 @@ module.exports = function() {
   var modePlayers;
   var qd;
   //var rank;
-  var rank_s;
+  var rankS;
 
   var rg = Math.floor(  ( Math.random()*10 ) % 2 ); //game
   //rg =1;
@@ -62,19 +62,19 @@ module.exports = function() {
     
     var r3 = Math.floor(  ( Math.random()*10 ) % 7 );
     if (r3 === 0) {
-      rank_s = 'Bronze';
+      rankS = 'Bronze';
     } else if(r3 === 1) {
-      rank_s = 'Silver';
+      rankS = 'Silver';
     } else if(r3 === 2) {
-      rank_s = 'Gold';
+      rankS = 'Gold';
     } else if(r3 === 3) {
-      rank_s = 'Platinum';
+      rankS = 'Platinum';
     } else if(r3 === 4) {
-      rank_s = 'Diamond';
+      rankS = 'Diamond';
     } else if(r3 === 5) {
-      rank_s = 'Master';
+      rankS = 'Master';
     } else {
-      rank_s = 'GrandMaster';
+      rankS = 'GrandMaster';
     }
 
   } else if (rg == 1) {
@@ -97,14 +97,14 @@ module.exports = function() {
     modeName = 'co-op';
     modePlayers = 2;
     qd = 1;
-    rank_s = 'Realistic';
+    rankS = 'Realistic';
     rank = [];
   }
 
 
 
-return {game: game, qd: qd, rank_s: rank_s, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
-//return {game: game, qd: 1, rank_s: rank_s, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
+return {game: game, qd: qd, rankS: rankS, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
+//return {game: game, qd: 1, rankS: rankS, modeName: modeName, modePlayers: modePlayers, region: region, platform: platform};
 
 /*  function minmax(arr) {
     return [arr.sort(sortNumber)[0], arr.sort(sortNumber).reverse()[0]];

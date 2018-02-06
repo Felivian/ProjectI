@@ -1,16 +1,15 @@
-module.exports = function(app, bot, mongoose, q, io) {
-	var sh 		= require('shorthash');
-	var User 	= require('../app/models/user');
-	var Log 	= require('../app/models/log');
-	var Session 	= require('../app/models/session');
-	var Ask 	= require('../app/bot_dep/ask')/*(bot, mongoose, q,io)*/;
-	var wG 		= require('../app/whatGroups');
-	//var Qinfo 	= require('../config/Qinfo');
-	var _ 		= require('underscore');
-	var configAuth = require('../config/auth');
-	var configExtras = require('../config/extras');
-	var GIPHY_URL 	= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
-	var fetch 		= require('node-fetch');
+module.exports = function(app, bot, mongoose, io) {
+	var sh 				= require('shorthash');
+	var User 			= require('../app/models/user');
+	var Log 			= require('../app/models/log');
+	var Session 		= require('../app/models/session');
+	var Ask 			= require('./convoAsk');
+	var wG 				= require('../app/whatGroups');
+	var _ 				= require('underscore');
+	var configAuth 		= require('../config/auth');
+	var configExtras 	= require('../config/extras');
+	var GIPHY_URL 		= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
+	var fetch 			= require('node-fetch');
 	//bot.say(1493247637377838, 'test');
 
 	bot.hear('login', (payload, chat) => {
@@ -144,13 +143,13 @@ module.exports = function(app, bot, mongoose, q, io) {
 				if (user) {
 					var datetime = new Date;
 					console.log(user._id);
-					Log.find({userId: user._id}).sort({updated: -1}).limit(1).exec(function(err, userLogs) {
+					Log.find({userId: user._id}).sort({start: -1}).limit(1).exec(function(err, userLogs) {
 						if (!userLogs[0].active) {
 							newLog = new Log;
 							newLog.userId = userLogs[0].userId;
 							newLog.userName = userLogs[0].userName;
-							newLog.qd_players = userLogs[0].qd_players;
-							newLog.rank_s = userLogs[0].rank_s;
+							newLog.qdPlayers = userLogs[0].qdPlayers;
+							newLog.rankS = userLogs[0].rankS;
 							newLog.modePlayers = userLogs[0].modePlayers;
 							newLog.modeName = userLogs[0].modeName;
 							newLog.game = userLogs[0].game;
@@ -158,7 +157,7 @@ module.exports = function(app, bot, mongoose, q, io) {
 							newLog.platform = userLogs[0].platform;
 							newLog.active = true;
 							newLog.start = datetime;
-							newLog.updated = datetime;
+							//newLog.updated = datetime;
 							newLog.save(function(err, log) {
 								if (log) {
 									chat.say('Your ad was renewed for another hour.', {typing: true});
@@ -185,15 +184,4 @@ module.exports = function(app, bot, mongoose, q, io) {
 			});
 		});
 	});
-	
-
-
-	// bot.hear('code', (payload, chat) => {
-	// 	chat.getUserProfile().then((user) => {
-	// 		console.log(sh.unique(user.id));
-	// 		chat.say(sh.unique(user.id), { typing: true });
-	// 	});
-	// });
-
-
 };

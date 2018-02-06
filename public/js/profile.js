@@ -137,8 +137,8 @@ function generateSpecificLog(logId) {
 		$( '#specific-log > table > tbody > tr > td.game' ).append(json.userLog.game);
 		$( '#specific-log > table > tbody > tr > td.mode' ).append(json.userLog.modeName);
 		$( '#specific-log > table > tbody > tr > td.maximum-group' ).append(json.userLog.modePlayers);
-		$( '#specific-log > table > tbody > tr > td.your-group' ).append(json.userLog.qd_players);
-		$( '#specific-log > table > tbody > tr > td.rank' ).append(json.userLog.rank_s);
+		$( '#specific-log > table > tbody > tr > td.your-group' ).append(json.userLog.qdPlayers);
+		$( '#specific-log > table > tbody > tr > td.rank' ).append(json.userLog.rankS);
 		$( '#specific-log > table > tbody > tr > td.platform' ).append(json.userLog.platform);
 		$( '#specific-log > table > tbody > tr > td.region' ).append(json.userLog.region);
 
@@ -231,11 +231,11 @@ function RefreshSomeEventListener() {
 			    sessionStorage.setItem('id',JSON.stringify([]));
 			    //sessionStorage.setItem('init',true);
 			    sessionStorage.setItem('group', 0);
-				sessionStorage.setItem('yourGroup', json.userLog.qd_players);
+				sessionStorage.setItem('yourGroup', json.userLog.qdPlayers);
 		        sessionStorage.setItem('gameName',json.userLog.game.replace(/\s/g, ''));
 		        sessionStorage.setItem('modePlayers',json.userLog.modePlayers);
 		        sessionStorage.setItem('modeName',json.userLog.modeName);
-		        sessionStorage.setItem('rank',json.userLog.rank_s.replace(/\s/g, ''));
+		        sessionStorage.setItem('rank',json.userLog.rankS.replace(/\s/g, ''));
 		        sessionStorage.setItem('platform',json.userLog.platform);
 		        sessionStorage.setItem('region',json.userLog.region);
 		        window.location.href='/';

@@ -1,47 +1,47 @@
 var Queue 		= require('../app/models/queue');
 var Game       = require('../app/models/game');
 module.exports = function(mongoose) {
-    // Game.remove({}, function(err, res) { //
+    Game.remove({}, function(err, res) { //
         Queue.remove({}, function(err, res) {
-            // Game.insertMany( //
-            // [
-            //     {
-            //         name        : 'Overwatch',
-            //         platform    : ['pc', 'xbl', 'psn'],
-            //         region      : ['eu', 'na', 'asia'],
-            //         mode        : [
-            //             {
-            //             modeName    : 'Competitive',
-            //             modePlayers : [2,3,6]
-            //             },
-            //             {
-            //             modeName    : 'Scrim',
-            //             modePlayers : [12]
-            //             }
-            //         ],
-            //         rank        : ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Master', 'Grand Master']
-            //     },
-            //     {
-            //         name        : 'Splinter Cell Conviction',
-            //         platform    : ['pc', 'xbl'],
-            //         region      : ['eu', 'na', 'asia'],
-            //         mode        : [
-            //             {
-            //             modeName    : 'CO-OP',
-            //             modePlayers : [2]
-            //             },
-            //             {
-            //             modeName    : 'Hunter',
-            //             modePlayers : [2]
-            //             },
-            //             {
-            //             modeName    : 'Elimination',
-            //             modePlayers : [2]
-            //             }
-            //         ],
-            //         rank        : ['Easy', 'Normal', 'Hard', 'Realistic']
-            //     }
-            // ], function(err, res) { //
+            Game.insertMany( //
+            [
+                {
+                    name        : 'Overwatch',
+                    platform    : ['pc', 'xbl', 'psn'],
+                    region      : ['eu', 'na', 'asia'],
+                    mode        : [
+                        {
+                        modeName    : 'Competitive',
+                        modePlayers : [2,3,6]
+                        },
+                        {
+                        modeName    : 'Scrim',
+                        modePlayers : [12]
+                        }
+                    ],
+                    rank        : ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond', 'Master', 'Grand Master']
+                },
+                {
+                    name        : 'Splinter Cell Conviction',
+                    platform    : ['pc', 'xbl'],
+                    region      : ['eu', 'na', 'asia'],
+                    mode        : [
+                        {
+                        modeName    : 'CO-OP',
+                        modePlayers : [2]
+                        },
+                        {
+                        modeName    : 'Hunter',
+                        modePlayers : [2]
+                        },
+                        {
+                        modeName    : 'Elimination',
+                        modePlayers : [2]
+                        }
+                    ],
+                    rank        : ['Easy', 'Normal', 'Hard', 'Realistic']
+                }
+            ], function(err, res) { //
                 Game.find({}, function(err, game) {
                     var count=-1;
                     for(var i=0; i < game.length; i++) {
@@ -66,8 +66,8 @@ module.exports = function(mongoose) {
                         }
                     }    
                 });  
-            // }); //
+            }); //
         });
-    // }); //
+    }); //
 
 }

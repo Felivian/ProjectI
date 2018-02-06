@@ -16,16 +16,6 @@ module.exports = function(app, io, mongoose) {
 		});
 		sid = sid.substring(sid.lastIndexOf("connect.sid=")+12,sid.length);
 		sid = cookieParser.signedCookie(sid, 'keyboard cat');
-		/*socket.join(sid, function(){
-	  		console.log('user connected - sid: '+sid);
-	  	});*/
-
-		// Session.findOne({ 'sid': sid }, function (err, session) {
-		// 	socket.join(session.data.passport.user, function () {
-		// 		console.log('user connected '+session.data.passport.user);
-		// 	});	
-		// });
-		
 
 		Session.update({sid: sid}, {$set :{socketId: socket.id}}, function(err, session) {
 

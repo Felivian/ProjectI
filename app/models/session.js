@@ -1,7 +1,5 @@
-// load the things we need
 var mongoose = require('mongoose');
 //mongoose.Promise = require('bluebird');
-//var bcrypt   = require('bcrypt-nodejs');
 var ObjectId = require('mongoose').Types.ObjectId; 
 
 // define the schema for our session model

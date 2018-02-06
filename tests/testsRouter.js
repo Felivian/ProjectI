@@ -29,10 +29,10 @@ module.exports = function(app, mongoose, q) {
                 for (var i = 0; i < match.length; i++) {
                     var valid = true;
                     //console.log('here3');
-                    if (wG.sum_arr(match[i].qd_players) != match[i].players[0]) {
+                    if (wG.sum_arr(match[i].qdPlayers) != match[i].players[0]) {
                         valid = false;
                         console.log('sum_arr');
-                        console.log(wG.sum_arr(match[i].qd_players));
+                        console.log(wG.sum_arr(match[i].qdPlayers));
                         console.log(match[i].players[0]);
                     }
                     if (_.uniq(match[i].players).length != 1) {
@@ -63,9 +63,9 @@ module.exports = function(app, mongoose, q) {
                         valid = false;
                         console.log('active');
                     }
-                    if (_.uniq(match[i].rank_s).length != 1) {
+                    if (_.uniq(match[i].rankS).length != 1) {
                         valid = false;
-                        console.log('rank_s');
+                        console.log('rankS');
                     }
                     Match.updateOne({_id: match[i]._id}, {$set: {valid: valid}}, function(err, match2) {
                         if (err) throw err;

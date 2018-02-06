@@ -35,7 +35,7 @@ module.exports = function() {
 				Match.updateOne({_id: task._id},
 					{$push: {active: log.active, success: log.success, platform: log.platform, 
 					region: log.region, game: log.game, name: log.modeName, players: log.modePlayers,
-					rank_s: log.rank_s, qd_players: log.qd_players}, $set: {tested: true} }, 
+					rankS: log.rankS, qdPlayers: log.qdPlayers}, $set: {tested: true} }, 
 				function(err, ulog) {
 					//if (global.test_count > task.l_ids.length) {
 						//global.test_count = 0;
@@ -80,7 +80,7 @@ module.exports = function() {
 				        	Match.updateOne({_id: match[i]._id},
 		    					{$push: {active: log.active, success: log.success, platform: log.platform, 
 		    					region: log.region, game: log.game, name: log.mode.name, players: log.mode.players,
-		    					rank: log.rank, qd_players: log.qd_players}}, 
+		    					rank: log.rank, qdPlayers: log.qdPlayers}}, 
 		    				function(err, ulog) {
 		    					console.log('gucio');
 		    					callback(null, count2);
@@ -112,7 +112,7 @@ module.exports = function() {
 	    				Match.updateOne({_id: match[i]._id},
 	    					{$push: {active: log.active, success: log.success, platform: log.platform, 
 	    					region: log.region, game: log.game, name: log.mode.name, players: log.mode.players,
-	    					rank: log.rank, qd_players: log.qd_players}}, 
+	    					rank: log.rank, qdPlayers: log.qdPlayers}}, 
 	    				function(err, ulog) {
 	    					console.log('gucio');
 	    				});

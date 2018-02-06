@@ -1,9 +1,9 @@
 var Queue 		= require('../app/models/queue');
-var insideQ           = require('../app/insideQ');
+var insideQ 	= require('../app/insideQ');
 
 
-var Log             = require('../app/models/log');//
-var Match             = require('../app/models/match');//
+var Log 		= require('../app/models/log');//
+var Match 		= require('../app/models/match');//
 module.exports = function(async,q, io, bot) {
 
 	Queue.count({}, function(err, count){
