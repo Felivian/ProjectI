@@ -4,7 +4,6 @@ var ObjectId = require('mongoose').Types.ObjectId;
 
 // define the schema for our session model
 var sessionSchema = mongoose.Schema({
-	
 	sid				: String,
 	data			: {
 		passport	: {

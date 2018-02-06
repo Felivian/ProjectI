@@ -1,32 +1,25 @@
-<!-- views/index.ejs -->
 <!doctype html>
 <html>
 <head>
     <title>ProjectI</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"> <!-- load bootstrap css -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+    <%- include('partial/head', {}); %>
     <style>
         body        { padding-top:80px; }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container text-center">
 
-    <div class="jumbotron text-center">
-        <h1><span class="fa fa-lock"></span> Node Authentication</h1>
 
-        <p>Login or Register with:</p>
+    <h1><span class="fa fa-lock"></span> Messenger Login</h1>
 
-        <a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
-        <a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
-        <a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
-    </div>
+    <p>Login or Register with:</p>
+
+    <a href="/login" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
+    <a href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
+    <a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
+   
 
 </div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-//socket = io.connect('http://localhost:8080');
-</script>
 </body>
 </html>

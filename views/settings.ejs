@@ -5,6 +5,8 @@
 <!--<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>-->
     <title>ProjectI - Settings Page</title>
     <%- include('partial/head', {}); %>
+    <script src="/js/settings.js"></script>
+    
     <style>
     div.well {
         background-color: #16191d;
@@ -38,7 +40,7 @@
                 
                 <a href="/unlink/local" class="btn btn-default">Unlink</a>
             <% } else { %>
-                <a href="/connect/local" class="btn btn-default">Connect Local</a>
+                <button class="btn btn-default connect-local">Connect Local</button>
             <% } %>
 
         </div>
