@@ -70,10 +70,11 @@ var mf              = require('./moreFunctions');//
 		//messenger login redirect
 		if (req.session.redirect_uri) { 
 			var r_uri = req.session.redirect_uri;
+			var account_linking_token = req.session.account_linking_token;
 			req.session.redirect_uri = undefined;
-			request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+req.session.account_linking_token
+			req.session.account_linking_token = undefined;
+			request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+account_linking_token
 			,function(er, response, body) {
-				req.session.account_linking_token = undefined;
 				var obj = JSON.parse(body);
 				var user            = req.user;
 				user.messenger.id   = obj.recipient;
@@ -84,9 +85,9 @@ var mf              = require('./moreFunctions');//
 				{$set: {'messenger.id':undefined} },
 				function(err, user2) {
 
-				}) 
+				});
+				res.redirect(r_uri+'&authorization_code=200'); 
 			});
-			res.redirect(r_uri+'&authorization_code=200');
 		} else {
 			//res.render('profile.ejs', { user: req.user.displayName, url: req.url, userId: req.session.passport.user, mineProfile: true });
 			res.redirect('/profile/'+req.session.passport.user);
@@ -134,19 +135,7 @@ var mf              = require('./moreFunctions');//
 		failureFlash : true // allow flash messages
 	}));
 
-	/*app.post('/login-test', function(req, res, next) {
-		passport.authenticate('local-login', function(err, user, info) {
-			if (err) { return next(err); }
-			if (!user) { return res.sendStatus(404); }
 
-			req.logIn(user, function(err) {
-				if (err) { return next(err); }
-				return res.json(user);
-			});
-		})(req, res, next);
-	});*/
-
-	
 	// =====================================
 	// EXTERNAL ============================
 	// =====================================
@@ -175,7 +164,7 @@ var mf              = require('./moreFunctions');//
 	// facebook -------------------------------
 
 	// send to facebook to do the authentication
-	app.get('/connect/facebook', isLoggedIn, passport.authorize('facebook', { scope : 'email' }));
+	app.get('/connect/facebook', isLoggedIn, passport.authorize('facebook'));
 
 	// handle the callback after facebook has authorized the user
 	app.get('/connect/facebook/callback',
@@ -372,17 +361,15 @@ var mf              = require('./moreFunctions');//
 
 	app.get('/specific-log/:logId', function(req, res) {
 		Log.findOne({_id: req.params.logId}).exec(function(err, userLog) {
-			Match.findOne({matches: {$in: [ req.params.logId ]} }, function(err, oneMatch) {
-				if (req.isAuthenticated()) {
-					if (req.params.userId == req.session.passport.user) {
-						res.json({ userLog: userLog, oneMatch: oneMatch });
-					} else {
-						res.json({ userLog: userLog, oneMatch: oneMatch });
-					}
+			if (req.isAuthenticated()) {
+				if (req.params.userId == req.session.passport.user) {
+					res.json({ userLog: userLog });
 				} else {
-					res.json({ userLog: userLog, oneMatch: oneMatch });
+					res.json({ userLog: userLog });
 				}
-			});
+			} else {
+				res.json({ userLog: userLog });
+			}
 		});
 	});
 

@@ -302,7 +302,7 @@ $(document).ready(function() {
         $('ul.mobile-nav > li').toggleClass('active',false);
         $(this).toggleClass('active', true);
 
-        $('.row,').toggleClass('hidden-xs');
+        $('.row').toggleClass('hidden-xs');
     });
 
     // $('.no-ads').click(function() { 

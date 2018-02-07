@@ -181,9 +181,8 @@ module.exports = function(passport) {
                     if (err)
                         return done(err);
 
-                    if (!user) {
+                    if (!user || (user != null && user.facebook.id == profile.id) ) {
                         var user            = req.user; // pull the user out of the session
-                        console.log(profile);
                         user.facebook.id    = profile.id;
                         user.facebook.token = token;
                         user.facebook.name  = profile.displayName;

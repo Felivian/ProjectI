@@ -124,14 +124,14 @@ function generateSpecificLog(logId) {
 		var timezoneOffset = 0;
 	    json.userLog.start = Date.parse(json.userLog.start) - timezoneOffset;
 	    json.userLog.start = new Date(json.userLog.start).toISOString();
-		$( '#specific-log > table > tbody > tr > td.start' ).append(moment(json.userLog.start).format('DD-MM-YYYY, hh:mm a'));
+		$( '#specific-log > table > tbody > tr > td.start' ).append(moment(json.userLog.start).local().format('DD-MM-YYYY, hh:mm a'));
 
 		if (json.userLog.end == null) {
 			$( '#specific-log > table > tbody > tr > td.end' ).append('-');
 		} else {
 			json.userLog.end = Date.parse(json.userLog.end) - timezoneOffset;
 		    json.userLog.end = new Date(json.userLog.end).toISOString();
-			$( '#specific-log > table > tbody > tr > td.end' ).append(moment(json.userLog.end).format('DD-MM-YYYY, hh:mm a'));
+			$( '#specific-log > table > tbody > tr > td.end' ).append(moment(json.userLog.end).local().format('DD-MM-YYYY, hh:mm a'));
 		}
 
 		$( '#specific-log > table > tbody > tr > td.game' ).append(json.userLog.game);
