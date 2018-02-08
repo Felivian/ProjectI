@@ -14,7 +14,7 @@ module.exports = function(app, mongoose, schedule, q, io, bot) {
 	// 	var datetime = new Date().toISOString();
 	// 	datetime = Date.parse(datetime) - (1*60*60*1000);//1h
 	// 	datetime = new Date(datetime).toISOString();
-	// 	Log.find({active:true, updated: {$lt: new Date(datetime)}}, function(err, log) {
+	// 	Log.find({active:true, start: {$lt: new Date(datetime)}}, function(err, log) {
 	// 	console.log(log);	
 	// 		async.each(log, function(log_i, callback) { 
 	// 			console.log(log_i.userId);	

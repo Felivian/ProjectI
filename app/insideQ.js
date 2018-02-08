@@ -79,13 +79,19 @@ module.exports =  {
                 });  
               },
               function (err, n) {
-                if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n);
+                if (!task.atf) { 
+                  io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n); 
+                  io.to('allGames').emit('delete', n);
+                }
                 mf.sendInfo(io, bot, n.userIds);
                 callback();
               }
             );
           } else {
-            if (!task.atf) io.to(actualLog.game.replace(/\s/g, '')).emit('new', actualLog);
+            if (!task.atf) { 
+              io.to(actualLog.game.replace(/\s/g, '')).emit('new', actualLog); 
+              io.to('allGames').emit('new', actualLog);
+            }
             callback();
           }
         });
@@ -133,7 +139,10 @@ module.exports =  {
             Log.updateMany({_id: {$in: task.logIdArr}},
             {$set: {active: false, success: true, end: new Date(date) , 'match.matches': matches, 'match.users': userIds} } , 
             function(err, uLog) {
-              if (!task.atf) io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.logIdArr});
+              if (!task.atf) { 
+                io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.logIdArr}); 
+                io.to('allGames').emit('delete', {id: task.logIdArr});
+              }
               mf.sendInfo(io, bot, userIds);
               callback();
             });

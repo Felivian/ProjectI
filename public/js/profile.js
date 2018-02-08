@@ -24,9 +24,9 @@ $(document).ready(function() {
         
         var elem = $(this);
 		$.ajax({
-        type: 'POST',
-        url: '/game',
-        data: {gameName: gameName},
+        type: 'GET',
+        url: '/game/'+gameName,
+       // data: {gameName: gameName},
         success:  function(json) {       
             $('select.platform').empty();
             $('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');

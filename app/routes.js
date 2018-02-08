@@ -14,13 +14,18 @@ var mf              = require('./moreFunctions');//
 
 	
 	app.get('/messenger-login', function(req, res) {
-		req.session.redirect_uri = req.query.redirect_uri;
-		req.session.account_linking_token = req.query.account_linking_token;
-		if (req.isAuthenticated()) {
-			res.redirect(req.session.redirect_uri+'&authorization_code=200');
+		if (req.session.redirect_uri) {
+			req.session.redirect_uri = req.query.redirect_uri;
+			req.session.account_linking_token = req.query.account_linking_token;
+			if (req.isAuthenticated()) {
+				res.redirect(req.session.redirect_uri+'&authorization_code=200');
+			} else {
+				res.render('messenger-login.ejs');
+			}
 		} else {
-			res.render('messenger-login.ejs');
+			res.redirect('/');
 		}
+		
 	});
 
 
@@ -53,7 +58,8 @@ var mf              = require('./moreFunctions');//
 				facebookToken : req.user.facebook.token,
 				facebookName : req.user.facebook.name,
 				email : req.user.local.email,
-				url: req.url });
+				url: req.url 
+			});
 		}  
 	});
 
@@ -112,9 +118,9 @@ var mf              = require('./moreFunctions');//
 	});
 
 
-	app.get('/logout', function(req, res) {
+	app.get('/logout', isLoggedIn, function(req, res) {
 		req.logout();
-		req.session.destroy();
+		//req.session.destroy();
 		res.redirect('/');
 	});
 
@@ -157,7 +163,7 @@ var mf              = require('./moreFunctions');//
 	// locally --------------------------------
 	app.post('/connect/local', passport.authenticate('local-signup', {
 		successRedirect : '/settings', // redirect to the secure profile section
-		failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
+		failureRedirect : '/settings', // redirect back to the signup page if there is an error
 		failureFlash : true // allow flash messages
 	}));
 
@@ -170,7 +176,7 @@ var mf              = require('./moreFunctions');//
 	app.get('/connect/facebook/callback',
 		passport.authorize('facebook', {
 			successRedirect : '/settings',
-			failureRedirect : '/'
+			failureRedirect : '/settings'
 		}));
 
 
@@ -200,17 +206,17 @@ var mf              = require('./moreFunctions');//
 	// ajax data ===========================
 	// =====================================
 
-	app.post('/game', function (req, res) {
-		Game.findOne({name: req.body.gameName}, function(err, game) {
+	app.get('/game/:gameName', function (req, res) {
+		Game.findOne({name: req.params.gameName}, function(err, game) {
 			res.json(game);
 		});
 	});
 
 
 	//return modePlayers for certain mode
-	app.post('/queue', function (req, res) {
+	app.get('/queue/:gameName/:modeName', function (req, res) {
 		Queue.aggregate([
-			{ $match: { game: req.body.gameName, modeName: req.body.modeName} },
+			{ $match: { game: req.params.gameName, modeName: req.params.modeName} },
 			{ $group : {
 				_id : "$modeName",
 				players: {$addToSet : "$modePlayers" }

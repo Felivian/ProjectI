@@ -3,6 +3,7 @@ console.log(urlArr[0]+'//'+urlArr[2]);
 socket = io.connect(urlArr[0]+'//'+urlArr[2]);
 
 
+socket.emit('allGames', {});
 
 socket.on('new', function (data) {
     console.log('new');
@@ -85,9 +86,9 @@ $(document).ready(function() {
         var modeName = $( 'select.modeName' ).val();
         gameName = gameName.replace(/([A-Z])/g, ' $1').trim();
         $.ajax({
-        type: 'POST',
-        url: '/queue',
-        data: {gameName: gameName, modeName: modeName},
+        type: 'GET',
+        url: '/queue/'+gameName+'/'+modeName,
+        //data: {gameName: gameName, modeName: modeName},
         success:  function(json) {
             json.modePlayers = json.modePlayers.sort(sortNumber);
             //console.log(json.modePlayers);
@@ -144,9 +145,9 @@ $(document).ready(function() {
         
         var elem = $(this);
 		$.ajax({
-        type: 'POST',
-        url: '/game',
-        data: {gameName: gameName},
+        type: 'GET',
+        url: '/game/'+gameName,
+        //data: {gameName: gameName},
         success:  function(json) { 
             //modeName
             $('select.modeName').empty();

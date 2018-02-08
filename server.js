@@ -102,7 +102,7 @@ require('./tests/testsRouter.js')(app, mongoose, q);
 require('./app/socketio.js')(app, io, mongoose);
 
 // routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose, io); // load our routes and pass in our app and fully configured passport
+require('./app/routes.js')(app, passport, session, mongoose, q, io); // load our routes and pass in our app and fully configured passport
 
 // BootBot ======================================================================
 require('./app/bot.js')(app, bot, mongoose, io);
