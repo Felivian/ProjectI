@@ -267,7 +267,7 @@ $(document).ready(function() {
                             generateAlert('alert-danger','You need to login to preform this activity.');
                         },
                         406: function() {
-                            generateAlert('alert-danger','You can\'t add Your own ad.');
+                            generateAlert('alert-danger','You can\'t add another ad.');
                         }
                     }
                     });

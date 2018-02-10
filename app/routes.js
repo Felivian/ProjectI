@@ -208,8 +208,9 @@ var mf              = require('./moreFunctions');//
 
 	app.get('/game/:gameName', function (req, res) {
 		Game.findOne({name: req.params.gameName}, function(err, game) {
+			asd=game;
 			res.json(game);
-		});
+		});	
 	});
 
 
@@ -270,6 +271,8 @@ var mf              = require('./moreFunctions');//
 	app.post('/match', function (req, res) {
 		if (req.isAuthenticated()) {
 			JSON.stringify(req.body.id);
+			Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
+				if(!otherLog) { //testy nie beda dzialac
 			//if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
 				Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
 					if (log.length != req.body.id.length) {
@@ -285,6 +288,10 @@ var mf              = require('./moreFunctions');//
 						res.sendStatus(200);
 					}
 				});
+				} else {
+				    res.sendStatus(406);
+				}
+			});
 			// } else {
 			//     res.sendStatus(406);
 			// }

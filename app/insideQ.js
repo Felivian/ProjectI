@@ -9,6 +9,7 @@ var mf              = require('./moreFunctions');//
 module.exports =  {
   automatic: function (io, bot, task, callback) {
     Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
+      console.log('here');
       if (!actualLog) { callback(); } else {
         //get datetime here
         var datetime = new Date().toISOString();
@@ -37,7 +38,7 @@ module.exports =  {
             actualLog.end = new Date();
             var dup = wG.dups(wg);
             var lf = wG.keys_n(dup);
- 
+            console.log(lf);
             var json = {};
             json.id = [actualLog._id];
             json.userIds = [actualLog.userId];
@@ -79,10 +80,10 @@ module.exports =  {
                 });  
               },
               function (err, n) {
-                if (!task.atf) { 
+                //if (!task.atf) { 
                   io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n); 
                   io.to('allGames').emit('delete', n);
-                }
+                //}
                 mf.sendInfo(io, bot, n.userIds);
                 callback();
               }
@@ -139,10 +140,10 @@ module.exports =  {
             Log.updateMany({_id: {$in: task.logIdArr}},
             {$set: {active: false, success: true, end: new Date(date) , 'match.matches': matches, 'match.users': userIds} } , 
             function(err, uLog) {
-              if (!task.atf) { 
+              //if (!task.atf) { 
                 io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.logIdArr}); 
                 io.to('allGames').emit('delete', {id: task.logIdArr});
-              }
+              //}
               mf.sendInfo(io, bot, userIds);
               callback();
             });

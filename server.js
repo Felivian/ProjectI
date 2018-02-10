@@ -80,7 +80,6 @@ var bot = new BootBot({
   verifyToken	: configAuth.messengerAuth.verify_token,
   appSecret		: configAuth.messengerAuth.app_secret
 });
-
 q = [];
 //global.count = [];
 

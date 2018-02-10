@@ -5,7 +5,7 @@ var Session		= require('./models/session');
 var Log 		= require('./models/log');
 var async 		= require('async');
 var fetch 		= require('node-fetch');
-var configAuth = require('../config/auth');
+var configAuth 	= require('../config/auth');
 var configExtras = require('../config/extras');
 
 var GIPHY_URL 	= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
@@ -26,7 +26,7 @@ module.exports = {
 					console.log(user_i);
 					bot.say(user_i.messenger.id, {
 				        text: 'Long time no see. Maybe you\'ll visit me?',
-						quickReplies: ['Sure', 'Maybe later']
+						quickReplies: ['Sure', 'Maybe later', 'No way!']
 					}, {
 				        typing: true
 					});

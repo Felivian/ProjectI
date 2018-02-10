@@ -10,6 +10,7 @@ module.exports = function(app, bot, mongoose, io) {
 	var configExtras 	= require('../config/extras');
 	var GIPHY_URL 		= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
 	var fetch 			= require('node-fetch');
+	var mf              = require('./moreFunctions');//
 	//bot.say(1493247637377838, 'test');
 
 	bot.hear('login', (payload, chat) => {
@@ -59,29 +60,29 @@ module.exports = function(app, bot, mongoose, io) {
 		});
 	});
 
-	bot.hear(['delete'], (payload, chat) => {
-		chat.getUserProfile().then((mUser) => {
-			User.findOne({'messenger.id': mUser.id}, function(err, user) {
-				Log.findOne({userId: user,active:true}, function(err, userLog) {
-		            if (userLog) {
-		                userLog.end = new Date();
-		                userLog.active = false;
-		                userLog.success = false;
-		                var json = {};
-		                json.id = [userLog._id];
-		                json.userId = [userLog.userId];
-		                userLog.save(function(err, uLog) {
-		                    io.to(userLog.game.replace(/\s/g, '')).emit('delete', json);
-		                    chat.say('Your ad was deleted', { typing: true });
-		                }); 
-		            } else {
-		                chat.say('You don\'t have active ad.', { typing: true });
-		            }
+	// bot.hear(['delete'], (payload, chat) => {
+	// 	chat.getUserProfile().then((mUser) => {
+	// 		User.findOne({'messenger.id': mUser.id}, function(err, user) {
+	// 			Log.findOne({userId: user,active:true}, function(err, userLog) {
+	// 	            if (userLog) {
+	// 	                userLog.end = new Date();
+	// 	                userLog.active = false;
+	// 	                userLog.success = false;
+	// 	                var json = {};
+	// 	                json.id = [userLog._id];
+	// 	                json.userId = [userLog.userId];
+	// 	                userLog.save(function(err, uLog) {
+	// 	                    io.to(userLog.game.replace(/\s/g, '')).emit('delete', json);
+	// 	                    chat.say('Your ad was deleted', { typing: true });
+	// 	                }); 
+	// 	            } else {
+	// 	                chat.say('You don\'t have active ad.', { typing: true });
+	// 	            }
 		            
-		        });
-		    });
-		});
-	});
+	// 	        });
+	// 	    });
+	// 	});
+	// });
 	
 
 	//zmenic pozniej na pierwsza wiadomosc
@@ -120,8 +121,9 @@ module.exports = function(app, bot, mongoose, io) {
 	    });	
 	});
 
+
 	bot.hear('maybe later', (payload, chat) => {
-		const query = 'sad';
+		const query = 'ok';
 		fetch(GIPHY_URL + query)
 	    .then(res => res.json())
 	    .then(json => {
@@ -132,6 +134,27 @@ module.exports = function(app, bot, mongoose, io) {
 		        typing: true
 			}).then(() => {
 				chat.say('Got it.', {typing: true});
+			});
+	    });	
+	});
+
+	bot.hear('No way!', (payload, chat) => {
+		const query = 'sad';
+		fetch(GIPHY_URL + query)
+	    .then(res => res.json())
+	    .then(json => {
+	        chat.say({
+		        attachment: 'image',
+		        url: json.data.image_url
+			}, {
+		        typing: true
+			}).then(() => {
+				chat.say('Right in the feels...', {typing: true});
+				chat.getUserProfile().then((mUser) => {
+					User.findOne({'messenger.id': mUser.id}, function(err, user) {
+						mf.changeChance(user._id, -1);
+					});
+				});
 			});
 	    });	
 	});

@@ -13,7 +13,8 @@ var gameSchema = mongoose.Schema({
 		modeName 	: String,
 		modePlayers : [Number],
 	}],
-	rank 			: [String]
+	rank 			: [String],
+	changed 		: Boolean
 });
 gameSchema.index({ name: 'text' });
 
