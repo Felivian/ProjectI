@@ -12,6 +12,29 @@ module.exports = function(app, bot, mongoose, io) {
 	var fetch 			= require('node-fetch');
 	var mf              = require('./moreFunctions');//
 	//bot.say(1493247637377838, 'test');
+	bot.setGreetingText('Welcome to ProjectI author: Mateusz Hekert');
+
+	bot.setGetStartedButton((payload, chat) => {
+		chat.say({
+			text: 'Choose what you want to know more about.',
+			buttons: [
+				{ type: 'postback', title: 'Renew / Terminate', payload: 'renewterminate' },
+				{ type: 'postback', title: 'ad | add', payload: 'add' },
+				{ type: 'postback', title: 'Login', payload: 'login' },
+			]
+		});
+	});
+
+
+	// bot.say(1493247637377838,{ 
+	// 	text: 'Choose what you want to know more about.',
+	// 	buttons: [
+	// 		{ type: 'postback', title: 'Renew / Terminate', payload: 'renewterminate' },
+	// 		{ type: 'postback', title: 'ad | add', payload: 'add' },
+	// 		{ type: 'postback', title: 'Login', payload: 'login' },
+	// 	]
+ //    });
+
 
 	bot.hear('login', (payload, chat) => {
 		chat.sendGenericTemplate([{ 
@@ -19,7 +42,6 @@ module.exports = function(app, bot, mongoose, io) {
 			buttons: [{ 
 				type: 'account_link',
             	url: configExtras.websiteURL+'/messenger-login' 
-            	//url: 'https://jzn2ya88cl1agl16zyc2.localtunnel.me' 
             }] 
         }]);
 	});
@@ -39,13 +61,14 @@ module.exports = function(app, bot, mongoose, io) {
 			title: 'Go to Website',
 			url: configExtras.websiteURL
 		},
+		{ 
+			type: 'postback',
+			title: 'Commends',
+			payload: 'commends' 
+		}
 	]);
-	
-	bot.hear('hello', (payload, chat) => {
-		chat.conversation((convo) => {
-			Ask.askAccount(convo);
-		});
-	});
+
+
 
 	bot.hear(['add','ad'], (payload, chat) => {
 		chat.conversation((convo) => {
@@ -53,49 +76,45 @@ module.exports = function(app, bot, mongoose, io) {
 		});
 	});
 
-	bot.hear('profile', (payload, chat) => {
-		chat.conversation((convo) => {
-			// convo is available here...
-			Ask.askProfile(convo);
+
+	bot.on('postback:commends', (payload, chat) => {
+		chat.say({
+			text: 'Choose what you want to know more about.',
+			buttons: [
+				{ type: 'postback', title: 'Renew / Terminate', payload: 'renewterminate' },
+				{ type: 'postback', title: 'ad | add', payload: 'add' },
+				{ type: 'postback', title: 'Login', payload: 'login' },
+			]
+		});
+	});
+	bot.hear(['commends','help'], (payload, chat) => {
+		chat.say({
+			text: 'Choose what you want to know more about.',
+			buttons: [
+				{ type: 'postback', title: 'Renew/Terminate', payload: 'renewterminate' },
+				{ type: 'postback', title: 'ad / add', payload: 'add' },
+				{ type: 'postback', title: 'Login', payload: 'login' },
+			]
 		});
 	});
 
-	// bot.hear(['delete'], (payload, chat) => {
-	// 	chat.getUserProfile().then((mUser) => {
-	// 		User.findOne({'messenger.id': mUser.id}, function(err, user) {
-	// 			Log.findOne({userId: user,active:true}, function(err, userLog) {
-	// 	            if (userLog) {
-	// 	                userLog.end = new Date();
-	// 	                userLog.active = false;
-	// 	                userLog.success = false;
-	// 	                var json = {};
-	// 	                json.id = [userLog._id];
-	// 	                json.userId = [userLog.userId];
-	// 	                userLog.save(function(err, uLog) {
-	// 	                    io.to(userLog.game.replace(/\s/g, '')).emit('delete', json);
-	// 	                    chat.say('Your ad was deleted', { typing: true });
-	// 	                }); 
-	// 	            } else {
-	// 	                chat.say('You don\'t have active ad.', { typing: true });
-	// 	            }
-		            
-	// 	        });
-	// 	    });
-	// 	});
-	// });
-	
 
-	//zmenic pozniej na pierwsza wiadomosc
-	bot.hear('help', (payload, chat) => {
-		chat.say({
-			text: 'How can I help You?',
-			quickReplies: ['Commends', 'About']
-		}, { typing: true })
+
+	bot.hear(['author','about'], (payload, chat) => {
+		chat.say('ProjectI bot', { typing: true }).then(() => {
+			chat.say('Mateusz Hekert', { typing: true });
+		});
 	});
 
 
-	bot.hear('about', (payload, chat) => {
-		chat.say('ProjectI bot', { typing: true });
+	bot.on('postback:renewterminate', (payload, chat) => {
+		chat.say('Add new ad with same parameters as last or terminate active one.', { typing: true });
+	});
+	bot.on('postback:add', (payload, chat) => {
+		chat.say('Answer on multiple questions to add an ad.', { typing: true });
+	});
+	bot.on('postback:login', (payload, chat) => {
+		chat.say('You need to login to use this app.', { typing: true });
 	});
 
 	bot.hear('sure', (payload, chat) => {

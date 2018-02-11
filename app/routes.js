@@ -11,10 +11,11 @@ var Match           = require('./models/match');//
 var _               = require('underscore');
 var push2q          = require('./push2q');
 var mf              = require('./moreFunctions');//
+var fetch 			= require('node-fetch');
 
 	
 	app.get('/messenger-login', function(req, res) {
-		if (req.session.redirect_uri) {
+		if (req.query.redirect_uri) {
 			req.session.redirect_uri = req.query.redirect_uri;
 			req.session.account_linking_token = req.query.account_linking_token;
 			if (req.isAuthenticated()) {
@@ -79,21 +80,35 @@ var mf              = require('./moreFunctions');//
 			var account_linking_token = req.session.account_linking_token;
 			req.session.redirect_uri = undefined;
 			req.session.account_linking_token = undefined;
-			request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+account_linking_token
-			,function(er, response, body) {
-				var obj = JSON.parse(body);
-				var user            = req.user;
-				user.messenger.id   = obj.recipient;
+			fetch('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+account_linking_token)
+		    .then(res => res.json())
+		    .then(json => {
+		    	var user            = req.user;
+				user.messenger.id   = json.recipient;
 				user.save(function(err) {
-					//res.redirect('/profile');
 				});
-				User.updateMany({'messenger.id': obj.recipient, _id: {$ne: req.session.passport.user} }, 
+				User.updateMany({'messenger.id': json.recipient, _id: {$ne: req.session.passport.user} }, 
 				{$set: {'messenger.id':undefined} },
 				function(err, user2) {
 
 				});
 				res.redirect(r_uri+'&authorization_code=200'); 
-			});
+		    });
+			// request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+account_linking_token
+			// ,function(er, response, body) {
+			// 	var obj = JSON.parse(body);
+			// 	var user            = req.user;
+			// 	user.messenger.id   = obj.recipient;
+			// 	user.save(function(err) {
+			// 		//res.redirect('/profile');
+			// 	});
+			// 	User.updateMany({'messenger.id': obj.recipient, _id: {$ne: req.session.passport.user} }, 
+			// 	{$set: {'messenger.id':undefined} },
+			// 	function(err, user2) {
+
+			// 	});
+			// 	res.redirect(r_uri+'&authorization_code=200'); 
+			// });
 		} else {
 			//res.render('profile.ejs', { user: req.user.displayName, url: req.url, userId: req.session.passport.user, mineProfile: true });
 			res.redirect('/profile/'+req.session.passport.user);

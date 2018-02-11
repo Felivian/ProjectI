@@ -6,11 +6,19 @@ var mf      = require('./moreFunctions');
 var push2q  = require('./push2q');
 
 module.exports = {
-	abort: function(convo, text,abort) {
+	abort: function(convo, text, abort) {
 		if (abort) module.exports.end(convo);
 		if (text == 'abort' || text == 'cancel') module.exports.end(convo);
-
 	},
+	abort2: function(convo, text, array) {
+		if (!array.includes(text)) {
+			module.exports.end(convo);
+			return false;
+		} else {
+			return true;
+		}
+	},
+
 	askAdd : (convo, io) => {
 		convo.ask('Please name game that for which You want to add an ad', (payload, convo) => {
 			var gameName = payload.message.text;
@@ -22,6 +30,15 @@ module.exports = {
 					callback();  
 				}, function(err) {
 					convo.ask({text: 'Select game.', quickReplies: gameArr}, (payload, convo) => {
+						var re = new RegExp('(.*\\.\\.\\.$)');
+						if (!gameArr.includes(payload.message.text) && re.test(payload.message.text)) {
+							payload.message.text = payload.message.text.substring(0, payload.message.text.length - 3);
+							var re2 = new RegExp('('+payload.message.text+'.*)');
+							gameName = gameArr.find(function(element) {return re2.test(element); });
+						} else {
+							gameName = payload.message.text;
+						}
+
 						gameName = payload.message.text;
 						convo.set('gameName', gameName);
 						module.exports.askMode(convo, io);
@@ -32,9 +49,8 @@ module.exports = {
 		});
 	},
 	askMode : (convo, io) => {
-		
 		var gameName = convo.get('gameName');
-		Game.findOne({ name: gameName}, function (err, game2) {
+		Game.findOne({name:  {$regex: new RegExp('('+gameName+'.*)')}}, function (err, game2) {
 			convo.set('platform', game2.platform);
 			convo.set('region', game2.region);
 			convo.set('rank', game2.rank);
@@ -44,22 +60,25 @@ module.exports = {
 			var modePlayersArr = [];
 			async.each(game2.mode, function(mode_i, callback2) {
 				console.log(mode_i);
-				modeArr.push(mode_i.modeName[0]);
+				modeArr.push(mode_i.modeName);
 				modePlayersArr.push(mode_i.modePlayers);
 				callback2();  
 			}, function(err) {
 				console.log(modeArr);
 				convo.ask({text: 'Select mode.', quickReplies: modeArr}, (payload, convo) => {
-					var mode = payload.message.text;
-					convo.set('modeName', mode);
-					var modePlayers = modePlayersArr[modeArr.indexOf(mode)].map(function convertAsString(val) {
-						return val.toString();
-					});
-					convo.ask({text: 'Select number of combined group.', quickReplies: modePlayers}, (payload, convo) => {
-						convo.set('modePlayers', payload.message.text);
-						module.exports.askYourGroup(convo, io);
-
-					});
+					if(module.exports.abort2(convo, payload.message.text, modeArr)) {
+						var mode = payload.message.text;
+						convo.set('modeName', mode);
+						var modePlayers = modePlayersArr[modeArr.indexOf(mode)].map(function convertAsString(val) {
+							return val.toString();
+						});
+						convo.ask({text: 'Select number of combined group.', quickReplies: modePlayers}, (payload, convo) => {
+							if(module.exports.abort2(convo, payload.message.text, modePlayers)) {
+								convo.set('modePlayers', payload.message.text);
+								module.exports.askYourGroup(convo, io);
+							}
+						});
+					}
 				});
 			});
 		});
@@ -81,8 +100,10 @@ module.exports = {
 					return val.toString();
 				});
 				convo.ask({text: 'Select number of players in Your group.', quickReplies: yourGroupArrStr}, (payload, convo) => {
-					convo.set('yourGroup', payload.message.text);
-					module.exports.askPlatform(convo, io);
+					if(module.exports.abort2(convo, payload.message.text, yourGroupArrStr)) {
+						convo.set('yourGroup', payload.message.text);
+						module.exports.askPlatform(convo, io);
+					}
 				});
 			}
 		);
@@ -90,17 +111,17 @@ module.exports = {
 	askPlatform : (convo, io) => {
 		var platform = convo.get('platform');
 		convo.ask({text: 'Select platform.', quickReplies: platform}, (payload, convo) => {
-			convo.set('platform', payload.message.text);
-			module.exports.askRegion(convo, io);
+			if(module.exports.abort2(convo, payload.message.text, platform)) {
+				convo.set('platform', payload.message.text);
+				module.exports.askRegion(convo, io);
+			}
 		});
 		
 	},
 	askRegion : (convo, io) => {
 		var region = convo.get('region');
 		convo.ask({text: 'Select region.', quickReplies: region}, (payload, convo) => {
-			if(module.exports.abort(payload.message.text)){
-				module.exports.end(convo);
-			} else {		
+			if(module.exports.abort2(convo, payload.message.text, region)) {	
 				convo.set('region', payload.message.text);
 				module.exports.askRank(convo, io);
 			}
@@ -110,9 +131,7 @@ module.exports = {
 	askRank : (convo, io) => {	
 		var rank = convo.get('rank');
 		convo.ask({text: 'Select rank.', quickReplies: rank}, (payload, convo) => {
-			if(module.exports.abort(payload.message.text)){
-				module.exports.end(convo);
-			} else {	
+			if(module.exports.abort2(convo, payload.message.text, rank)) {	
 				convo.set('rank', payload.message.text);
 				module.exports.askAutomatic(convo, io);
 			}
@@ -121,9 +140,7 @@ module.exports = {
 	askAutomatic : (convo, io) => {
 		var rank = convo.get('rank');
 		convo.ask({text: 'Automatic search?', quickReplies: ['Yes','No']}, (payload, convo) => {
-			if(module.exports.abort(payload.message.text)){
-				module.exports.end(convo);
-			} else {	
+			if(module.exports.abort2(convo, payload.message.text, ['Yes','No'])) {	
 				if (payload.message.text == 'Yes') {
 					convo.set('automatic', true);
 				} else {
@@ -148,9 +165,7 @@ module.exports = {
 	},
 	askConfirm2 : (convo, io) => {
 		convo.ask({text: 'Is this what you wanted?', quickReplies: ['Yes','No']}, (payload, convo) => {
-			if(module.exports.abort(payload.message.text)){
-				module.exports.end(convo);
-			} else {	
+			if(module.exports.abort2(convo, payload.message.text, ['Yes','No'])) {		
 				if (payload.message.text == 'Yes') {
 					module.exports.askSave(convo, io);
 				} else {
