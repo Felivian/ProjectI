@@ -134,12 +134,12 @@ span.group {
 div.pick.fixed {
 	display: none;
 	max-height: 60%;
-	background-color: #2c2c2f;
+	background-color: #34343e;
 	padding: 0px;
 	bottom: 60px !important;
 	overflow-y: hidden;
 	color: white;
-	border-radius: 10px;
+	border-radius: 20px;
 }
 div.mobile.pick {
 	position: inherit;

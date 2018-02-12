@@ -65,6 +65,9 @@
            
     </div>
     <div class="row col-sm-6 form">
+        <% if (message.length > 0) { %>
+            <div class="alert alert-danger"><%= message %></div>
+        <% } %>
         <form action="/connect/local" method="post">
             <div class="form-group">
                 <label>Email</label>

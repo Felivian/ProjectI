@@ -17,7 +17,7 @@ socket.on('new', function (data) {
     var rankS = $( 'select.rank' ).val();
     if(rankS) rankS = rankS.replace(/([A-Z])/g, ' $1').trim();
     var platform = $( 'select.platform' ).val();
-    var region = $( 'select.region' ).val();;
+    var region = $( 'select.region' ).val();
     if (data.game != gameName && gameName !== null) valid = false;
     if (data.modeName != modeName && modeName !== null) valid = false;
     if (data.modePlayers != modePlayers && modePlayers !== null) valid = false;
@@ -445,8 +445,9 @@ function generateUserAds(init) {
     var region = $( 'select.region' ).val();
     var offset = 0;
     if(!init) offset = $('div.user-ad-outer').length;
-
-    var limit = 24 - (offset % 24);//migth need some more love
+    var hidden = 0;
+    if(!init) hidden = $('div.user-ad-outer.hidden').length;
+    var limit = 24 - ((offset-hidden) % 24);//migth need some more love
     //if (limit < 24) limit += 12;
 
     if(qdPlayers) qdPlayers = parseInt(qdPlayers);
@@ -488,7 +489,7 @@ function appendUserAd(ad) {
                     '<img src=\"/img/'+ad.game.replace(/\s/g, '')+'.png\" alt=\"'+ad.game+'\" class=\"img-circle game-logo\"><br>'+
                     '<div class=\"user-data panel-body\">'+
                         '<table width=\"100%\" class=\" table-striped\"><tbody>'+
-                            '<tr><td>Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
+                            '<tr><td class=\"text-center\">Mode</td> <td class=\"text-center\"><kbd>'+ad.modeName+'</kbd></td></tr>'+
                             '<tr><td>Maximum group</td> <td class=\"text-center\"><kbd>'+ad.modePlayers+'</kbd></td></tr>'+
                             '<tr><td>Rank</td> <td class=\"text-center\"><kbd>'+ad.rankS.replace(/([A-Z])/g, ' $1').trim()+'</kbd></td></tr>'+
                             '<tr><td>Size of group</td> <td class=\"text-center\"><kbd>'+ad.qdPlayers+'</kbd></td></tr>'+

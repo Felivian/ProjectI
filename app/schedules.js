@@ -11,17 +11,20 @@ module.exports = function(app, mongoose, schedule, q, io, bot) {
 
 	//setTimeout(function() {		
 	setInterval(function() {
-		var datetime = new Date().toISOString();
-		datetime = Date.parse(datetime) - (1*60*60*1000);//1h
-		datetime = new Date(datetime).toISOString();
-		var datetime2 = new Date().toISOString();
-		datetime2 = Date.parse(datetime2) - (1*60*60*1000+5*60*1000);//1h+5min
-		datetime2 = new Date(datetime2).toISOString();
-		Log.find({
-			active:true, 
-			start: {$lt: new Date(datetime)},
-			start: {$gt: new Date(datetime2)}
-		}, function(err, log) {
+		var datetimeFrom = new Date().toISOString();
+		datetimeFrom = Date.parse(datetimeFrom) - (1*60*60*1000);//1h
+		datetimeFrom = new Date(datetimeFrom).toISOString();
+		var datetimeTo = new Date().toISOString();
+		datetimeTo = Date.parse(datetimeTo) - (1*60*60*1000+5*60*1000);//1h+5min
+		datetimeTo = new Date(datetimeTo).toISOString();
+		console.log(datetimeFrom);
+		console.log(datetimeTo);
+		console.log(datetimeFrom > datetimeTo);
+		Log.find({$and: [
+			{active:true}, 
+			{start: {$lt: new Date(datetimeFrom)}},
+			{start: {$gt: new Date(datetimeTo)}}
+		]}, function(err, log) {
 		console.log(log);	
 			async.each(log, function(log_i, callback) { 
 				console.log(log_i.userId);	

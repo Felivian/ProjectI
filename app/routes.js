@@ -34,7 +34,7 @@ var fetch 			= require('node-fetch');
 		
 
 	app.get('/', function(req, res) {
-		Game.find({}, function(err, game) {
+		Game.find({}, 'name', function(err, game) {
 			if (req.user) {
 				res.render('home.ejs', { user: req.user.displayName, url: req.url, games:game });
 			} else {
@@ -53,14 +53,27 @@ var fetch 			= require('node-fetch');
 
 	app.get('/settings', function(req, res) {
 		if (req.user) {
-			res.render('settings.ejs', {  
-				user: req.user.displayName,
-				//id : req.session.passport.user,
-				facebookToken : req.user.facebook.token,
-				facebookName : req.user.facebook.name,
-				email : req.user.local.email,
-				url: req.url 
-			});
+			if (req.user.facebook.token) {
+				res.render('settings.ejs', {  
+					user: req.user.displayName,
+					//id : req.session.passport.user,
+					facebookToken : true,
+					facebookName : req.user.facebook.name,
+					email : req.user.local.email,
+					url: req.url, 
+					message: req.flash('signupMessage') 
+				});
+			} else {
+				res.render('settings.ejs', {  
+					user: req.user.displayName,
+					//id : req.session.passport.user,
+					facebookToken : false,
+					facebookName : req.user.facebook.name,
+					email : req.user.local.email,
+					url: req.url, 
+					message: req.flash('signupMessage') 
+				});
+			}
 		}  
 	});
 
@@ -116,17 +129,17 @@ var fetch 			= require('node-fetch');
 	});
 	app.get('/profile/:userId', function(req, res) {
 		
-		Game.find({}, function(err, game) {
+		Game.find({}, 'name', function(err, game) {
 			User.findOne({_id: req.params.userId}).select({'games': 1, '_id': 0}).sort({'games.name': 1}).exec(function(err, userGames) {
-				var userGames =  _.sortBy(userGames.games, 'name') ;
+				var userGames =  _.sortBy(userGames.games, 'name');
 				if (req.isAuthenticated()) {
 					if (req.params.userId == req.session.passport.user) {
-						res.render('profile.ejs', { user: req.user.displayName, url: req.url, userId: req.params.userId, mineProfile: true, userGames: userGames, games:game });
+						res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: true, userGames: userGames, games:game });
 					} else {
-						res.render('profile.ejs', { user: req.user.displayName, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, games:game });
+						res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: false, userGames: userGames, games:game });
 					}
 				} else {
-					res.render('profile.ejs', { user: null, url: req.url, userId: req.params.userId, mineProfile: false, userGames: userGames, games:game });
+					res.render('profile.ejs', { user: null, url: req.url, mineProfile: false, userGames: userGames, games:game });
 				}
 			});
 		});
