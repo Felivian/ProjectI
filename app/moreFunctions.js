@@ -1,4 +1,3 @@
-//var _    = require('underscore');
 var User 		= require('./models/user');
 var Queue 		= require('./models/queue');
 var Session		= require('./models/session');

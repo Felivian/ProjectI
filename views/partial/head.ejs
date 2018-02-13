@@ -18,53 +18,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="/socket.io/socket.io.js">
+<script src="/js/basic.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/basic.css" />
 <link rel="stylesheet" type="text/css" href="/css/navbar.css" />
 
-<script>
-	var re = new RegExp('#_=_');
-	if (re.test(window.location.href)) console.log('true af');
-	
 
-	var urlArr = window.location.href.split("/");
-	//console.log(urlArr[0]+'//'+urlArr[2]+'/');
-	if (re.test(window.location.href)) {
-	console.log('true');
-	    var newURL='';
-	    for (var i = 0; i < urlArr.length-1; i++) {
-	        newURL= newURL+urlArr[i]+'/';
-	    }
-	    console.log(newURL);
-	    window.location.href=newURL;
-	}
-    
-</script>
 
-<style>
-.loader {
-	margin: auto;
-	border: 16px solid #f3f3f3;
-	border-radius: 50%;
-	border-top: 16px solid #3498db;
-	width: 120px;
-	height: 120px;
-	-webkit-animation: spin 2s linear infinite; /* Safari */
-	animation: spin 2s linear infinite;
-}
 
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-span.close {
-	float: right;
-}
-</style>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">

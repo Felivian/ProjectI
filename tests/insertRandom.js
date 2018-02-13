@@ -1,44 +1,41 @@
 var _       = require('underscore');
 var Log     = require('../app/models/log');
 var wG      = require('../app/whatGroups');//
-//var mf      = require('../app/main_functions');//
-//var Qinfo   = require('../config/Qinfo');
 var push2q  = require('../app/push2q');
+var Queue  	= require('../app/models/queue');
+var Game  	= require('../app/models/game');
+var async	= require('async');
 
 module.exports = function(q) {  
-
-
-    for (var asd=0; asd<1000; asd++) {
-    
-	    var test = require('../tests/generate_random')();
-
-
-
-	    var newLog = new Log();
-	    newLog.modeName = test.modeName;
-	    newLog.modePlayers = test.modePlayers;
-	    newLog.qdPlayers = test.qd;
-	    newLog.start = new Date();
-	    //newLog.updated = newLog.start;
-	    newLog.active = true;
-	    //newLog.pending = true;
-	    newLog.game = test.game;
-	    newLog.platform = test.platform;
-	    newLog.region = test.region;
-	    newLog.rankS = test.rankS;
-	    //u_rank_arr = test.rank;
-		
-		newLog.userId = '5a3fbdc366484b2058751dad';
-		newLog.userName = 'Felivian';
-
-	    newLog.save(function(err, log) {
-	        if (err) throw err;
-	        
-	        //var qNr = mf.getNrOfQ(log);
-	        //if (qNr) {
-	            //global.wasInserted[qNr] = true;
-	            push2q(q, log._id, log.userId, log.game, log.platform, log.region, log.modeName, log.modePlayers, false, []);
-	        //}
-	    });
-	}
+	var i = 0;
+	async.whilst(
+		function() { return i < 1000; },
+		function(callback) {
+			i++;
+			var rand = Math.floor((Math.random() * (q.length-1)));
+			Queue.findOne({qNr: rand}, function(err, queue) {
+				Game.findOne({name: queue.game}, function(err, game){
+					var newLog = new Log();
+					newLog.modeName = queue.modeName;
+					newLog.modePlayers = queue.modePlayers;
+					newLog.qdPlayers = Math.floor(Math.random() * (queue.modePlayers-1)+1);
+					newLog.start = new Date();
+					newLog.active = true;
+					newLog.game = queue.game;
+					newLog.platform = queue.platform;
+					newLog.region = queue.region;
+					newLog.rankS = game.rank[Math.floor(Math.random() * (game.rank.length))];
+					newLog.automatic = true;
+					newLog.userId = '5a3fbdc366484b2058751dad';
+					newLog.userName = 'Felivian';
+					newLog.save(function(err, log) {
+						if (err) callback(err, null);
+						push2q(q, log._id, log.userId, log.game, log.platform, log.region, log.modeName, log.modePlayers, false, []);
+						callback(null, null);
+					});
+				});
+			});
+		},function (err, n) {
+			console.log('finished');
+	});
 }

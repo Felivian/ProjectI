@@ -1,5 +1,5 @@
-var urlArr = window.location.href.split("/"); 
-socket = io.connect(urlArr[0]+'//'+urlArr[2]);
+// var urlArr = window.location.href.split("/"); 
+// socket = io.connect(urlArr[0]+'//'+urlArr[2]);
 
 //socket = io.connect('http://localhost:8080');
 
@@ -169,13 +169,6 @@ function generateSpecificLog(logId) {
 	});
 }
 
-function generateAlert(alertType, message) {
-    $('.alert').remove();
-    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+
-        '<span class="close glyphicon glyphicon-remove"></span></div>');
-    RefreshSomeEventListener();
-}
-
 function RefreshSomeEventListener() {
     $('.game-logo.add').off();
     $('button.info').off();
@@ -186,7 +179,6 @@ function RefreshSomeEventListener() {
     $('.add-games > div > .add').off();
     $('#games.over-table').find('button').off();
     $('button.more-history').off();
-    $('span.close').off();
     
     $('.game-logo.add').on('click', function(){
 		$('.add-games').toggle('display');
@@ -331,9 +323,14 @@ function RefreshSomeEventListener() {
 		getLogs(false,$('tr.log-row').length);
 	});
 
-	$('span.close').on('click', function(){
+}
+
+function generateAlert(alertType, message) {
+    $('.alert').remove();
+    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+
+        '<span class="close glyphicon glyphicon-remove"></span></div>');
+    $('span.close').off();
+    $('span.close').on('click', function(){
         $(this).parent().remove();
     });
 }
-
-// generateAlert('alert-danger','At least one ad is no longer active.');

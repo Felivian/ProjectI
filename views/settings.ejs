@@ -16,19 +16,33 @@
         margin-left: 10px;
         margin-right: 10px;
     }
+    div.displayName {
+        margin-bottom: 10px;
+    }
+    div.displayName > button {
+        margin: 0px;
+        padding: 0px;
+    }
     </style>
 </head>
 <body>
 <%- include('partial/navbar', {user: user, url: url, mineProfile: false}); %>
 <div class="container-fluid">
-    
+
+
     <div class="page-header text-center">
         <h1><span class="fa fa-anchor"></span> Profile Page</h1>
         <a href="/logout" class="btn btn-default btn-sm logout">Logout</a>
     </div>
-   
+    <div class="row col-sm-12 displayName">
+        <div class="col-md-5  col-xs-10 col-sm-5">
+            <input placeholder="<%=user%>" type="text" class="form-control" name="displayName">
+        </div>
+        <div class="col-md-1  col-xs-1 col-sm-1">
+            <button class="glyphicon glyphicon-ok add btn btn-warning btn-md"></button>
+        </div>
+    </div>
     <div class="row col-sm-6">
-        <!-- LOCAL INFORMATION -->
 
         <div class="well text-center">
             <h3><span class="fa fa-user"></span> Local</h3>
@@ -86,7 +100,7 @@
 </div>
 
 
-<script src="/socket.io/socket.io.js"></script>
+
 <script>
 
 	

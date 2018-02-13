@@ -40,6 +40,13 @@ module.exports = function(app, io, mongoose) {
 			  console.log('rooms', socket.rooms); // here you'll see two rooms: one with socket.id and another with data.newroom
 			});
 		});
+
+		socket.on('leaveChannels', function(data) {
+			for(room in socket.rooms){
+			    if(socket.id !== room) socket.leave(room);
+			}
+		});
+
 	});
 };		
 

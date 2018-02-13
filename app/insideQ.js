@@ -1,10 +1,8 @@
-var Log             = require('./models/log');//
-var Match             = require('./models/match');//
-var mongoose = require('mongoose');
-//var Qinfo           = require('../config/Qinfo');//
-var wG              = require('./whatGroups');//
+var Log             = require('./models/log');
+var mongoose        = require('mongoose');
+var wG              = require('./whatGroups');
 var async           = require('async');
-var mf              = require('./moreFunctions');//
+var mf              = require('./moreFunctions');
 
 module.exports =  {
   automatic: function (io, bot, task, callback) {

@@ -70,7 +70,7 @@
 			</select>
 		</div>
 		<div class="col-md-2  col-xs-8 col-sm-10">
-			<input placeholder="nick" type="text" class="form-control" name="nick">
+			<input placeholder="<%=user%>" type="text" class="form-control" name="displayName">
 		</div>
 		<div class="col-xs-4 col-sm-2">
 			<button class="glyphicon glyphicon-ok add btn btn-warning btn-md"></button>
@@ -210,7 +210,9 @@
 	<img src="images/loading.gif" alt="Loading…" />
 </p>-->
 </div><!-- /.container-fluid -->
-
+<script>
+	var displayName = $('input[name=nick]').val();
+</script>
 </body>
 
 </html>

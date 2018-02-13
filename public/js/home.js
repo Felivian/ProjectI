@@ -282,12 +282,7 @@ $(document).ready(function() {
 
 });
 
-function generateAlert(alertType, message) {
-    $('.alert').remove();
-    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+
-        '<span class="close glyphicon glyphicon-remove"></span></div>');
-    RefreshSomeEventListener();
-}
+
 
 
 $(document).ready(function() {
@@ -542,10 +537,6 @@ function RefreshSomeEventListener() {
     $('button.add').off();
     $('.picked-user > button').off();
     $('div.user-info').off();
-    $('span.close').off();
-    $('span.close').on('click', function(){
-        $(this).parent().remove();
-    });
 
     $('button.add').on('click', function(){
         var selVal =[];
@@ -789,4 +780,15 @@ function refreshSession() {
         sessionStorage.removeItem('region');*/
         //updatePicks(true);
     }
+}
+
+
+function generateAlert(alertType, message) {
+    $('.alert').remove();
+    $('.container').prepend('<div class=\"alert '+alertType+' col-md-6 col-md-offset-3 text-center\">'+message+
+        '<span class="close glyphicon glyphicon-remove"></span></div>');
+    $('span.close').off();
+    $('span.close').on('click', function(){
+        $(this).parent().remove();
+    });
 }

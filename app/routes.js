@@ -7,7 +7,6 @@ var Game            = require('./models/game');
 var Queue           = require('./models/queue');//
 var Log             = require('./models/log');//
 var User            = require('./models/user');//
-var Match           = require('./models/match');//
 var _               = require('underscore');
 var push2q          = require('./push2q');
 var mf              = require('./moreFunctions');//
@@ -68,7 +67,7 @@ var fetch 			= require('node-fetch');
 					user: req.user.displayName,
 					//id : req.session.passport.user,
 					facebookToken : false,
-					facebookName : req.user.facebook.name,
+					facebookName : null,
 					email : req.user.local.email,
 					url: req.url, 
 					message: req.flash('signupMessage') 
@@ -450,6 +449,20 @@ var fetch 			= require('node-fetch');
 			if (err) res.sendStatus(500); 
 			res.sendStatus(200); 
 		});
+	});
+
+	app.post('/changename', function(req, res) {
+		if (req.body.displayName != null && req.body.displayName.length > 6 ) {
+
+			User.findOneAndUpdate({_id: req.session.passport.user}, 
+			{ $set: { displayName: req.body.displayName } },
+			function(err, user) {
+				if (err) res.sendStatus(500); 
+				res.sendStatus(200); 
+			});
+		} else {
+			res.sendStatus(406); 
+		}
 	});
 
 	app.get('/chart1/:userId', function(req, res) {
