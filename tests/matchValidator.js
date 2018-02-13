@@ -1,5 +1,4 @@
-var Log             = require('../app/models/log');//
-var Match           = require('../app/models/match');//
+var Log             = require('../app/models/log');
 var async           = require('async');
 var wG 				= require('../app/whatGroups');
 var _    			= require('underscore');

@@ -130,15 +130,19 @@ var fetch 			= require('node-fetch');
 		
 		Game.find({}, 'name', function(err, game) {
 			User.findOne({_id: req.params.userId}).select({'games': 1, '_id': 0}).sort({'games.name': 1}).exec(function(err, userGames) {
-				var userGames =  _.sortBy(userGames.games, 'name');
-				if (req.isAuthenticated()) {
-					if (req.params.userId == req.session.passport.user) {
-						res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: true, userGames: userGames, games:game });
+				if (userGames) {
+					var userGames =  _.sortBy(userGames.games, 'name');
+					if (req.isAuthenticated()) {
+						if (req.params.userId == req.session.passport.user) {
+							res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: true, userGames: userGames, games:game });
+						} else {
+							res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: false, userGames: userGames, games:game });
+						}
 					} else {
-						res.render('profile.ejs', { user: req.user.displayName, url: req.url,  mineProfile: false, userGames: userGames, games:game });
+						res.render('profile.ejs', { user: null, url: req.url, mineProfile: false, userGames: userGames, games:game });
 					}
 				} else {
-					res.render('profile.ejs', { user: null, url: req.url, mineProfile: false, userGames: userGames, games:game });
+					res.sendStatus(404);
 				}
 			});
 		});
