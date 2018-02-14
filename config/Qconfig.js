@@ -119,21 +119,10 @@ module.exports = function(async,q, io, bot) {
 			        waterfallCallback(null, '');
 			    }
 			);
-			// for (var i=0; i<count; i++) {
-			// 	q[i] = async.queue(function(task, callback) {
-			// 		if (task.logIdArr.length != 0) {
-			// 			insideQ.manual(io, bot, task, callback);
-			// 		} else {
-			//     		insideQ.automatic(io, bot, task, callback);
-			//     	}
-			// 	}, 1);
-			// }
-			// callback(null, 'three');
 		});
 	    
 	}
 	function afterFailurePush(arg1, waterfallCallback) {
-	    // arg1 now equals 'three'
 		Log.find({ active: true, automatic:true }, function(err, log) {
 	      	async.each(log, function(thisLog, callback1) {
 	      		
@@ -158,30 +147,6 @@ module.exports = function(async,q, io, bot) {
 				console.log('xD');
 			    waterfallCallback(null, 'done');
 			});
-
-		    // for(var j=0; j<log.length; j++) {
-		    //   //check date etc 
-		    //   push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].modeName, log[j].modePlayers, true);
-		    // }
 		});
 	}
-
-
-
-
-
-
-
-	// Queue.count({}, function(err, count){
-	// 	console.log(count);
-	// 	for (var i=0; i<count; i++) {
-	// 		q[i] = async.queue(function(task, callback) {
-	// 			if (task.logIdArr.length != 0) {
-	// 				insideQ.manual(io, bot, task, callback);
-	// 			} else {
-	// 	    		insideQ.automatic(io, bot, task, callback);
-	// 	    	}
-	// 		}, 1);
-	// 	}
-	// });
 }

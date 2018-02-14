@@ -46,14 +46,14 @@ module.exports = function(app, bot, mongoose, io) {
         }]);
 	});
 	
-	bot.hear('logout', (payload, chat) => {
-		chat.sendGenericTemplate([{ 
-			title: 'Logout', 
-			buttons: [{ 
-				type: 'account_unlink',
-            }] 
-        }]);
-	});
+	// bot.hear('logout', (payload, chat) => {
+	// 	chat.sendGenericTemplate([{ 
+	// 		title: 'Logout', 
+	// 		buttons: [{ 
+	// 			type: 'account_unlink',
+ //            }] 
+ //        }]);
+	// });
 
 	bot.setPersistentMenu([
 		{
@@ -71,9 +71,13 @@ module.exports = function(app, bot, mongoose, io) {
 
 
 	bot.hear(['add','ad'], (payload, chat) => {
-		chat.conversation((convo) => {
-			Ask.askAdd(convo, io);
-		});
+		if(isConnected(chat)) {
+			chat.conversation((convo) => {
+				Ask.askAdd(convo, io);
+			});
+		} else {
+			chat.say('You need to login to preform this action.', { typing: true });
+		}
 	});
 
 
@@ -171,7 +175,9 @@ module.exports = function(app, bot, mongoose, io) {
 				chat.say('Right in the feels...', {typing: true});
 				chat.getUserProfile().then((mUser) => {
 					User.findOne({'messenger.id': mUser.id}, function(err, user) {
-						mf.changeChance(user._id, -1);
+						if (user) {
+							mf.changeChance(user._id, -1);
+						}
 					});
 				});
 			});
@@ -209,6 +215,8 @@ module.exports = function(app, bot, mongoose, io) {
 							chat.say('Can\'t add another ad while one is active.', {typing: true});
 						}
 					});
+				} else {
+					chat.say('You need to login to preform this action.', { typing: true });
 				}
 			});
 		});
@@ -218,12 +226,29 @@ module.exports = function(app, bot, mongoose, io) {
 			console.log(mUser.id);
 			User.findOne({'messenger.id': mUser.id}, function(err, user) {
 				var datetime = new Date;
-				Log.updateOne({ userId: user._id, active: true}, { $set: {end: datetime, active: false, success: false} }, function(err, log) {
-					if (log) {
-						chat.say('Your ad was terminated.', {typing: true});
-					}
-				});
+				if (user) {
+					Log.updateOne({ userId: user._id, active: true}, { $set: {end: datetime, active: false, success: false} }, function(err, log) {
+						if (log) {
+							chat.say('Your ad was terminated.', {typing: true});
+						}
+					});
+				} else {
+					chat.say('You need to login to preform this action.', { typing: true });
+				}
 			});
 		});
 	});
+
+	function isConnected(chat) {
+		chat.getUserProfile().then((mUser) => {
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				if (user) {
+					return true;
+				} else {
+
+					return false;
+				}
+			});
+		})
+	}
 };

@@ -239,7 +239,6 @@ var fetch 			= require('node-fetch');
 
 	app.get('/game/:gameName', function (req, res) {
 		Game.findOne({name: req.params.gameName}, function(err, game) {
-			asd=game;
 			res.json(game);
 		});	
 	});

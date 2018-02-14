@@ -439,9 +439,9 @@ function generateUserAds(init) {
     var platform = $( 'select.platform' ).val();
     var region = $( 'select.region' ).val();
     var offset = 0;
-    if(!init) offset = $('div.user-ad-outer').length;
+    if(!init) offset = $('div.user-ad-outer').not('div.user-ad-outer.grayscale').length;
     var hidden = 0;
-    if(!init) hidden = $('div.user-ad-outer.hidden').length;
+    if(!init) hidden = $('div.user-ad-outer.hidden').not('div.user-ad-outer.grayscale').length;
     var limit = 24 - ((offset-hidden) % 24);//migth need some more love
     //if (limit < 24) limit += 12;
 

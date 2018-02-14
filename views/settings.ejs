@@ -23,15 +23,17 @@
         margin: 0px;
         padding: 0px;
     }
+    div.page-header {
+        margin-top:0px;
+    }
     </style>
 </head>
 <body>
 <%- include('partial/navbar', {user: user, url: url, mineProfile: false}); %>
 <div class="container-fluid">
 
-
-    <div class="page-header text-center">
-        <h1><span class="fa fa-anchor"></span> Profile Page</h1>
+    <div class="row col-xs-12 page-header text-center">
+        <h1><span class="fa fa-cogs"></span> Account Settings</h1>
         <a href="/logout" class="btn btn-default btn-sm logout">Logout</a>
     </div>
     <div class="row col-sm-12 displayName">

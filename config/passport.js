@@ -151,7 +151,7 @@ module.exports = function(passport) {
                             //user.facebook.name  = profile.name.givenName + ' ' + profile.name.familyName;
                             user.facebook.name  = profile.displayName;
                             //user.facebook.email = profile.emails[0].value;
-                            user.displayName = profile.displayName;
+                            
 
                             user.save(function(err) {
                                 if (err)
@@ -167,6 +167,7 @@ module.exports = function(passport) {
                         newUser.facebook.id    = profile.id;
                         newUser.facebook.token = token;
                         newUser.facebook.name  = profile.displayName;
+                        user.displayName = profile.displayName;
                         newUser.save(function(err) {
                             if (err)
                                 throw err;

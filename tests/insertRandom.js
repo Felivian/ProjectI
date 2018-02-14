@@ -9,7 +9,7 @@ var async	= require('async');
 module.exports = function(q) {  
 	var i = 0;
 	async.whilst(
-		function() { return i < 1000; },
+		function() { return i < 10000; },
 		function(callback) {
 			i++;
 			var rand = Math.floor((Math.random() * (q.length-1)));
