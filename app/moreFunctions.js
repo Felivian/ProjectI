@@ -159,7 +159,7 @@ module.exports = {
 			fetch(GIPHY_URL + query)
 		    .then(res => res.json())
 		    .then(json => {
-		    	if (user_i.messenger.id) {
+		    	if (user.messenger.id) {
 			    	bot.say(user.messenger.id, {
 			      //chat.say({
 				        attachment: 'image',
@@ -192,7 +192,7 @@ module.exports = {
 	sendInactive: function(io, bot, userId) {
 		console.log(userId);
 		User.findOne({_id: userId}, function(err, user) {
-			if (user_i.messenger.id) {
+			if (user.messenger.id) {
 		    	bot.say(user.messenger.id, {
 			        text: 'Your ad reached end of it\'s lifespan. What do You want to do?',
 					quickReplies: ['Renew', 'Terminate']
