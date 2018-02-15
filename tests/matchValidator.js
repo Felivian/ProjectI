@@ -5,7 +5,7 @@ var _    			= require('underscore');
 
 module.exports = function() {  
 
-	Log.find({active:false}, function(err, log) {
+	Log.find({active:false, success:true}, function(err, log) {
 		var i = 0;
 		async.whilst(
 			function() { return i < log.length; },
@@ -24,7 +24,7 @@ module.exports = function() {
 					var matchesArr = [];
 					var usersArr = [];
 					//var gameArr = [];
-					async.each(matchedLogs, function(log_i, callback2) {
+					async.eachSeries(matchedLogs, function(log_i, callback2) {
 						gameArr.push(log_i.game);
 						qdPlayersArr.push(log_i.qdPlayers);
 						modeNameArr.push(log_i.modeName);
@@ -37,23 +37,26 @@ module.exports = function() {
 
 						matchesArr.push(log_i.match.matches.length);
 						usersArr.push(log_i.match.users.length);
-	                    callback2();  
-	                  }, function(err) {
-	                    i++;
+						callback2();  
+					  }, function(err) {
+						i++;
 
-	                    if (wG.sum_arr(qdPlayersArr) != modePlayersArr[0]) valid=false;
-	                    if (_.uniq(gameArr).length != 1) valid = false;
-	                    if (_.uniq(modeNameArr).length != 1) valid = false;
-	                    if (_.uniq(modePlayersArr).length != 1) valid = false;
-	                    if (_.uniq(regionArr).length != 1) valid = false;
-	                    if (_.uniq(platformArr).length != 1) valid = false;
-	                    if (_.uniq(successArr).length != 1) valid = false;
-	                    if (_.uniq(activeArr).length != 1) valid = false;
-	                    if (_.uniq(rankArr).length != 1) valid = false;
-	                    if (_.uniq(matchesArr).length != 1) valid = false;
-	                    if (_.uniq(usersArr).length != 1) valid = false;
-	                    if (!valid) console.log(valid);
-	                    callback(null,null);
+						if (wG.sum_arr(qdPlayersArr) != modePlayersArr[0]) valid=false;
+						if (_.uniq(gameArr).length != 1) valid = false;
+						if (_.uniq(modeNameArr).length != 1) valid = false;
+						if (_.uniq(modePlayersArr).length != 1) valid = false;
+						if (_.uniq(regionArr).length != 1) valid = false;
+						if (_.uniq(platformArr).length != 1) valid = false;
+						if (_.uniq(successArr).length != 1) valid = false;
+						if (_.uniq(activeArr).length != 1) valid = false;
+						if (_.uniq(rankArr).length != 1) valid = false;
+						if (_.uniq(matchesArr).length != 1) valid = false;
+						if (_.uniq(usersArr).length != 1) valid = false;
+						if (!valid) {
+							console.log(valid);
+						}
+
+						callback(null,null);
 					});
 	
 				});

@@ -159,25 +159,27 @@ module.exports = {
 			fetch(GIPHY_URL + query)
 		    .then(res => res.json())
 		    .then(json => {
-		    	bot.say(user.messenger.id, {
-		      //chat.say({
-			        attachment: 'image',
-			        url: json.data.image_url
-				}, {
-			        typing: true
-				}).then(() => {
-					// bot.say(user.messenger.id, 'Sorry, some ad is no longer active')
-					// .then(() => {
-					bot.sendGenericTemplate(user.messenger.id, [{ 
-						title: 'Sorry, some ad is no longer active', 
-						buttons: [{ 
-							type: 'web_url',
-							url: configExtras.websiteURL,
-  							title: 'Go to website!',
-			            }]
-		        	}]);	
-					// });
-				});
+		    	if (user_i.messenger.id) {
+			    	bot.say(user.messenger.id, {
+			      //chat.say({
+				        attachment: 'image',
+				        url: json.data.image_url
+					}, {
+				        typing: true
+					}).then(() => {
+						// bot.say(user.messenger.id, 'Sorry, some ad is no longer active')
+						// .then(() => {
+						bot.sendGenericTemplate(user.messenger.id, [{ 
+							title: 'Sorry, some ad is no longer active', 
+							buttons: [{ 
+								type: 'web_url',
+								url: configExtras.websiteURL,
+	  							title: 'Go to website!',
+				            }]
+			        	}]);	
+						// });
+					});
+				}
 			});
 		});
 		Session.find({'data.passport.user': userId}, function(err, session) {
@@ -190,12 +192,14 @@ module.exports = {
 	sendInactive: function(io, bot, userId) {
 		console.log(userId);
 		User.findOne({_id: userId}, function(err, user) {
-	    	bot.say(user.messenger.id, {
-		        text: 'Your ad reached end of it\'s lifespan. What do You want to do?',
-				quickReplies: ['Renew', 'Terminate']
-			}, {
-		        typing: true
-			});
+			if (user_i.messenger.id) {
+		    	bot.say(user.messenger.id, {
+			        text: 'Your ad reached end of it\'s lifespan. What do You want to do?',
+					quickReplies: ['Renew', 'Terminate']
+				}, {
+			        typing: true
+				});
+		    }
 	    });
 		
 		Session.find({'data.passport.user': userId}, function(err, session) {
