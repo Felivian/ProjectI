@@ -23,7 +23,6 @@ module.exports = function() {
 					var rankArr = [];
 					var matchesArr = [];
 					var usersArr = [];
-					//var gameArr = [];
 					async.eachSeries(matchedLogs, function(log_i, callback2) {
 						gameArr.push(log_i.game);
 						qdPlayersArr.push(log_i.qdPlayers);
@@ -68,50 +67,4 @@ module.exports = function() {
 	});
 
 
-
-
-
-	// var q2 = async.queue(function(task, callback) {
-	//     combine(task, callback);
-	// }, 100);
-
-	// q2.drain = function() {
-	// 	console.log('end yo!');
-	// }
-
-
-	// Match.find( { tested: { $exists: false } }, function(err, match){
-	// 	console.log(match.length);
-	//     if (!match) {
-	//     } else {
-	//     	//console.log('here2');
-	//     	for (var i = 0; i < match.length; i++) {
-	//     		//console.log('here3');
-	//     		q2.push({_id: match[i]._id, l_ids: match[i].matches}, function(err) {
-	// 				console.log('ended processing ');
-	// 			});
-	//     	}
-	//     }
-	// });
-
-
-	// function combine(task, callback) {
-	// 	for (var j = 0; j < task.l_ids.length; j++) {
-	// 		Log.findOne({_id: task.l_ids[j]}, function(err, log) {
-	// 			//global.test_count++;
-	// 			Match.updateOne({_id: task._id},
-	// 				{$push: {active: log.active, success: log.success, platform: log.platform, 
-	// 				region: log.region, game: log.game, name: log.modeName, players: log.modePlayers,
-	// 				rankS: log.rankS, qdPlayers: log.qdPlayers}, $set: {tested: true} }, 
-	// 			function(err, ulog) {
-	// 				//if (global.test_count > task.l_ids.length) {
-	// 					//global.test_count = 0;
-	// 					//console.log('gucio');
-						
-	// 				//}
-	// 			});
-	// 		});
-	// 	}
-	// 	callback();
-	// }
 }

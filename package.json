@@ -30,6 +30,7 @@
     "bluebird": "latest",
     "socket.io": "latest",
     "shorthash": "latest",
-    "underscore": "latest"
+    "underscore": "latest",
+    "nick-generator": "latest"
   }
 }

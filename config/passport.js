@@ -106,6 +106,7 @@ module.exports = function(passport) {
                     newUser.local.email    = email;
                     newUser.local.password = newUser.generateHash(password);
                     newUser.displayName    = email;
+                    newUser.lastActive     = new Date();
 
                     newUser.save(function(err) {
                         if (err)
@@ -168,6 +169,7 @@ module.exports = function(passport) {
                         newUser.facebook.token = token;
                         newUser.facebook.name  = profile.displayName;
                         user.displayName = profile.displayName;
+                        newUser.lastActive     = new Date();
                         newUser.save(function(err) {
                             if (err)
                                 throw err;

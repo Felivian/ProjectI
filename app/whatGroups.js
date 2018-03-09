@@ -7,7 +7,6 @@ module.exports =  {
 		var zxc = [];
 
 		for (var i=0; i< start.length; i++) {
-			//for (var j=0; j<start[i].count; j++) {
 			var x=start[i].count;
 			if (start[i].count > 12) {
 				x=12;
@@ -68,7 +67,6 @@ module.exports =  {
 		for (var i = 0; i < A.length; i++) {
 			var key = A[i].join('');
 			if (!hash[key]) {
-				//out.push(A[i]);
 				out.push(A[i]);
 				hash[key] = 'found';
 			}
@@ -114,8 +112,6 @@ module.exports =  {
 
 
 	keys_n: function(in_arr) {
-		//var wg = module.exports.whatGroups(in_arr);
-		//var dup = module.exports.dups(wg);
 		var arr = [];
 		for (var i=0; i<Object.keys(in_arr).length; i++) {
 			arr.push(Number(_.keys(in_arr)[i]));

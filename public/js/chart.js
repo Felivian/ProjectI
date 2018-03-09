@@ -4,8 +4,6 @@ $(document).ready(function() {
     type: 'GET',
     url: '/chart1/'+userId,
     success:  function(json) {
-        console.log(json);
-        //generateAlert('alert-info','Your ad was added successfully.');
         var r;
         var g;
         var b;
@@ -25,7 +23,6 @@ $(document).ready(function() {
             b = Math.floor(Math.random() * 255);
             backgroundColor.push('rgba('+r+', '+g+', '+b+', 0.4)');
             borderColor.push('rgba('+r+', '+g+', '+b+', 1)');
-            //backgroundColor.push(getRandomColor());
         }
 
         var ctx = document.getElementById("myChart1").getContext('2d');
@@ -54,7 +51,6 @@ $(document).ready(function() {
     type: 'GET',
     url: '/chart2/'+userId,
     success:  function(json) {
-        console.log(json);
         var r;
         var g;
         var b;
@@ -70,18 +66,7 @@ $(document).ready(function() {
             b = Math.floor(Math.random() * 255);
             backgroundColor.push('rgba('+r+', '+g+', '+b+', 0.4)');
             borderColor.push('rgba('+r+', '+g+', '+b+', 1)');
-            //backgroundColor.push(getRandomColor());
         }
-        // for (var i = 0; i < 10; i++) {
-        //     labels.push(json[0]._id);
-        //     data.push(json[0].count);
-        //     r = Math.floor(Math.random() * 255);
-        //     g = Math.floor(Math.random() * 255);
-        //     b = Math.floor(Math.random() * 255);
-        //     backgroundColor.push('rgba('+r+', '+g+', '+b+', 0.4)');
-        //     borderColor.push('rgba('+r+', '+g+', '+b+', 1)');
-        // }
-
         var ctx = document.getElementById("myChart2").getContext('2d');
 
         var myChart = new Chart(ctx, {

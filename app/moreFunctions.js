@@ -22,7 +22,6 @@ module.exports = {
 			async.each(user, function(user_i, callback) {
 				user_i.lastActive = d;
 				user_i.save(function(err, sUser) {
-					console.log(user_i);
 					bot.say(user_i.messenger.id, {
 				        text: 'Long time no see. Maybe you\'ll visit me?',
 						quickReplies: ['Sure', 'Maybe later', 'No way!']
@@ -37,7 +36,6 @@ module.exports = {
 	},
 
 	changeChance: function(to_user, by) {
-		//to_user = '5a11d3786496960a50b33e50';
 		var days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 		var d = new Date();
 		var dayName = days[d.getDay()];
@@ -46,13 +44,10 @@ module.exports = {
 		var year = d.getYear();
 
 		User.findOne({_id: to_user}, function(err, user) {
-			console.log(user);
-			console.log(dayName);
 			var lastDayName = days[user.lastActive.getDay()];
 			var lastHour = user.lastActive.getHours();
 			var lastMonth = user.lastActive.getMonth();
 			var lastYear = user.lastActive.getYear();
-			console.log([`user.active.$(dayName)`]);
 			if (by > 0) {
 				if (lastYear != year || lastMonth != month || lastDayName != dayName || lastHour != hour) {
 				
@@ -73,20 +68,6 @@ module.exports = {
 							});
 						}
 					});
-				
-
-
-				// User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$lt: 10} } } },
-				// { $inc: { [`active.${dayName}.$.chance`] : by }, $set: {lastActive: d} }, 
-				// function(err, user2) {
-				// 	if (user2.nModified === 0) {
-				// 		User.updateOne({_id: to_user },
-				// 		{ $push: { [`active.${dayName}`] : {hour: hour, chance: 1} }, $set: {lastActive: d} }, 
-				// 		function(err, user3) {
-
-				// 		});
-				// 	}
-				// });
 				}
 			} else {
 				User.findOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour } } },
@@ -101,28 +82,16 @@ module.exports = {
 				});
 			}
 		});
-
-		// User.updateOne({_id: to_user, [`active.${dayName}`]: {$elemMatch: {hour: hour}} },
-		// { $inc: { [`active.${dayName}.$.chance`] : by }}, function(err, user) {
-		// 	if (user.nModified === 0) {
-		// 		User.updateOne({_id: to_user },
-		// 		{ $push: { [`active.${dayName}`] : {hour: hour, chance: by} }}, function(err, user) {
-
-		// 		});
-		// 	}
-		// });
 	},
 	sendInfo: function(io, bot, matchesId) {
 		User.find({_id: {$in: matchesId}}, function(err, user) {
 			async.each(user, function(user_i, callback) {
-				console.log(user_i.messenger.id);
 				if (user_i.messenger.id) {
 					const query = 'happy';
 					fetch(GIPHY_URL + query)
 				    .then(res => res.json())
 				    .then(json => {
 				    	bot.say(user_i.messenger.id, {
-				      //chat.say({
 					        attachment: 'image',
 					        url: json.data.image_url
 						}, {
@@ -145,10 +114,8 @@ module.exports = {
 		Session.find({'data.passport.user': {$in: matchesId}}, function(err, session) {
 			async.each(session, function(session_i, callback2) {
 				io.to(session_i.socketId).emit('match', '');
-				console.log(matchesId);
 				callback2();  
 			}, function(err) {
-				console.log(matchesId);
 			});
 		});	
 	},
@@ -161,14 +128,11 @@ module.exports = {
 		    .then(json => {
 		    	if (user.messenger.id) {
 			    	bot.say(user.messenger.id, {
-			      //chat.say({
 				        attachment: 'image',
 				        url: json.data.image_url
 					}, {
 				        typing: true
 					}).then(() => {
-						// bot.say(user.messenger.id, 'Sorry, some ad is no longer active')
-						// .then(() => {
 						bot.sendGenericTemplate(user.messenger.id, [{ 
 							title: 'Sorry, some ad is no longer active', 
 							buttons: [{ 
@@ -177,7 +141,6 @@ module.exports = {
 	  							title: 'Go to website!',
 				            }]
 			        	}]);	
-						// });
 					});
 				}
 			});
@@ -185,12 +148,10 @@ module.exports = {
 		Session.find({'data.passport.user': userId}, function(err, session) {
 			if(session) {
 				io.to(session.socketId).emit('notactive', '');
-				//console.log(matchesId);
 			}
 		});	
 	},
 	sendInactive: function(io, bot, userId) {
-		console.log(userId);
 		User.findOne({_id: userId}, function(err, user) {
 			if (user.messenger.id) {
 		    	bot.say(user.messenger.id, {
@@ -205,7 +166,6 @@ module.exports = {
 		Session.find({'data.passport.user': userId}, function(err, session) {
 			if(session) {
 				io.to(session.socketId).emit('inactive', '');
-				//console.log(matchesId);
 			}
 		});	
 	}

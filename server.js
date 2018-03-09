@@ -1,10 +1,7 @@
-// set up ======================================================================
-// get all the tools we need
 var express         = require('express');
 var app             = express();
 var port            = process.env.PORT || 8080;
 var mongoose        = require('mongoose');
-//mongoose.Promise    = require('bluebird');
 var passport        = require('passport');
 var flash           = require('connect-flash');
 
@@ -31,69 +28,50 @@ var push2q          = require('./app/push2q');
 
 
 // configuration ===============================================================
-//mongoose.connect(configDB.url); // connect to our database
-mongoose.connection.openUri(configDB.url, { /* options */ });
+mongoose.connection.openUri(configDB.url, {});
 
-require('./config/passport')(passport); // pass passport for configuration
+require('./config/passport')(passport);
 
-// set up our express application
-app.use(morgan('dev')); // log every request to the console
-app.use(cookieParser()); // read cookies (needed for auth)
-// get information from html forms
+app.use(morgan('dev'));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: true
+	extended: true
 }));
 
-app.set('view engine', 'ejs'); // set up ejs for templating
-
-// required for passport
+app.set('view engine', 'ejs');
 
 app.use(session({
 	secret: 'keyboard cat', 
 	saveUninitialized: true, 
 	resave: true,
-	//cookie: { maxAge: 3600000 },
 	store: new (require('express-sessions'))({
-        storage: 'mongodb',
-        instance: mongoose, // optional 
-        host: 'localhost', // optional 
-        port: 27017, // optional 
-        db: 'test', // optional 
-        collection: 'sessions', // optional 
-        //expire: 86400 // optional 
-        expire: 4 //*1000s~1h
-    }),
+				storage: 'mongodb',
+				instance: mongoose,
+				host: 'localhost',
+				port: 27017,
+				db: 'test',
+				collection: 'sessions',
+				expire: 4 //*1000s~1h
+		}),
 	unset: 'destroy'
 }));
 
 
 
 app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
+app.use(passport.session());
+app.use(flash());
 app.use(express.static(__dirname + '/public'));
 
 
 var bot = new BootBot({
-  accessToken	: configAuth.messengerAuth.access_token,
-  verifyToken	: configAuth.messengerAuth.verify_token,
-  appSecret		: configAuth.messengerAuth.app_secret
+	accessToken	: configAuth.messengerAuth.access_token,
+	verifyToken	: configAuth.messengerAuth.verify_token,
+	appSecret	: configAuth.messengerAuth.app_secret
 });
 q = [];
-//global.count = [];
 
-
-var Log             = require('./app/models/log');//
-/*setTimeout(function() {
-  Log.find({ active: true }, function(err, log) {
-    for(var j=0; j<log.length; j++) {
-      //check date etc 
-      push2q(q, log[j]._id, log[j].user_id, log[j].game, log[j].platform, log[j].region, log[j].modeName, log[j].modePlayers, true);
-    }
-  })
-  , 500});
-*/
 
 require('./tests/testsRouter.js')(app, mongoose, q);
 
@@ -101,7 +79,7 @@ require('./tests/testsRouter.js')(app, mongoose, q);
 require('./app/socketio.js')(app, io, mongoose);
 
 // routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose, q, io); // load our routes and pass in our app and fully configured passport
+require('./app/routes.js')(app, passport, session, mongoose, q, io); 
 
 // BootBot ======================================================================
 require('./app/bot.js')(app, bot, mongoose, io);

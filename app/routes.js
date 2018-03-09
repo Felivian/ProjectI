@@ -55,7 +55,6 @@ var fetch 			= require('node-fetch');
 			if (req.user.facebook.token) {
 				res.render('settings.ejs', {  
 					user: req.user.displayName,
-					//id : req.session.passport.user,
 					facebookToken : true,
 					facebookName : req.user.facebook.name,
 					email : req.user.local.email,
@@ -65,7 +64,6 @@ var fetch 			= require('node-fetch');
 			} else {
 				res.render('settings.ejs', {  
 					user: req.user.displayName,
-					//id : req.session.passport.user,
 					facebookToken : false,
 					facebookName : null,
 					email : req.user.local.email,
@@ -106,23 +104,7 @@ var fetch 			= require('node-fetch');
 				});
 				res.redirect(r_uri+'&authorization_code=200'); 
 		    });
-			// request('https://graph.facebook.com/v2.6/me?access_token='+configAuth.messengerAuth.access_token+'&fields=recipient&account_linking_token='+account_linking_token
-			// ,function(er, response, body) {
-			// 	var obj = JSON.parse(body);
-			// 	var user            = req.user;
-			// 	user.messenger.id   = obj.recipient;
-			// 	user.save(function(err) {
-			// 		//res.redirect('/profile');
-			// 	});
-			// 	User.updateMany({'messenger.id': obj.recipient, _id: {$ne: req.session.passport.user} }, 
-			// 	{$set: {'messenger.id':undefined} },
-			// 	function(err, user2) {
-
-			// 	});
-			// 	res.redirect(r_uri+'&authorization_code=200'); 
-			// });
 		} else {
-			//res.render('profile.ejs', { user: req.user.displayName, url: req.url, userId: req.session.passport.user, mineProfile: true });
 			res.redirect('/profile/'+req.session.passport.user);
 		}
 	});
@@ -151,7 +133,6 @@ var fetch 			= require('node-fetch');
 
 	app.get('/logout', isLoggedIn, function(req, res) {
 		req.logout();
-		//req.session.destroy();
 		res.redirect('/');
 	});
 
@@ -161,15 +142,15 @@ var fetch 			= require('node-fetch');
 	// LOCAL ===============================
 	// =====================================
 	app.post('/signup', passport.authenticate('local-signup', {
-		successRedirect : '/profile', // redirect to the secure profile section
-		failureRedirect : '/signup', // redirect back to the signup page if there is an error
-		failureFlash : true // allow flash messages
+		successRedirect : '/profile', 
+		failureRedirect : '/signup', 
+		failureFlash : true 
 	}));
 
 	app.post('/login', passport.authenticate('local-login', {
-		successRedirect : '/profile', // redirect to the secure profile section
-		failureRedirect : '/login', // redirect back to the signup page if there is an error
-		failureFlash : true // allow flash messages
+		successRedirect : '/profile',
+		failureRedirect : '/login',
+		failureFlash : true 
 	}));
 
 
@@ -193,9 +174,9 @@ var fetch 			= require('node-fetch');
 	// =============================================================================
 	// locally --------------------------------
 	app.post('/connect/local', passport.authenticate('local-signup', {
-		successRedirect : '/settings', // redirect to the secure profile section
-		failureRedirect : '/settings', // redirect back to the signup page if there is an error
-		failureFlash : true // allow flash messages
+		successRedirect : '/settings',
+		failureRedirect : '/settings',
+		failureFlash : true
 	}));
 
 	// facebook -------------------------------
@@ -295,7 +276,6 @@ var fetch 			= require('node-fetch');
 		Log.find({_id: {$in: req.body.id}}, 'userId userName qdPlayers active', function(err, log) {
 			res.json(log);
 		});
-		//res.sendStatus(200);
 	});
 
 	app.post('/match', function (req, res) {
@@ -303,28 +283,24 @@ var fetch 			= require('node-fetch');
 			JSON.stringify(req.body.id);
 			Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
 				if(!otherLog) { //testy nie beda dzialac
-			//if (req.body.id.includes(req.session.passport.user)) { //aktualne testy nie beda dzialac teraz == zabezpieczenie przeciw dodaniu samego siebie
-				Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
-					if (log.length != req.body.id.length) {
-						res.sendStatus(404);
-					} else {
-						
-						var arr = [];
-						log.forEach(function(val){
-							arr.push(val._id);
-						});
-						mf.changeChance(req.session.passport.user, 1);
-						push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
-						res.sendStatus(200);
-					}
-				});
+					Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
+						if (log.length != req.body.id.length) {
+							res.sendStatus(404);
+						} else {
+							
+							var arr = [];
+							log.forEach(function(val){
+								arr.push(val._id);
+							});
+							mf.changeChance(req.session.passport.user, 1);
+							push2q(q, null, req.session.passport.user, log[0].game, log[0].platform, log[0].region, log[0].modeName, log[0].modePlayers, false, arr);
+							res.sendStatus(200);
+						}
+					});
 				} else {
 				    res.sendStatus(406);
 				}
 			});
-			// } else {
-			//     res.sendStatus(406);
-			// }
 		} else {
 			res.sendStatus(401);
 		}
@@ -332,10 +308,9 @@ var fetch 			= require('node-fetch');
 
 
 	app.post('/new-ad', function (req, res) {
-		console.log('automatic: '+req.body.automatic);
 		if (req.isAuthenticated()) {
 			Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
-				// if(!otherLog) { //testy nie beda dzialac
+				if(!otherLog) { 
 					var date = new Date();
 					newLog = new Log;
 					newLog.platform = req.body.data.platform;
@@ -348,7 +323,6 @@ var fetch 			= require('node-fetch');
 					newLog.userId = req.session.passport.user;
 					newLog.active = true;
 					newLog.start = date;
-					//newLog.updated = date;
 					newLog.automatic=req.body.automatic;
 					User.aggregate([
 					{$match: {_id:newLog.userId}},
@@ -365,8 +339,8 @@ var fetch 			= require('node-fetch');
 							}
 							newLog.save(function(err, log) {
 								mf.changeChance(req.session.passport.user, 1);
-								//push to queue
-								if(req.body.automatic) {
+
+								if(req.body.automatic == true) {
 									push2q(q, log._id, req.session.passport.user, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);
 								} else {
 									io.to(newLog.game.replace(/\s/g, '')).emit('new', newLog);
@@ -377,9 +351,9 @@ var fetch 			= require('node-fetch');
 							res.sendStatus(400);
 						}
 					});
-				// } else {
-				//     res.sendStatus(406);
-				// }
+				} else {
+				    res.sendStatus(406);
+				}
 			});
 		} else {
 			res.sendStatus(401);
@@ -493,14 +467,9 @@ var fetch 			= require('node-fetch');
 	});
 }
 
-// route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
-	
-	// if user is authenticated in the session, carry on 
 	if (req.isAuthenticated())
 		return next();
-
-	// if they aren't redirect them to the home page
 	res.redirect('/');
 }
 

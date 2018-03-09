@@ -3,8 +3,8 @@ var _       = require('underscore');
 
 module.exports = function(app, mongoose, q) {
 
-    app.get('/test1', function(req, res) {
-    	require('../tests/insertRandom')(q);
+    app.get('/test1/:iterations', function(req, res) {
+    	require('../tests/insertRandom')(q, req.params.iterations);
     	res.sendStatus(200);
     });
 

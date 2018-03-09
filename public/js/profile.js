@@ -1,8 +1,3 @@
-// var urlArr = window.location.href.split("/"); 
-// socket = io.connect(urlArr[0]+'//'+urlArr[2]);
-
-//socket = io.connect('http://localhost:8080');
-
 socket.on('match', function (data) {
     generateAlert('alert-info','<a href=\"/profile\">Match was found!</a>');
 });
@@ -26,7 +21,6 @@ $(document).ready(function() {
 		$.ajax({
         type: 'GET',
         url: '/game/'+gameName,
-       // data: {gameName: gameName},
         success:  function(json) {       
             $('select.platform').empty();
             $('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');
@@ -51,7 +45,6 @@ function getLogs(init,offset) {
     type: 'GET',
     url: '/profile-logs/'+userId+'/'+offset,
     success:  function(json) {
-    	console.log(json);
     	generateUserLogs(json.userLogs, json.mineProfile);
     	if (init) generateSpecificLog(json.userLogs[0]._id);
     }
@@ -107,7 +100,6 @@ function generateSpecificLog(logId) {
 	type: 'GET',
 	url: '/specific-log/'+logId,
 	success:  function(json) {
-		console.log(json);
 		$( '#specific-log > table > tbody > tr > td.game' ).empty();
 		$( '#specific-log > table > tbody > tr > td.mode' ).empty();
 		$( '#specific-log > table > tbody > tr > td.maximum-group' ).empty();
@@ -120,7 +112,6 @@ function generateSpecificLog(logId) {
 		$( '#specific-log > table > tbody > tr > td.is-actv' ).empty();
 		$( '#specific-log > table > tbody > tr > td.is-success' ).empty();
 		$( '#specific-log > table > tbody > tr > td.players' ).empty();
-		//var timezoneOffset = new Date().getTimezoneOffset()*60*1000; //60*60*1000
 		var timezoneOffset = 0;
 	    json.userLog.start = Date.parse(json.userLog.start) - timezoneOffset;
 	    json.userLog.start = new Date(json.userLog.start).toISOString();
@@ -221,7 +212,6 @@ function RefreshSomeEventListener() {
 			    sessionStorage.removeItem('id');
 			    
 			    sessionStorage.setItem('id',JSON.stringify([]));
-			    //sessionStorage.setItem('init',true);
 			    sessionStorage.setItem('group', 0);
 				sessionStorage.setItem('yourGroup', json.userLog.qdPlayers);
 		        sessionStorage.setItem('gameName',json.userLog.game.replace(/\s/g, ''));
@@ -237,7 +227,6 @@ function RefreshSomeEventListener() {
 	});
 
 	$('.add-games > div > .cancel').on('click', function(){
-		console.log('cancel');
 		$( '.game-logo.add' ).trigger( "click" );
 	});
 
@@ -246,14 +235,12 @@ function RefreshSomeEventListener() {
 		var game = $('select.game').val().replace(/([A-Z])/g, ' $1').trim();
 		var platform = $('select.platform').val();
 		var region = $('select.region').val();
-		var nick = $('input[name=nick]').val();
-
+		var nick = $('input[name=displayName]').val();
 		if ( game == null) valid = false;
 		if ( platform == null) valid = false;
-		if ( nick == '') valid = false;
+		if ( nick == '' ) valid = false;
 		if (valid) {
 			var userId = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
-			//game = game.replace(/([A-Z])/g, ' $1').trim();
 			$.ajax({
 			type: 'POST',
 			data: {userId: userId, game: game, platform: platform, nick: nick, region: region },
@@ -270,11 +257,9 @@ function RefreshSomeEventListener() {
 					'</td>'+
 				'</tr>');
 				var str = game.replace(/\s/g, '');
-				//$('.img-circle.game-logo[alt='+str+']')
 				if ($('.img-circle.game-logo[alt='+str+']').length == 0 ) {
 					$( 'div.games' ).append('<img src=\"/img/'+str+'.png\" alt=\"'+str+'\" class=\"img-circle game-logo\">');
 					$( '.img-circle.game-logo' ).not('.img-circle.game-logo.add').insertBefore( '.img-circle.game-logo.add' );
-					//"img-circle game-logo"
 				}
 				$( '.game-logo.add' ).trigger( "click" );
 				RefreshSomeEventListener();
@@ -284,38 +269,26 @@ function RefreshSomeEventListener() {
 	});
 
 	$('#games.over-table').find('button').on('click', function(){
-		console.log('here m8');
 		var parent = $(this).parents('tr');
-		//console.log($(this).parents('tr').children().text());
 		var arr = [];
 		$(this).parents('tr').children().not(':last').each(function(index, obj) {
-			console.log($(this).text());
 			arr[index] = $(this).text();
 		});
-		console.log(arr);
 		var userId = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
 		$.ajax({
 		type: 'POST',
 		data: {userId: userId, userGame: arr },
 		url: '/game-remove',
 		success:  function(json) {
-			console.log(json);
-			console.log('test');
 			parent.remove();
 
 			var gamesArr = [];
 			$('#games.over-table').find('tbody >tr').find('td:first').each(function(index, obj) {
 				gamesArr.push($(this).text());
 			});
-			console.log(gamesArr);
 			if (!gamesArr.includes(arr[0].replace(/\s/g, ''))) {
-				//console.log($('.img-circle.game-logo[alt='+arr[0]+']').attr('alt',arr[0]));
 				$('.img-circle.game-logo[alt='+arr[0].replace(/\s/g, '')+']').remove();
 			}
-			//if ($('#games.over-table > tbody').find('td:first').text() == 0 ) {
-			// generateUserLogs(json.userLogs, json.mineProfile);
-			// generateSpecificLog(json.userLogs[0]._id);
-
 		}
 		});
 	});

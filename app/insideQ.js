@@ -9,14 +9,13 @@ module.exports =  {
     Log.findOne({'_id': task.log_id, 'active':true}, function(err, actualLog){
       console.log('here');
       if (!actualLog) { callback(); } else {
-        //get datetime here
         var datetime = new Date().toISOString();
         datetime = Date.parse(datetime) - (1*60*60*1000);//1h
         datetime = new Date(datetime).toISOString();
         Log.aggregate([ 
           { $match: 
             {'_id': {$ne: task.log_id},
-            //'userId': {$ne: task.userId},
+            'userId': {$ne: task.userId},
             'automatic': true,
             'active':true, 
             'start': {$gte: new Date(datetime)},
@@ -47,7 +46,7 @@ module.exports =  {
               function(callback3) {
                 Log.find({
                 '_id': {$ne: task.log_id},
-                //'userId': {$ne: task.userId},
+                'userId': {$ne: task.userId},
                 'automatic': true,
                 'active':true, 
                 'start': {$gte: new Date(datetime)},
@@ -78,10 +77,8 @@ module.exports =  {
                 });  
               },
               function (err, n) {
-                //if (!task.atf) { 
                   io.to(actualLog.game.replace(/\s/g, '')).emit('delete', n); 
                   io.to('allGames').emit('delete', n);
-                //}
                 mf.sendInfo(io, bot, n.userIds);
                 callback();
               }
@@ -98,7 +95,6 @@ module.exports =  {
     });
   },
   manual: function (io, bot, task, callback) {
-    //task.userId
     Log.find({_id: {$in: task.logIdArr}, active:true}, function(err, log) {
       if (log.length == task.logIdArr.length) {
         var date = new Date();
@@ -107,7 +103,6 @@ module.exports =  {
         newLog.active = false;
         newLog.success = true;
         newLog.start = date;
-        //newLog.updated = date;
         newLog.end = date;
         newLog.platform = log[0].platform;
         newLog.region = log[0].region;
@@ -124,24 +119,18 @@ module.exports =  {
           callback2();
         }, function(err) {
           newLog.qdPlayers = log[0].modePlayers - qdPlayersSum;
-          //match = new Match;
           var matches = task.logIdArr;
           matches.push(newLog._id);
           newLog.match.matches = matches;
           newLog.match.users = userIds;
-          //match.matches = task.logIdArr;
-          //match.matches.push(newLog._id);
-          //match.users = userIds;
           newLog.save(function(err,sLog) {
             newLog.match.matches = matches;
             newLog.match.users = userIds;
             Log.updateMany({_id: {$in: task.logIdArr}},
             {$set: {active: false, success: true, end: new Date(date) , 'match.matches': matches, 'match.users': userIds} } , 
             function(err, uLog) {
-              //if (!task.atf) { 
                 io.to(newLog.game.replace(/\s/g, '')).emit('delete', {id: task.logIdArr}); 
                 io.to('allGames').emit('delete', {id: task.logIdArr});
-              //}
               mf.sendInfo(io, bot, userIds);
               callback();
             });

@@ -2,10 +2,5 @@
 d: cd app\projecti
 node server.js
 npm run forward
+npm run forward2
 
-
-
---deleted global count in server.js, Qconfig.js
-
-
-automatic - mine won't trigger automatic search but someone's elses might

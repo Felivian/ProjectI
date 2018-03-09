@@ -54,17 +54,14 @@ module.exports = {
 			convo.set('platform', game2.platform);
 			convo.set('region', game2.region);
 			convo.set('rank', game2.rank);
-			console.log(game2.rank_s);
 
 			var modeArr = [];
 			var modePlayersArr = [];
 			async.each(game2.mode, function(mode_i, callback2) {
-				console.log(mode_i);
 				modeArr.push(mode_i.modeName);
 				modePlayersArr.push(mode_i.modePlayers);
 				callback2();  
 			}, function(err) {
-				console.log(modeArr);
 				convo.ask({text: 'Select mode.', quickReplies: modeArr}, (payload, convo) => {
 					if(module.exports.abort2(convo, payload.message.text, modeArr)) {
 						var mode = payload.message.text;
@@ -195,8 +192,8 @@ module.exports = {
 							newLog.game = gameName;
 							newLog.modeName = modeName;
 							newLog.modePlayers = modePlayers;
-							newLog.rank_s = rank;
-							newLog.qd_players = yourGroup;
+							newLog.rankS = rank;
+							newLog.qdPlayers = yourGroup;
 							newLog.userId = user._id;
 							newLog.active = true;
 							newLog.start = date;
@@ -227,7 +224,6 @@ module.exports = {
 											push2q(q, log._id, user._id, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);
 											convo.say('Ad added').then(() => module.exports.end(convo));
 										} else {
-											//io.to('')
 											io.to(newLog.game.replace(/\s/g, '')).emit('new', newLog);
 											convo.say('Ad added').then(() => module.exports.end(convo));
 										}

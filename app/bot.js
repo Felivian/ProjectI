@@ -10,8 +10,7 @@ module.exports = function(app, bot, mongoose, io) {
 	var configExtras 	= require('../config/extras');
 	var GIPHY_URL 		= 'http://api.giphy.com/v1/gifs/random?api_key='+configAuth.giphyApiKey+'&tag=';
 	var fetch 			= require('node-fetch');
-	var mf              = require('./moreFunctions');//
-	//bot.say(1493247637377838, 'test');
+	var mf              = require('./moreFunctions');
 	bot.setGreetingText('Welcome to ProjectI author: Mateusz Hekert');
 
 	bot.setGetStartedButton((payload, chat) => {
@@ -26,15 +25,6 @@ module.exports = function(app, bot, mongoose, io) {
 	});
 
 
-	// bot.say(1493247637377838,{ 
-	// 	text: 'Choose what you want to know more about.',
-	// 	buttons: [
-	// 		{ type: 'postback', title: 'Renew / Terminate', payload: 'renewterminate' },
-	// 		{ type: 'postback', title: 'ad | add', payload: 'add' },
-	// 		{ type: 'postback', title: 'Login', payload: 'login' },
-	// 	]
- //    });
-
 
 	bot.hear('login', (payload, chat) => {
 		chat.sendGenericTemplate([{ 
@@ -46,14 +36,6 @@ module.exports = function(app, bot, mongoose, io) {
         }]);
 	});
 	
-	// bot.hear('logout', (payload, chat) => {
-	// 	chat.sendGenericTemplate([{ 
-	// 		title: 'Logout', 
-	// 		buttons: [{ 
-	// 			type: 'account_unlink',
- //            }] 
- //        }]);
-	// });
 
 	bot.setPersistentMenu([
 		{
@@ -71,13 +53,17 @@ module.exports = function(app, bot, mongoose, io) {
 
 
 	bot.hear(['add','ad'], (payload, chat) => {
-		if(isConnected(chat)) {
-			chat.conversation((convo) => {
-				Ask.askAdd(convo, io);
+		chat.getUserProfile().then((mUser) => {
+			User.findOne({'messenger.id': mUser.id}, function(err, user) {
+				if (user) {
+					chat.conversation((convo) => {
+						Ask.askAdd(convo, io);
+					});
+				} else {
+					chat.say('You need to login to preform this action.', { typing: true });
+				}
 			});
-		} else {
-			chat.say('You need to login to preform this action.', { typing: true });
-		}
+		});
 	});
 
 
@@ -186,11 +172,9 @@ module.exports = function(app, bot, mongoose, io) {
 
 	bot.hear('renew', (payload, chat) => {
 		chat.getUserProfile().then((mUser) => {
-			console.log(mUser.id);
 			User.findOne({'messenger.id': mUser.id}, function(err, user) {
 				if (user) {
 					var datetime = new Date;
-					console.log(user._id);
 					Log.find({userId: user._id}).sort({start: -1}).limit(1).exec(function(err, userLogs) {
 						if (!userLogs[0].active) {
 							newLog = new Log;
@@ -205,7 +189,6 @@ module.exports = function(app, bot, mongoose, io) {
 							newLog.platform = userLogs[0].platform;
 							newLog.active = true;
 							newLog.start = datetime;
-							//newLog.updated = datetime;
 							newLog.save(function(err, log) {
 								if (log) {
 									chat.say('Your ad was renewed for another hour.', {typing: true});
@@ -223,7 +206,6 @@ module.exports = function(app, bot, mongoose, io) {
 	});
 	bot.hear('terminate', (payload, chat) => {
 		chat.getUserProfile().then((mUser) => {
-			console.log(mUser.id);
 			User.findOne({'messenger.id': mUser.id}, function(err, user) {
 				var datetime = new Date;
 				if (user) {
@@ -238,17 +220,4 @@ module.exports = function(app, bot, mongoose, io) {
 			});
 		});
 	});
-
-	function isConnected(chat) {
-		chat.getUserProfile().then((mUser) => {
-			User.findOne({'messenger.id': mUser.id}, function(err, user) {
-				if (user) {
-					return true;
-				} else {
-
-					return false;
-				}
-			});
-		})
-	}
 };
