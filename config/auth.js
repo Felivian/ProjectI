@@ -2,8 +2,8 @@ var configExtras = require('./extras');
 module.exports = {
 
     'facebookAuth' : {
-        'clientID'      : '1824776361147158', // App ID
-        'clientSecret'  : 'fa7a136c2bde652bc07f002e7d992f0b', // App Secret
+        'clientID'      : '1824776361147158',
+        'clientSecret'  : 'fa7a136c2bde652bc07f002e7d992f0b',
         'callbackURL'   : configExtras.websiteURL+'/auth/facebook/callback'
     },
 	'messengerAuth' : {

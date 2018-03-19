@@ -3,17 +3,17 @@ module.exports = function(app, mongoose, schedule, q, io, bot) {
 	var mf 		= require('./moreFunctions');
 	var async 	= require('async');
 
-	var j = schedule.scheduleJob('0 * * * *', function(){ //every full hour
+	var j = schedule.scheduleJob('0 * * * *', function(){
 		mf.sendReminder(bot);
 	});
 
 	
 	setInterval(function() {
 		var datetimeFrom = new Date().toISOString();
-		datetimeFrom = Date.parse(datetimeFrom) - (1*60*60*1000);//1h
+		datetimeFrom = Date.parse(datetimeFrom) - (1*60*60*1000);
 		datetimeFrom = new Date(datetimeFrom).toISOString();
 		var datetimeTo = new Date().toISOString();
-		datetimeTo = Date.parse(datetimeTo) - (1*60*60*1000+2*60*1000);//1h+2min
+		datetimeTo = Date.parse(datetimeTo) - (1*60*60*1000+2*60*1000);
 		datetimeTo = new Date(datetimeTo).toISOString();
 		Log.find({$and: [
 			{active:true}, 

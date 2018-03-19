@@ -218,7 +218,6 @@ module.exports = {
 									}
 									newLog.save(function(err, log) {
 										mf.changeChance(user._id, 1);
-										//push to queue
 										 
 										if(automatic) {
 											push2q(q, log._id, user._id, newLog.game, newLog.platform, newLog.region, newLog.modeName, newLog.modePlayers, false, []);

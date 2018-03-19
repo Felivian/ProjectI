@@ -27,7 +27,6 @@ var push2q          = require('./app/push2q');
 
 
 
-// configuration ===============================================================
 mongoose.connection.openUri(configDB.url, {});
 
 require('./config/passport')(passport);
@@ -74,23 +73,13 @@ q = [];
 
 
 require('./tests/testsRouter.js')(app, mongoose, q);
-
-// socket.io ======================================================================
 require('./app/socketio.js')(app, io, mongoose);
-
-// routes ======================================================================
-require('./app/routes.js')(app, passport, session, mongoose, q, io); 
-
-// BootBot ======================================================================
+require('./app/routes.js')(app, passport, session, mongoose, q, io);
 require('./app/bot.js')(app, bot, mongoose, io);
-
-// Init Queues ====================================================================
 require('./config/qConfig')(async, q, io, bot);
-
-// schedules ======================================================================
 require('./app/schedules.js')(app, mongoose, schedule, q, io, bot);
 
-// launch ======================================================================
+
 bot.start();
 server.listen(port);
 console.log('The magic happens on port ' + port);

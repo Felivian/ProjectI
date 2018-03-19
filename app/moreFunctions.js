@@ -16,7 +16,7 @@ module.exports = {
 		var hour = d.getHours();
 
 		var datetime = new Date().toISOString();
-		datetime = Date.parse(datetime) - (8*24*60*60*1000);//8days
+		datetime = Date.parse(datetime) - (8*24*60*60*1000);
 		datetime = new Date(datetime).toISOString();
 		User.find({lastActive: {$lte: new Date(datetime)}, [`active.${dayName}`]: {$elemMatch: {hour: hour, chance: {$gte: 5}  } } }, function(err, user) {
 			async.each(user, function(user_i, callback) {

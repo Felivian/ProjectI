@@ -10,7 +10,7 @@ module.exports =  {
       console.log('here');
       if (!actualLog) { callback(); } else {
         var datetime = new Date().toISOString();
-        datetime = Date.parse(datetime) - (1*60*60*1000);//1h
+        datetime = Date.parse(datetime) - (1*60*60*1000);
         datetime = new Date(datetime).toISOString();
         Log.aggregate([ 
           { $match: 

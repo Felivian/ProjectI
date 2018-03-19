@@ -1,14 +1,10 @@
 var Queue 		= require('../app/models/queue');
 var insideQ 	= require('../app/insideQ');
-
-
-var Log 		= require('../app/models/log');//
-var Game 		= require('../app/models/game');//
+var Log 		= require('../app/models/log');
+var Game 		= require('../app/models/game');
 var push2q      = require('../app/push2q');
 var mf      	= require('../app/moreFunctions');
 module.exports = function(async,q, io, bot) {
-
-
 
 	async.waterfall([
 		insertQueues,
@@ -96,7 +92,7 @@ module.exports = function(async,q, io, bot) {
 	      	async.each(log, function(thisLog, callback1) {
 	      		
 	      		var datetime = new Date().toISOString();
-		        datetime = Date.parse(datetime) - (1*60*60*1000);//1h
+		        datetime = Date.parse(datetime) - (1*60*60*1000);
 		        var date2 = Date.parse(thisLog.start)
 		        if (date2 > datetime) {
 		        	push2q(q, thisLog._id, thisLog.user_id, thisLog.game, thisLog.platform, thisLog.region, thisLog.modeName, thisLog.modePlayers, true, []);

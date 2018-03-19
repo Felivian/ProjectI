@@ -4,7 +4,6 @@ module.exports = function(app, io, mongoose) {
 	
 	io.on('connection', function (socket) {
 		
-		//getting sid from cookies
 		var sid = cookieParser.JSONCookies(socket.handshake.headers.cookie);
 		sid = decodeURIComponent(sid);
 		var str = sid.split(";");

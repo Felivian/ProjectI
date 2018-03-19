@@ -4,12 +4,12 @@ var cookieParser    = require('cookie-parser');
 var request         = require('request');
 var configAuth      = require('../config/auth.js');
 var Game            = require('./models/game');
-var Queue           = require('./models/queue');//
-var Log             = require('./models/log');//
-var User            = require('./models/user');//
+var Queue           = require('./models/queue');
+var Log             = require('./models/log');
+var User            = require('./models/user');
 var _               = require('underscore');
 var push2q          = require('./push2q');
-var mf              = require('./moreFunctions');//
+var mf              = require('./moreFunctions');
 var fetch 			= require('node-fetch');
 
 	
@@ -84,7 +84,6 @@ var fetch 			= require('node-fetch');
 
 
 	app.get('/profile', isLoggedIn, function(req, res) {
-		//messenger login redirect
 		if (req.session.redirect_uri) { 
 			var r_uri = req.session.redirect_uri;
 			var account_linking_token = req.session.account_linking_token;
@@ -138,9 +137,7 @@ var fetch 			= require('node-fetch');
 
 
 
-	// =====================================
-	// LOCAL ===============================
-	// =====================================
+
 	app.post('/signup', passport.authenticate('local-signup', {
 		successRedirect : '/profile', 
 		failureRedirect : '/signup', 
@@ -153,49 +150,28 @@ var fetch 			= require('node-fetch');
 		failureFlash : true 
 	}));
 
-
-	// =====================================
-	// EXTERNAL ============================
-	// =====================================
-
-	// send to facebook to do the authentication
 	app.get('/auth/facebook', passport.authenticate('facebook'));
 
-	// handle the callback after facebook has authenticated the user
 	app.get('/auth/facebook/callback',
 		passport.authenticate('facebook', {
 			successRedirect : '/profile',
 			failureRedirect : '/'
 		}));
 
-	
-	// =============================================================================
-	// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
-	// =============================================================================
-	// locally --------------------------------
 	app.post('/connect/local', passport.authenticate('local-signup', {
 		successRedirect : '/settings',
 		failureRedirect : '/settings',
 		failureFlash : true
 	}));
 
-	// facebook -------------------------------
-
-	// send to facebook to do the authentication
 	app.get('/connect/facebook', isLoggedIn, passport.authorize('facebook'));
 
-	// handle the callback after facebook has authorized the user
 	app.get('/connect/facebook/callback',
 		passport.authorize('facebook', {
 			successRedirect : '/settings',
 			failureRedirect : '/settings'
 		}));
 
-
-	// =============================================================================
-	// UNLINK ACCOUNTS =============================================================
-	// =============================================================================
-	// local -----------------------------------
 	app.get('/unlink/local', isLoggedIn, function(req, res) {
 		var user            = req.user;
 		user.local.email    = undefined;
@@ -205,7 +181,6 @@ var fetch 			= require('node-fetch');
 		});
 	});
 
-	// facebook -------------------------------
 	app.get('/unlink/facebook', isLoggedIn, function(req, res) {
 		var user            = req.user;
 		user.facebook.token = undefined;
@@ -214,9 +189,6 @@ var fetch 			= require('node-fetch');
 		});
 	});
 
-	// =====================================
-	// ajax data ===========================
-	// =====================================
 
 	app.get('/game/:gameName', function (req, res) {
 		Game.findOne({name: req.params.gameName}, function(err, game) {
@@ -225,7 +197,6 @@ var fetch 			= require('node-fetch');
 	});
 
 
-	//return modePlayers for certain mode
 	app.get('/queue/:gameName/:modeName', function (req, res) {
 		Queue.aggregate([
 			{ $match: { game: req.params.gameName, modeName: req.params.modeName} },
@@ -282,7 +253,7 @@ var fetch 			= require('node-fetch');
 		if (req.isAuthenticated()) {
 			JSON.stringify(req.body.id);
 			Log.findOne({userId: req.session.passport.user, active:true}, function(err, otherLog) {
-				if(!otherLog) { //testy nie beda dzialac
+				if(!otherLog) {
 					Log.find({_id: {$in: req.body.id}, active:true}, function(err, log) {
 						if (log.length != req.body.id.length) {
 							res.sendStatus(404);

@@ -1,4 +1,3 @@
-//start =[ { _id: 4, count: 8 }, { _id: 1, count: 4 } ];
 var _    = require('underscore');
 
 module.exports =  {

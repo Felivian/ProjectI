@@ -121,14 +121,13 @@ $(document).ready(function() {
 		type: 'GET',
 		url: '/game/'+gameName,
 		success:  function(json) { 
-			//modeName
+
 			$('select.modeName').empty();
 			$('select.modeName').append( '<option value="" disabled selected hidden>Mode name</option>');
 			for (var i = 0; i < json.mode.length; i++) {
 					$('select.modeName').append( '<option value='+json.mode[i].modeName+'>'+json.mode[i].modeName+'</option>');
 			}
-			//modeName
-			//modePlayers
+
 			$('select.modePlayers').empty();
 			$('select.modePlayers').append( '<option value="" disabled selected hidden>Mode players</option>');
 			var players = [];
@@ -141,8 +140,7 @@ $(document).ready(function() {
 			for (var i = 0; i < players.length; i++) {
 				$('select.modePlayers').append( '<option value='+players[i]+'>'+players[i]+'</option>');
 			}
-			//modePlayers
-			//yourGroup
+
 			$('select.yourGroup').empty();
 			$('select.yourGroup').append( '<option value="" disabled selected hidden>Your group size</option>');
 			players = [];
@@ -152,28 +150,24 @@ $(document).ready(function() {
 			for (var i = players.sort(sortNumber).reverse()[0]-1; i >0 ; i--) {
 				$('select.yourGroup').append( '<option value='+i+'>'+i+'</option>');
 			}
-			//yourGroup
-			//rank
+
 			$('select.rank').empty();
 			$('select.rank').append( '<option value="" disabled selected hidden>Rank</option>');
 			for (var i = 0; i < json.rank.length; i++) {
 				$('select.rank').append( '<option value='+json.rank[i].replace(/\s/g, '')+'>'+json.rank[i]+'</option>');
 			}
-			//rank
-			//platform
+
 			$('select.platform').empty();
 			$('select.platform').append( '<option value="" disabled selected hidden>Platform</option>');
 			for (var i = 0; i < json.platform.length; i++) {
 				$('select.platform').append( '<option value='+json.platform[i]+'>'+json.platform[i]+'</option>');
 			}
-			//platform
-			//region
+
 			$('select.region').empty();
 			$('select.region').append( '<option value="" disabled selected hidden>Region</option>');
 			for (var i = 0; i < json.region.length; i++) {
 				$('select.region').append( '<option value='+json.region[i]+'>'+json.region[i]+'</option>');
 			}  
-			//region 
 			if (sessionStorage.getItem('init') && sessionStorage.getItem('modeName') != null) $('select.modeName').val(sessionStorage.getItem('modeName')).change();
 			if (sessionStorage.getItem('init') && sessionStorage.getItem('rank') != null) $('select.rank').val(sessionStorage.getItem('rank')).change();
 			if (sessionStorage.getItem('init') && sessionStorage.getItem('platform') != null) $('select.platform').val(sessionStorage.getItem('platform')).change();
@@ -404,6 +398,7 @@ function generateUserAds(init) {
 	var hidden = 0;
 	if(!init) hidden = $('div.user-ad-outer.hidden').not('div.user-ad-outer.grayscale').length;
 	var limit = 24 - ((offset-hidden) % 24);
+	offest = offset - hidden;
 
 	if(qdPlayers) qdPlayers = parseInt(qdPlayers);
 	if(modePlayers) data.modePlayers = parseInt(modePlayers) ;

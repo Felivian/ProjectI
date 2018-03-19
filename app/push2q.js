@@ -1,6 +1,4 @@
 var Queue           = require('./models/queue');
-//atf - after the failure
-//arr only in manual
 module.exports = function(q, log_id, userId, game, platform, region, modeName, modePlayers, atf, logIdArr) {
 	var json = {
 		game          : game,
